@@ -1,8 +1,8 @@
-# client
+# server
 
 #### 介绍
 
-项目的前端部分，基于 vite4、react18、ts 实现，并作出了一些前端工程化配置。
+项目的后端部分，基于 express、express-ws、MySQL 实现。
 
 #### 软件架构
 
