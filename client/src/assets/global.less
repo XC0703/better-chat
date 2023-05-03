@@ -1,0 +1,100 @@
+/* 去除a标签文本下划线 */
+a {
+  text-decoration: none;
+}
+
+/* 去除input、textarea等文本输入框的默认样式 */
+input,
+textarea {
+  border: none;
+  outline: none;
+}
+
+/* 设置所有元素的box-sizing属性为border-box */
+* {
+  box-sizing: border-box;
+}
+
+/* 将body、html元素的高度设置为100% */
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* 清空ul、ol元素的默认样式 */
+ul,
+ol {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+/* 清空h1~h6标签的默认样式 */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  padding: 0;
+  font-weight: normal;
+}
+
+/* 将图片设置为响应式 */
+img {
+  width: 100%;
+  height: auto;
+}
+
+/* 取消输入框placeholder出现时边框的问题 */
+input::-webkit-input-placeholder,
+textarea::-webkit-input-placeholder {
+  color: #999;
+}
+
+input:-moz-placeholder,
+textarea:-moz-placeholder {
+  color: #999;
+}
+
+input::-moz-placeholder,
+textarea::-moz-placeholder {
+  color: #999;
+}
+
+input:-ms-input-placeholder,
+textarea:-ms-input-placeholder {
+  color: #999;
+}
+
+/* 去除按钮的默认边框 */
+button {
+  border: none;
+  outline: none;
+}
+
+/* 设置所有的文本选择状态背景为透明 */
+::-moz-selection {
+  background-color: transparent;
+  color: #fff;
+}
+::selection {
+  background-color: transparent;
+  color: #fff;
+}
+
+/* 设置全局字体样式 */
+body {
+  font-size: 14px;
+  color: #333;
+  font-family: 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+}
+
+/* 设置全局背景颜色 */
+body {
+  background-color: #fff;
+}

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>better-chat</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <!-- 屏幕适配 -->
+    <script type="text/javascript">
+        let docEl = document.documentElement,
+        //当设备的⽅向变化（设备横向持或纵向持）此事件被触发。绑定此事件时，
+        //注意现在当浏览器不⽀持orientationChange事件的时候我们绑定了resize 事件。
+        //总来的来就是监听当然窗⼝的变化，⼀旦有变化就需要重新设置根字体的值
+        resizeEvt = 'orientationchange' in window ? 'orientationchange' : 'resize',
+        recalc = function() {
+            //设置根字体⼤⼩
+            docEl.style.fontSize = (docEl.clientWidth / 19.2) + 'px';
+        };
+        //绑定浏览器缩放与加载时间
+        window.addEventListener(resizeEvt, recalc, false);
+        document.addEventListener('DOMContentLoaded', recalc, false);
+    </script>
+  </body>
+</html>

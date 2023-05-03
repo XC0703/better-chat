@@ -1,0 +1,95 @@
+.bgContainer{
+  background: url(https://static.pexels.com/photos/373934/pexels-photo-373934.jpeg) no-repeat center center fixed;
+  background-size: cover;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  form{
+    background-color: rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    z-index: 10;
+    width:4.5rem;
+    position: absolute;
+    top: 25%;
+    left:50%;
+    margin-left: -2.25rem;
+    transform: translateY(-50%);
+    backdrop-filter: blur(0.05rem);
+    .logintext{
+      margin-bottom: 0.2rem;
+      line-height: 0.5rem;
+      text-align: center;
+      font-size: 0.3rem;
+      font-weight: bolder;
+      color: #fff;
+      text-shadow: 0.02rem 0.02rem 0.04rem #000000;
+    }
+    .loginoptions{
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap:0.2rem;
+      input{
+        height: 0.3rem;
+        width: 80%;
+        padding:0.04rem 0.1rem;
+        border-radius: 0.02rem;
+        font-size: 0.14rem;
+        &:focus{
+            border:0.01rem solid #28a770;
+        }
+      }
+      .login_tools{
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        color:#fff;
+        .remenberTool{
+          flex:1;
+          text-align: center;
+          cursor: pointer;
+          .ant-checkbox-group-item {
+            color: #3C5378;
+          }
+          span{
+            color: #fff;
+          }
+        }
+        .forgetpasTool{
+          flex:1;
+          text-align: center;
+          cursor: pointer;
+        }
+      }
+      .login_button{
+        line-height: .3rem;
+        background: #17b98d;
+        box-shadow: 0 .04rem .08rem 0 rgba(27, 198, 161, 0.32);
+        border-radius: .04rem;
+        border-radius: .04rem;
+        color: #fff;
+        font-size: .16rem;
+        text-align: center;
+        letter-spacing:.4rem;
+        text-indent: .4rem;
+        cursor: pointer;
+        transition: all .3s ease-in-out;
+        &:hover{
+          background: #28a770;
+        }
+      }
+      .login_link{
+        text-align: center;
+        cursor: pointer;
+        margin-bottom: 0.1rem;
+        a{
+          color: #e3e2e2;
+          font-size: .14rem;
+        }
+      }
+    }
+  }
+}
