@@ -1,5 +1,5 @@
 .bgContainer{
-  background:  url(https://static.pexels.com/photos/373934/pexels-photo-373934.jpeg) no-repeat center center fixed;
+  background: no-repeat center center fixed;
   background-size: cover;
   height: 100%;
   width: 100%;
@@ -16,7 +16,7 @@
     margin-left: -2.25rem;
     transform: translateY(-50%);
     backdrop-filter: blur(0.05rem);
-    .logintext{
+    .registertext{
       margin-bottom: 0.2rem;
       line-height: 0.5rem;
       text-align: center;
@@ -25,7 +25,7 @@
       color: #fff;
       text-shadow: 0.02rem 0.02rem 0.04rem #000000;
     }
-    .loginoptions{
+    .registeroptions{
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -41,24 +41,30 @@
             border:0.01rem solid #28a770;
         }
       }
-      .login_button{
-        line-height: .3rem;
+      input:hover{
+        border:0.01rem solid #28a770;
+      }
+      .register_button{
         background: #17b98d;
-        box-shadow: 0 .04rem .08rem 0 rgba(27, 198, 161, 0.32);
+        box-shadow: 0 .04rem .84rem 0 rgba(27, 198, 161, 0.32);
         border-radius: .04rem;
-        border-radius: .04rem;
-        color: #fff;
-        font-size: .16rem;
-        text-align: center;
-        letter-spacing:.4rem;
-        text-indent: .4rem;
-        cursor: pointer;
+        width:1.5rem;
+        height: .3rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        letter-spacing:.15rem;
+        text-indent: .15rem;
         transition: all .3s ease-in-out;
         &:hover{
           background: #28a770;
         }
+        span{
+          color: #fff;
+          font-size: .16rem;
+        }
       }
-      .login_link{
+      .register_link{
         text-align: center;
         cursor: pointer;
         margin-bottom: 0.1rem;

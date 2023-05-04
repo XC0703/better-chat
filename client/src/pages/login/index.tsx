@@ -1,15 +1,59 @@
 import { useEffect, useState } from 'react';
 import styles from './index.module.less';
-import { message, Checkbox } from 'antd';
-import { useNavigate, Link } from 'react-router-dom';
+import { message, Checkbox, Input, Button } from 'antd';
+import { Link } from 'react-router-dom';
+import { bgImage } from '@/assets/links/imagesLinks';
+import { handleLogin } from './api';
 
 const Login = () => {
   const [isRemember, setIsRemember] = useState(false);
-  const handleSubmit = () => {
-    console.log('登录！');
+  const [loading, setLoading] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [status1, setStatus1] = useState<'' | 'error' | 'warning' | undefined>();
+  const [status2, setStatus2] = useState<'' | 'error' | 'warning' | undefined>();
+  const handleUserNameChange = (e: { target: { value: string } }) => {
+    setUsername(e.target.value);
   };
-  const handleChange = () => {
-    console.log('change');
+  const handlePasswordChange = (e: { target: { value: string } }) => {
+    setPassword(e.target.value);
+  };
+  const handleSubmit = () => {
+    // 前端数据校验
+    if (!username) {
+      setStatus1('error');
+    }
+    if (!password) {
+      setStatus2('error');
+    }
+    if (!username || !password || !confirm) {
+      message.error('请输入用户名或密码！', 1.5);
+      setTimeout(() => {
+        setStatus1(undefined);
+        setStatus2(undefined);
+      }, 1500);
+      return;
+    }
+    setLoading(true);
+    // to do，调用登录接口
+    const param = {
+      username,
+      password,
+    };
+    handleLogin(param)
+      .then((res) => {
+        if (res.code === 200) {
+          message.success('登录成功！', 1.5);
+          setLoading(false);
+        } else {
+          message.error(res.message, 1.5);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        message.error('登录失败，请稍后再试！', 1.5);
+        setLoading(false);
+      });
   };
   // 记住密码
   const onChange = () => {
@@ -25,14 +69,28 @@ const Login = () => {
   };
   return (
     <>
-      <div className={styles.bgContainer}>
-        <form action="" onSubmit={handleSubmit}>
+      <div className={styles.bgContainer} style={{ backgroundImage: `url(${bgImage})` }}>
+        <form action="">
           <div className={styles.logintext}>
             <h2>Welcome</h2>
           </div>
           <div className={styles.loginoptions}>
-            <input type="text" placeholder="请输入用户名" name="username" onChange={handleChange} min="3" />
-            <input type="password" placeholder="请输入密码" name="password" onChange={handleChange} />
+            <Input
+              type="text"
+              placeholder="请输入用户名"
+              name="username"
+              onChange={handleUserNameChange}
+              maxLength={255}
+              status={status1}
+            />
+            <Input
+              type="password"
+              placeholder="请输入密码"
+              name="password"
+              onChange={handlePasswordChange}
+              maxLength={255}
+              status={status2}
+            />
             <div className={styles.login_tools}>
               <div className={styles.remenberTool}>
                 <Checkbox onChange={onChange}>记住密码</Checkbox>
@@ -41,9 +99,9 @@ const Login = () => {
                 忘记密码？
               </div>
             </div>
-            <button type="submit" className={styles.login_button}>
+            <Button type="primary" className={styles.login_button} onClick={handleSubmit} loading={loading}>
               登录
-            </button>
+            </Button>
             <span className={styles.login_link}>
               <Link to="/register">立即注册</Link>
             </span>
