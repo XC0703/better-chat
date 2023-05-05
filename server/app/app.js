@@ -46,4 +46,9 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.json({ limit: '100mb' })); //parse application/json
 app.use(bodyParser.urlencoded({ limit: '100mb', extended: true })); //parse application/json
 
+// 注册路由
+let indexRouter = require('./routes/auth')();
+
+app.use('/api/chat/v1/auth', cors, indexRouter);
+
 module.exports = app

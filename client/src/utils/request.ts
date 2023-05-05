@@ -11,7 +11,7 @@ interface ApiResponse<T> {
 
 export class Request {
   private instance: AxiosInstance;
-  private defaultConfig: AxiosRequestConfig = { baseURL: "/api", timeout: 6000 };
+  private defaultConfig: AxiosRequestConfig = { baseURL: "http://127.0.0.1:3000/api/chat/v1", timeout: 6000 };
 
   constructor(config: AxiosRequestConfig) {
     const mergedConfig = { ...this.defaultConfig, ...config }; // 使用浅拷贝

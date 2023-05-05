@@ -31,14 +31,34 @@ const db = mysql.createPool({
     multipleStatements: true,
     charset: 'utf8mb4'
 })
+//创建user表
+function initUserTable() {
+    let sql = `CREATE TABLE   IF NOT EXISTS  user (
+            id INT ( 11 ) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            username VARCHAR ( 255 ) NOT NULL UNIQUE,
+            password VARCHAR ( 255 ) NOT NULL,
+            avatar VARCHAR ( 255 ) NULL,
+            phone VARCHAR ( 50 ) NULL,
+            name VARCHAR ( 255 ) NULL,
+            salt VARCHAR ( 20 ) NOT NULL,
+            signature LONGTEXT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+    ENGINE = INNODB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci; 
+    `
+    db.query(sql, (error, results, fields) => {
+        if (error) return console.log(error);
+    });
+}
 // 3. 测试 mysql 模块能否正常工作
 db.query('select 1', (err, results) => {
     // mysql 模块工作期间报错了，就进入这个if判断语句，打印这个错误信息
     if (err) {
-        console.log("MySQL连接失败", err.message)
+        console.log("MySQL连接失败", err.message);
         process.exit(1);
     }
-    console.log("MySQL连接成功")
+    initUserTable();
+    console.log("MySQL连接成功");
 })
 // 4. 将连接好的数据库对象向外导出,供外界使用
-module.exports = db
+module.exports = db;

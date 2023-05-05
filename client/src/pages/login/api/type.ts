@@ -5,10 +5,14 @@ export interface LoginParams {
 }
 // 登录接口返回的data类型
 export interface LoginResponseData {
-  username: string;
-  avatar: string;
-  phone: string;
-  name: string;
-  signature: string;
-  created_at: string;
+  token: string;
+  info: {
+    id: number;
+    avatar: string;
+    username: string;
+    name: string;
+    phone: string;
+    created_at: string;
+    signature: string;
+  };
 }
