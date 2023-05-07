@@ -1,7 +1,7 @@
 import Request from '@/utils/request';
-import { RegisterParams, RegisterResponseData } from './type';
+import { IRegisterParams, IRegisterResponseData } from './type';
 
-export const handleRegister = async (data: RegisterParams) => {
-  const res = await Request.post<RegisterParams, RegisterResponseData>('/auth/register', data);
+export const handleRegister = async (data: IRegisterParams) => {
+  const res = await Request.post<IRegisterParams, IRegisterResponseData>('/auth/register', data);
   return res.data;
 }

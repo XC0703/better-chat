@@ -1,4 +1,4 @@
-export const localStorageKey = 'better-chat.';
+export const sessionStorageKey = 'better-chat.';
 
 interface ISessionStorage<T> {
   key: string;
@@ -11,7 +11,7 @@ export class Storage<T> implements ISessionStorage<T> {
   defaultValue: T;
 
   constructor(key: string, defaultValue: T) {
-    this.key = localStorageKey + key;
+    this.key = sessionStorageKey + key;
     this.defaultValue = defaultValue;
   }
 
@@ -36,11 +36,13 @@ export class Storage<T> implements ISessionStorage<T> {
 
 /** 管理token */
 export const tokenStorage = new Storage<string>('authToken', '');
+/** 管理用户信息 */
+export const userStorage = new Storage<string>('userInfo', '');
 
 /** 只清除当前项目所属的本地存储 */
 export const clearSessionStorage = () => {
   for (const key in sessionStorage) {
-    if (key.includes(localStorageKey)) {
+    if (key.includes(sessionStorageKey)) {
       sessionStorage.removeItem(key);
     }
   }

@@ -4,8 +4,9 @@ import { message, Checkbox, Input, Button } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import { bgImage } from '@/assets/links/imagesLinks';
 import { handleLogin } from './api';
-import { tokenStorage } from '@/common/storage';
+import { tokenStorage, userStorage } from '@/common/storage';
 import { encrypt, decrypt } from '@/utils/encryption';
+import MyModal from './modal';
 
 // 用户信息接口
 interface IUserInfo {
@@ -51,18 +52,21 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [status1, setStatus1] = useState<'' | 'error' | 'warning' | undefined>();
   const [status2, setStatus2] = useState<'' | 'error' | 'warning' | undefined>();
+  const [openmodal, setOpenmodal] = useState(false);
   const handleUserNameChange = (e: { target: { value: string } }) => {
     setUsername(e.target.value);
   };
   const handlePasswordChange = (e: { target: { value: string } }) => {
     setPassword(e.target.value);
   };
-  // 判断本地是否有用户信息，有则无需向后台发起请求，直接登录
+  // 判断本地是否有用户信息，有且是相同的用户名则无需向后台发起请求，直接登录
   // 无则向后台发起请求，同时判断是否勾选了记住密码，勾选了则将用户信息存储到本地
   const handleSubmit = () => {
     getUserInfo().then((res) => {
-      if (res) {
+      if (res && res.info.username === username) {
         tokenStorage.setItem(res.token);
+        userStorage.setItem(JSON.stringify(res.info));
+        message.success('登录成功！', 1.5);
         navigate('/');
         return;
       } else {
@@ -93,6 +97,7 @@ const Login = () => {
               message.success('登录成功！', 1.5);
               setLoading(false);
               tokenStorage.setItem(res.data.token);
+              userStorage.setItem(JSON.stringify(res.data.info));
               // 判断是否勾选了记住密码
               if (isRemember) {
                 remenberUser(res.data.info);
@@ -135,7 +140,7 @@ const Login = () => {
   }, []);
   // 忘记密码
   const handleForget = () => {
-    message.info('请联系系统开发者处理');
+    setOpenmodal(!openmodal);
   };
   return (
     <>
@@ -181,6 +186,10 @@ const Login = () => {
             </span>
           </div>
         </form>
+        {
+          // 忘记密码弹窗
+          openmodal && <MyModal openmodal={openmodal} handleForget={handleForget} />
+        }
       </div>
     </>
   );

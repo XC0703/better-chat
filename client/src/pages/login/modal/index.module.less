@@ -1,0 +1,38 @@
+.forgetContainer{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap:0.2rem;
+  input{
+    height: 0.3rem;
+    width: 80%;
+    padding:0.04rem 0.1rem;
+    border-radius: 0.02rem;
+    font-size: 0.14rem;
+    &:focus{
+        border:0.01rem solid #28a770;
+    }
+  }
+  input:hover{
+    border:0.01rem solid #28a770;
+  }
+}
+:global{
+  .ant-modal-content{
+    .ant-modal-footer{
+      .ant-btn-default:hover{
+        color: #28a770;
+        border-color: #28a770;
+      }
+      .ant-btn-primary{
+        background-color: #17b98d !important;
+        box-shadow: 0 0.02rem 0 rgba(108, 204, 99, 0.1);
+      }
+      .ant-btn-primary:hover{
+        background-color: #28a770 !important;
+        box-shadow: 0 0.02rem 0 rgba(108, 204, 99, 0.1);
+      }
+    }
+  }
+}

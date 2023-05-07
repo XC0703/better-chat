@@ -5,7 +5,7 @@ import type { AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig, Axi
 
 interface ApiResponse<T> {
   code: number;
-  message?: string; // 用一个更具体的字段来描述错误信息
+  message: string; // 用一个更具体的字段来描述错误信息
   data: T;
 }
 

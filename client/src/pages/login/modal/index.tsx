@@ -1,12 +1,16 @@
-import styles from './index.module.less';
-import { Link, useNavigate } from 'react-router-dom';
-import { bgImage } from '@/assets/links/imagesLinks';
-import { Input, Button, message } from 'antd';
 import { useState } from 'react';
-import { handleRegister } from './api';
+import { Input, message, Modal } from 'antd';
+import styles from './index.module.less';
+import { handleChange } from './api';
 
-const Register = () => {
-  const navigate = useNavigate();
+interface IMyModal {
+  openmodal: boolean;
+  handleForget: () => void;
+}
+const MyModal = (props: IMyModal) => {
+  const { openmodal, handleForget } = props;
+  const [open, setOpen] = useState(openmodal);
+
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState('');
   const [phone, setPhone] = useState('');
@@ -84,73 +88,76 @@ const Register = () => {
       confirmPassword: confirm,
       phone,
     };
-    handleRegister(param)
+    handleChange(param)
       .then((res) => {
         if (res.code === 200) {
-          message.success('注册成功！', 1.5);
+          message.success('修改密码成功！', 1.5);
           setLoading(false);
-          navigate('/login');
+          handleForget();
         } else {
           message.error(res.message, 1.5);
           setLoading(false);
         }
       })
       .catch(() => {
-        message.error('注册失败，请稍后再试！', 1.5);
+        message.error('修改密码失败，请稍后再试！', 1.5);
         setLoading(false);
       });
   };
+
+  const handleCancel = () => {
+    setOpen(false);
+    handleForget();
+  };
+
   return (
     <>
-      <div className={styles.bgContainer} style={{ backgroundImage: `url(${bgImage})` }}>
-        <form action="">
-          <div className={styles.registertext}>
-            <h2>Welcome</h2>
-          </div>
-          <div className={styles.registeroptions}>
-            <Input
-              type="text"
-              placeholder="请输入用户名"
-              name="username"
-              onChange={handleUserNameChange}
-              maxLength={255}
-              status={status1}
-            ></Input>
-            <Input
-              type="phone"
-              placeholder="请输入手机号"
-              name="phone"
-              onChange={handlePhoneChange}
-              maxLength={50}
-              status={status2}
-            ></Input>
-            <Input
-              type="password"
-              placeholder="请输入密码"
-              name="password"
-              onChange={handlePasswordChange}
-              maxLength={255}
-              status={status3}
-            ></Input>
-            <Input
-              type="password"
-              placeholder="确认密码"
-              name="password"
-              onChange={handleConfirmChange}
-              maxLength={255}
-              status={status4}
-            ></Input>
-            <Button type="primary" className={styles.register_button} onClick={handleSubmit} loading={loading}>
-              注册
-            </Button>
-            <span className={styles.register_link}>
-              <Link to="/login">已有账号，返回登录</Link>
-            </span>
-          </div>
-        </form>
-      </div>
+      <Modal
+        title="更改密码"
+        open={open}
+        onOk={handleSubmit}
+        confirmLoading={loading}
+        onCancel={handleCancel}
+        okText="确认"
+        cancelText="取消"
+      >
+        <div className={styles.forgetContainer}>
+          <Input
+            type="text"
+            placeholder="请输入用户名"
+            name="username"
+            onChange={handleUserNameChange}
+            maxLength={255}
+            status={status1}
+          ></Input>
+          <Input
+            type="phone"
+            placeholder="请输入绑定的手机号"
+            name="phone"
+            onChange={handlePhoneChange}
+            maxLength={50}
+            status={status2}
+          ></Input>
+          <Input
+            type="password"
+            placeholder="请输入新的密码"
+            name="password"
+            onChange={handlePasswordChange}
+            maxLength={255}
+            status={status3}
+          ></Input>
+          <Input
+            type="password"
+            placeholder="确认新的密码"
+            name="password"
+            onChange={handleConfirmChange}
+            maxLength={255}
+            status={status4}
+          ></Input>
+        </div>
+      </Modal>
     </>
   );
 };
 
-export default Register;
+export default MyModal;

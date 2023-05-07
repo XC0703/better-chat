@@ -1,10 +1,10 @@
 // 登录接口参数类型
-export interface LoginParams {
+export interface ILoginParams {
   username: string;
   password: string;
 }
 // 登录接口返回的data类型
-export interface LoginResponseData {
+export interface ILoginResponseData {
   token: string;
   info: {
     id: number;
