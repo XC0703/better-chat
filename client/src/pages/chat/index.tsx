@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { userStorage, clearSessionStorage } from '@/common/storage';
 import { handleLogout } from './api';
 import { IUserInfo } from './api/type';
+import Container from '../container';
+import styles from './index.module.less';
 const Chat = () => {
   const navigate = useNavigate();
   const confirmLogout = () => {
@@ -22,9 +24,12 @@ const Chat = () => {
   };
   return (
     <>
-      <Button type="primary" onClick={confirmLogout}>
-        {JSON.parse(userStorage.getItem()).username}退出登录
-      </Button>
+      <div className={styles.bgContainer}>
+        <Button type="primary" onClick={confirmLogout}>
+          {JSON.parse(userStorage.getItem()).username}退出登录
+        </Button>
+        <Container />
+      </div>
     </>
   );
 };
