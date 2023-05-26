@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { handleRegister } from './api';
 
 const Register = () => {
+  const generateAvatarAPI = 'https://ui-avatars.com/api/?name=';
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState('');
@@ -83,6 +84,7 @@ const Register = () => {
       password,
       confirmPassword: confirm,
       phone,
+      avatar: `${generateAvatarAPI}${username}`,
     };
     handleRegister(param)
       .then((res) => {

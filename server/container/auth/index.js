@@ -95,7 +95,7 @@ async function Logout(req, res) {
  * 5.生成jwt,把token返回给前端要前端进行保存 
  */
 async function Register(req, res) {
-    const { username, password, phone } = req.body
+    const { username, password, phone,avatar } = req.body
     if (!(username && password && phone)) {
         return RespError(res, RespParamErr)
     }
@@ -126,7 +126,7 @@ async function Register(req, res) {
     // 将M进行MD5哈希，得到哈希值
     let hash = crypto.createHash('md5').update(M).digest('hex');
     let user = {
-        avatar: "",
+        avatar,
         username: username,
         password: hash,
         name: username,

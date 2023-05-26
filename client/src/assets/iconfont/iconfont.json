@@ -1,0 +1,65 @@
+{
+  "id": "4087662",
+  "name": "better-chat",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "1163310",
+      "name": "信息",
+      "font_class": "message",
+      "unicode": "e609",
+      "unicode_decimal": 58889
+    },
+    {
+      "icon_id": "1305090",
+      "name": "文件",
+      "font_class": "wenjian",
+      "unicode": "e631",
+      "unicode_decimal": 58929
+    },
+    {
+      "icon_id": "3552293",
+      "name": "小程序",
+      "font_class": "xiaochengxu",
+      "unicode": "e619",
+      "unicode_decimal": 58905
+    },
+    {
+      "icon_id": "9640750",
+      "name": "更多",
+      "font_class": "gengduo",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
+      "icon_id": "11372682",
+      "name": "朋友圈",
+      "font_class": "pengyouquan",
+      "unicode": "e8b4",
+      "unicode_decimal": 59572
+    },
+    {
+      "icon_id": "15053378",
+      "name": "联系人",
+      "font_class": "24px",
+      "unicode": "e602",
+      "unicode_decimal": 58882
+    },
+    {
+      "icon_id": "19664615",
+      "name": "手机",
+      "font_class": "shouji",
+      "unicode": "e606",
+      "unicode_decimal": 58886
+    },
+    {
+      "icon_id": "28193242",
+      "name": "收藏",
+      "font_class": "shoucang",
+      "unicode": "e628",
+      "unicode_decimal": 58920
+    }
+  ]
+}
