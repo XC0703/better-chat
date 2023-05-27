@@ -3,11 +3,11 @@ import { Input, message, Modal } from 'antd';
 import styles from './index.module.less';
 import { handleChange } from './api';
 
-interface IMyModal {
+interface IChangePwdModal {
   openmodal: boolean;
   handleForget: () => void;
 }
-const MyModal = (props: IMyModal) => {
+const ChangePwdModal = (props: IChangePwdModal) => {
   const { openmodal, handleForget } = props;
   const [open, setOpen] = useState(openmodal);
 
@@ -160,4 +160,4 @@ const MyModal = (props: IMyModal) => {
   );
 };
 
-export default MyModal;
+export default ChangePwdModal;

@@ -6,7 +6,7 @@ import { bgImage } from '@/assets/links/imagesLinks';
 import { handleLogin } from './api';
 import { tokenStorage, userStorage } from '@/common/storage';
 import { encrypt, decrypt } from '@/utils/encryption';
-import MyModal from './modal';
+import ChangePwdModal from '@/components/ChangePwdModal';
 
 // 用户信息接口
 interface IUserInfo {
@@ -188,7 +188,7 @@ const Login = () => {
         </form>
         {
           // 忘记密码弹窗
-          openmodal && <MyModal openmodal={openmodal} handleForget={handleForget} />
+          openmodal && <ChangePwdModal openmodal={openmodal} handleForget={handleForget} />
         }
       </div>
     </>
