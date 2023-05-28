@@ -48,7 +48,7 @@ async function Login(req, res) {
         if (hash != payload.password) {
             return RespError(res, RespUserOrPassErr)
         }
-        const token = jwt.sign(payload, secretKey, {expiresIn: '2w' });
+        const token = jwt.sign(payload, secretKey);
         let data = {
             token: token,
             info: {

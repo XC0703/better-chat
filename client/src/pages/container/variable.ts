@@ -28,7 +28,7 @@ export const iconList = [
     text: '手机',
   },
   {
-    icon: 'icon-gengduo',
-    text: '更多',
+    icon: 'icon-tuichudenglu',
+    text: '退出登录',
   },
 ];

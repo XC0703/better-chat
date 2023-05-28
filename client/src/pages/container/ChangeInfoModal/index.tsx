@@ -1,26 +1,48 @@
 import { useEffect, useState } from 'react';
-import { userStorage } from '@/common/storage';
+import { clearSessionStorage, userStorage } from '@/common/storage';
 import { Form, Input, message, Modal } from 'antd';
 import styles from './index.module.less';
 import { handleChange } from './api';
+import { handleLogout } from '../api';
+import { useNavigate } from 'react-router-dom';
+import { IUserInfo } from '../api/type';
 
 interface IChangeInfoModal {
   openmodal: boolean;
   handleInfo: () => void;
 }
 const ChangeInfoModal = (props: IChangeInfoModal) => {
+  const navigate = useNavigate();
   const { username, name, avatar, phone, signature } = JSON.parse(userStorage.getItem() || '{}');
   const [infoChangeInstance] = Form.useForm<{ newName: string; newPhone: string; newSignature: string }>();
   const { openmodal, handleInfo } = props;
   const [open, setOpen] = useState(openmodal);
   const [newName, setNewName] = useState<string>(name);
-  const [newAvatar, setNewAvatar] = useState<string>(avatar);
+  const newAvatar = avatar;
+  // const [newAvatar, setNewAvatar] = useState<string>(avatar);
   const [newPhone, setNewPhone] = useState<string>(phone);
   const [newSignature, setNewSignature] = useState<string>(signature);
   const [loading, setLoading] = useState(false);
 
   const [status1, setStatus1] = useState<'' | 'error' | 'warning' | undefined>();
   const [status2, setStatus2] = useState<'' | 'error' | 'warning' | undefined>();
+
+  // 退出登录
+  const confirmLogout = () => {
+    handleLogout(JSON.parse(userStorage.getItem() || '{}') as IUserInfo)
+      .then((res) => {
+        if (res.code === 200) {
+          clearSessionStorage();
+          message.success('登录已过期，请重新登录', 1.5);
+          navigate('/login');
+        } else {
+          message.error('退出失败,请重试', 1.5);
+        }
+      })
+      .catch(() => {
+        message.error('退出失败,请重试', 1.5);
+      });
+  };
 
   const handleSubmit = () => {
     // 前端数据校验
@@ -65,6 +87,7 @@ const ChangeInfoModal = (props: IChangeInfoModal) => {
           setLoading(true);
           setOpen(false);
           handleInfo();
+          confirmLogout();
         } else {
           message.error('修改失败，请稍后再试！', 1.5);
           setLoading(true);

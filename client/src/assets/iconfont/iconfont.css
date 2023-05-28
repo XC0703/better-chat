@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 4087662 */
-  src: url('iconfont.woff2?t=1685029057081') format('woff2'),
-       url('iconfont.woff?t=1685029057081') format('woff'),
-       url('iconfont.ttf?t=1685029057081') format('truetype');
+  src: url('iconfont.woff2?t=1685286979803') format('woff2'),
+       url('iconfont.woff?t=1685286979803') format('woff'),
+       url('iconfont.ttf?t=1685286979803') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,10 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-tuichudenglu:before {
+  content: "\e613";
 }
 
 .icon-message:before {
@@ -23,10 +27,6 @@
 
 .icon-xiaochengxu:before {
   content: "\e619";
-}
-
-.icon-gengduo:before {
-  content: "\e600";
 }
 
 .icon-pengyouquan:before {

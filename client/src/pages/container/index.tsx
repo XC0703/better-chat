@@ -1,12 +1,16 @@
 import styles from './index.module.less';
-import { userStorage } from '@/common/storage';
+import { clearSessionStorage, userStorage } from '@/common/storage';
 import { iconList } from './variable';
-import { Tooltip, Modal, Button } from 'antd';
+import { Tooltip, Modal, Button, message } from 'antd';
 import { useState } from 'react';
 import ChangePwdModal from '@/components/ChangePwdModal';
 import ChangeInfoModal from './ChangeInfoModal';
+import { handleLogout } from './api';
+import { IUserInfo } from './api/type';
+import { useNavigate } from 'react-router-dom';
 
 const Container = () => {
+  const navigate = useNavigate();
   const { name, avatar, phone, signature } = JSON.parse(userStorage.getItem() || '{}');
   const [currentIcon, setCurrentIcon] = useState<string>('icon-message');
   const [visible, setVisible] = useState<boolean>(false);
@@ -20,6 +24,22 @@ const Container = () => {
   // 修改信息
   const handleInfo = () => {
     setInfoModal(!openInfoModal);
+  };
+  // 退出登录
+  const confirmLogout = () => {
+    handleLogout(JSON.parse(userStorage.getItem() || '{}') as IUserInfo)
+      .then((res) => {
+        if (res.code === 200) {
+          clearSessionStorage();
+          message.success('退出成功', 1.5);
+          navigate('/login');
+        } else {
+          message.error('退出失败,请重试', 1.5);
+        }
+      })
+      .catch(() => {
+        message.error('退出失败,请重试', 1.5);
+      });
   };
   return (
     <>
@@ -95,6 +115,9 @@ const Container = () => {
                     <li
                       className={`iconfont ${item.icon}`}
                       onClick={() => {
+                        if (item.text === '退出登录') {
+                          confirmLogout();
+                        }
                         setCurrentIcon(item.text);
                       }}
                       style={{ color: currentIcon === item.text ? '#07c160' : '#979797' }}
