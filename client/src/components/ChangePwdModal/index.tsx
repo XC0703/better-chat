@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { Input, message, Modal } from 'antd';
 import styles from './index.module.less';
-import { handleChange } from './api';
+import { handleChange, handleLogout } from './api';
+import { useNavigate } from 'react-router-dom';
+import { clearSessionStorage, userStorage } from '@/common/storage';
+import { IUserInfo } from './api/type';
 
 interface IChangePwdModal {
   openmodal: boolean;
@@ -10,6 +13,7 @@ interface IChangePwdModal {
 const ChangePwdModal = (props: IChangePwdModal) => {
   const { openmodal, handleForget } = props;
   const [open, setOpen] = useState(openmodal);
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState('');
@@ -32,6 +36,25 @@ const ChangePwdModal = (props: IChangePwdModal) => {
   const handlePhoneChange = (e: { target: { value: string } }) => {
     setPhone(e.target.value);
   };
+
+  // 退出登录
+  const confirmLogout = () => {
+    handleLogout(JSON.parse(userStorage.getItem() || '{}') as IUserInfo)
+      .then((res) => {
+        if (res.code === 200) {
+          clearSessionStorage();
+          message.success('登录已过期，请重新登录', 1.5);
+          navigate('/login');
+        } else {
+          message.error('退出失败,请重试', 1.5);
+        }
+      })
+      .catch(() => {
+        message.error('退出失败,请重试', 1.5);
+      });
+  };
+
+  // 修改密码
   const handleSubmit = () => {
     // 前端数据校验
     if (!username) {
@@ -67,7 +90,7 @@ const ChangePwdModal = (props: IChangePwdModal) => {
     const reg = /^1[3456789]\d{9}$/;
     if (!reg.test(phone)) {
       setStatus2('error');
-      message.error('手机号格式不正确！');
+      message.error('手机号格式不正确！', 1.5);
       setTimeout(() => {
         setStatus2(undefined);
       }, 1500);
@@ -75,7 +98,7 @@ const ChangePwdModal = (props: IChangePwdModal) => {
     }
     if (password !== confirm) {
       setStatus4('error');
-      message.error('两次密码不一致！');
+      message.error('两次密码不一致！', 1.5);
       setTimeout(() => {
         setStatus4(undefined);
       }, 1500);
@@ -94,6 +117,7 @@ const ChangePwdModal = (props: IChangePwdModal) => {
           message.success('修改密码成功！', 1.5);
           setLoading(false);
           handleForget();
+          confirmLogout();
         } else {
           message.error(res.message, 1.5);
           setLoading(false);

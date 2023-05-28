@@ -1,0 +1,135 @@
+import { useEffect, useState } from 'react';
+import { userStorage } from '@/common/storage';
+import { Form, Input, message, Modal } from 'antd';
+import styles from './index.module.less';
+import { handleChange } from './api';
+
+interface IChangeInfoModal {
+  openmodal: boolean;
+  handleInfo: () => void;
+}
+const ChangeInfoModal = (props: IChangeInfoModal) => {
+  const { username, name, avatar, phone, signature } = JSON.parse(userStorage.getItem() || '{}');
+  const [infoChangeInstance] = Form.useForm<{ newName: string; newPhone: string; newSignature: string }>();
+  const { openmodal, handleInfo } = props;
+  const [open, setOpen] = useState(openmodal);
+  const [newName, setNewName] = useState<string>(name);
+  const [newAvatar, setNewAvatar] = useState<string>(avatar);
+  const [newPhone, setNewPhone] = useState<string>(phone);
+  const [newSignature, setNewSignature] = useState<string>(signature);
+  const [loading, setLoading] = useState(false);
+
+  const [status1, setStatus1] = useState<'' | 'error' | 'warning' | undefined>();
+  const [status2, setStatus2] = useState<'' | 'error' | 'warning' | undefined>();
+
+  const handleSubmit = () => {
+    // 前端数据校验
+    if (!newName) {
+      setStatus1('error');
+      message.error('请输入用户昵称！', 1.5);
+      setTimeout(() => {
+        setStatus1(undefined);
+      }, 1500);
+      return;
+    }
+    if (!newPhone) {
+      setStatus2('error');
+      message.error('请输入手机号！', 1.5);
+      setTimeout(() => {
+        setStatus2(undefined);
+      }, 1500);
+      return;
+    }
+    // 验证手机号格式
+    const reg = /^1[3456789]\d{9}$/;
+    if (!reg.test(newPhone)) {
+      setStatus2('error');
+      message.error('手机号格式不正确！', 1.5);
+      setTimeout(() => {
+        setStatus2(undefined);
+      }, 1500);
+      return;
+    }
+    setLoading(true);
+    const params = {
+      username,
+      name: newName,
+      avatar: newAvatar,
+      phone: newPhone,
+      signature: newSignature,
+    };
+    handleChange(params)
+      .then((res) => {
+        if (res.code === 200) {
+          message.success('修改成功！', 1.5);
+          setLoading(true);
+          setOpen(false);
+          handleInfo();
+        } else {
+          message.error('修改失败，请稍后再试！', 1.5);
+          setLoading(true);
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        message.error('修改失败，请稍后再试！', 1.5);
+        setLoading(false);
+      });
+  };
+
+  const handleCancel = () => {
+    setOpen(false);
+    handleInfo();
+  };
+
+  // 表单数据回显
+  useEffect(() => {
+    infoChangeInstance?.setFieldsValue({
+      newName,
+      newPhone,
+      newSignature: newSignature && newSignature !== '' ? newSignature : '暂无个性签名',
+    });
+  }, []);
+
+  return (
+    <>
+      <Modal
+        open={open}
+        onOk={handleSubmit}
+        confirmLoading={loading}
+        onCancel={handleCancel}
+        okText="确认"
+        cancelText="取消"
+        wrapClassName={styles.infoChangeModal}
+      >
+        <div className={styles.infoModal}>
+          <div className={styles.infoContainer}>
+            <div className={styles.avatar}>
+              <img src={avatar} alt="" />
+            </div>
+            <div className={styles.info}>
+              <div className={styles.name}>{name}</div>
+              <div className={styles.phone}>手机号：{phone}</div>
+              <div className={styles.signature}>{signature === '' ? '暂无个性签名' : signature}</div>
+            </div>
+          </div>
+          <div className={styles.changeContainer}>
+            <Form form={infoChangeInstance}>
+              <Form.Item label="账户昵称" name="newName" rules={[{ required: true }]}>
+                <Input placeholder="请输入账户昵称" onChange={(e) => setNewName(e.target.value)} status={status1} />
+              </Form.Item>
+              <Form.Item label="手机号码" name="newPhone" rules={[{ required: true }]}>
+                <Input placeholder="请输入手机号码" onChange={(e) => setNewPhone(e.target.value)} status={status2} />
+              </Form.Item>
+              <Form.Item label="个性签名" name="newSignature">
+                <Input placeholder="请输入个性签名" onChange={(e) => setNewSignature(e.target.value)} />
+              </Form.Item>
+            </Form>
+          </div>
+        </div>
+      </Modal>
+    </>
+  );
+};
+
+export default ChangeInfoModal;

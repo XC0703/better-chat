@@ -62,7 +62,7 @@ export class Request {
   }
 
   private getToken(): string | null {
-    return sessionStorage.getItem("authToken");
+    return JSON.parse(sessionStorage.getItem("better-chat.authToken") || "null");
   }
 }
 

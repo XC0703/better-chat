@@ -1,19 +1,25 @@
 import styles from './index.module.less';
-import { userStorage, clearSessionStorage } from '@/common/storage';
+import { userStorage } from '@/common/storage';
 import { iconList } from './variable';
 import { Tooltip, Modal, Button } from 'antd';
 import { useState } from 'react';
 import ChangePwdModal from '@/components/ChangePwdModal';
+import ChangeInfoModal from './ChangeInfoModal';
 
 const Container = () => {
-  const { username, avatar, phone, signature } = JSON.parse(userStorage.getItem() || '{}');
+  const { name, avatar, phone, signature } = JSON.parse(userStorage.getItem() || '{}');
   const [currentIcon, setCurrentIcon] = useState<string>('icon-message');
   const [visible, setVisible] = useState<boolean>(false);
   const [openForgetModal, setForgetModal] = useState(false);
+  const [openInfoModal, setInfoModal] = useState(false);
 
   // 修改密码
   const handleForget = () => {
     setForgetModal(!openForgetModal);
+  };
+  // 修改信息
+  const handleInfo = () => {
+    setInfoModal(!openInfoModal);
   };
   return (
     <>
@@ -42,7 +48,7 @@ const Container = () => {
                     <img src={avatar} alt="" />
                   </div>
                   <div className={styles.info}>
-                    <div className={styles.name}>{username}</div>
+                    <div className={styles.name}>{name}</div>
                     <div className={styles.phone}>手机号：{phone}</div>
                     <div className={styles.signature}>{signature === '' ? '暂无个性签名' : signature}</div>
                   </div>
@@ -55,7 +61,13 @@ const Container = () => {
                   >
                     修改密码
                   </Button>
-                  <Button>修改信息</Button>
+                  <Button
+                    onClick={() => {
+                      handleInfo();
+                    }}
+                  >
+                    修改信息
+                  </Button>
                 </div>
               </div>
             </Modal>
@@ -102,6 +114,10 @@ const Container = () => {
       {
         // 修改密码弹窗
         openForgetModal && <ChangePwdModal openmodal={openForgetModal} handleForget={handleForget} />
+      }
+      {
+        // 修改信息弹窗
+        openInfoModal && <ChangeInfoModal openmodal={openInfoModal} handleInfo={handleInfo} />
       }
     </>
   );

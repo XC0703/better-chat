@@ -3,6 +3,7 @@ module.exports = {
     Logout,
     Register,
     ForgetPassword,
+    updateInfo
 };
 const jwt = require('jsonwebtoken');
 const secretKey = 'xWbiNA3FqnK77MnVCj5CAcfA-VlXj7xoQLd1QaAme6l_t0Yp1TdHbSw';
@@ -218,4 +219,28 @@ function getUserInfo(username, callback) {
             return callback(data)
         }
     })
+}
+/**
+ * 修改用户信息
+ */
+async function updateInfo(req, res) {
+    let fileName
+    if (req.file) {
+        fileName = req.file.filename;
+    }
+    const { username,avatar,name, phone, signature } = req.body
+    let info = {
+        avatar,name, phone, signature
+    }
+    if (fileName) {
+        info.avatar = `/uploads/avatar/${fileName}`
+    }
+    const sql = 'update user set ? where username=?'
+    let { err, results } = await Query(sql, [info, username])
+    // 执行 SQL 语句失败了
+    if (err) return RespError(res, RespServerErr)
+    if (results.affectedRows === 1) {
+        return RespSuccess(res)
+    }
+    return RespError(res, RespUpdateErr)
 }
