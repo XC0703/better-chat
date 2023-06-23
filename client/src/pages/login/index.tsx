@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
-import styles from './index.module.less';
-import { message, Checkbox, Input, Button } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
-import { bgImage } from '@/assets/links/imagesLinks';
-import { handleLogin } from './api';
+import { message, Checkbox, Input, Button } from 'antd';
+
 import { tokenStorage, userStorage } from '@/common/storage';
+import styles from './index.module.less';
+import { bgImage } from '@/assets/links/imagesLinks';
 import { encrypt, decrypt } from '@/utils/encryption';
+
 import ChangePwdModal from '@/components/ChangePwdModal';
+
+import { handleLogin } from './api';
 
 // 用户信息接口
 interface IUserInfo {

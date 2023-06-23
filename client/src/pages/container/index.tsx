@@ -1,13 +1,21 @@
-import styles from './index.module.less';
-import { clearSessionStorage, userStorage } from '@/common/storage';
-import { iconList } from './variable';
-import { Tooltip, Modal, Button, message } from 'antd';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Tooltip, Modal, Button, message, Input } from 'antd';
+import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
+
+import { clearSessionStorage, userStorage } from '@/common/storage';
+import styles from './index.module.less';
+import { iconList } from './variable';
+
 import ChangePwdModal from '@/components/ChangePwdModal';
 import ChangeInfoModal from './ChangeInfoModal';
+import AddFriendOrGroupModal from './AddFriendOrGroupModal';
+import CreateGroupModal from './CreateGroupModal';
+import ChatList from './ChatList';
+import AddressBook from './AddressBook';
+
 import { handleLogout } from './api';
 import { IUserInfo } from './api/type';
-import { useNavigate } from 'react-router-dom';
 
 const Container = () => {
   const navigate = useNavigate();
@@ -16,14 +24,24 @@ const Container = () => {
   const [visible, setVisible] = useState<boolean>(false);
   const [openForgetModal, setForgetModal] = useState(false);
   const [openInfoModal, setInfoModal] = useState(false);
+  const [openAddModal, setAddModal] = useState(false);
+  const [openCreateModal, setCreateModal] = useState(false);
 
-  // 修改密码
+  // 控制修改密码的弹窗显隐
   const handleForget = () => {
     setForgetModal(!openForgetModal);
   };
-  // 修改信息
+  // 控制修改信息的弹窗显隐
   const handleInfo = () => {
     setInfoModal(!openInfoModal);
+  };
+  // 控制添加好友/群聊的弹窗显隐
+  const handleAdd = () => {
+    setAddModal(!openAddModal);
+  };
+  // 控制创建群聊的弹窗显隐
+  const handleCreate = () => {
+    setCreateModal(!openCreateModal);
   };
   // 退出登录
   const confirmLogout = () => {
@@ -41,6 +59,12 @@ const Container = () => {
         message.error('退出失败,请重试', 1.5);
       });
   };
+  const addContent = (
+    <ul>
+      <li onClick={handleAdd}>加好友/加群</li>
+      <li onClick={handleCreate}>创建群聊</li>
+    </ul>
+  );
   return (
     <>
       <div className={styles.container}>
@@ -100,9 +124,13 @@ const Container = () => {
                     <li
                       className={`iconfont ${item.icon}`}
                       onClick={() => {
-                        setCurrentIcon(item.icon);
+                        if (item.text == '聊天' || item.text == '通讯录') {
+                          setCurrentIcon(item.icon);
+                        }
                       }}
-                      style={{ color: currentIcon === item.icon ? '#07c160' : '#979797' }}
+                      style={{
+                        color: currentIcon === item.icon ? '#07c160' : '#979797',
+                      }}
                     ></li>
                   </Tooltip>
                 );
@@ -116,11 +144,11 @@ const Container = () => {
                       className={`iconfont ${item.icon}`}
                       onClick={() => {
                         if (item.text === '退出登录') {
+                          setCurrentIcon(item.icon);
                           confirmLogout();
                         }
-                        setCurrentIcon(item.text);
                       }}
-                      style={{ color: currentIcon === item.text ? '#07c160' : '#979797' }}
+                      style={{ color: currentIcon === item.icon ? '#07c160' : '#979797' }}
                     ></li>
                   </Tooltip>
                 );
@@ -131,7 +159,19 @@ const Container = () => {
           <div className={styles.topicons}></div>
           <div className={styles.bottomicons}></div>
         </div>
-        <div className={styles.middleContainer}></div>
+        <div className={styles.middleContainer}>
+          <div className={styles.middleTop}>
+            <div className={styles.searchBox}>
+              <Input size="small" placeholder="搜索" prefix={<SearchOutlined />} />
+            </div>
+            <Tooltip placement="bottomLeft" title={addContent} arrow={false} overlayClassName="addContent">
+              <div className={styles.addBox}>
+                <PlusOutlined />
+              </div>
+            </Tooltip>
+          </div>
+          <div className={styles.middleBottom}>{currentIcon === 'icon-message' ? <ChatList /> : <AddressBook />}</div>
+        </div>
         <div className={styles.rightContainer}></div>
       </div>
       {
@@ -141,6 +181,14 @@ const Container = () => {
       {
         // 修改信息弹窗
         openInfoModal && <ChangeInfoModal openmodal={openInfoModal} handleInfo={handleInfo} />
+      }
+      {
+        // 添加好友或群聊弹窗
+        openAddModal && <AddFriendOrGroupModal openmodal={openAddModal} handleAdd={handleAdd} />
+      }
+      {
+        // 创建群聊弹窗
+        openCreateModal && <CreateGroupModal openmodal={openCreateModal} handleCreate={handleCreate} />
       }
     </>
   );

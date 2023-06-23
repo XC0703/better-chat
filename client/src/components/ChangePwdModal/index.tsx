@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Input, message, Modal } from 'antd';
-import styles from './index.module.less';
-import { handleChange, handleLogout } from './api';
 import { useNavigate } from 'react-router-dom';
+import { Input, message, Modal } from 'antd';
+
 import { clearSessionStorage, userStorage } from '@/common/storage';
+import styles from './index.module.less';
+
+import { handleChange, handleLogout } from './api';
 import { IUserInfo } from './api/type';
 
 interface IChangePwdModal {

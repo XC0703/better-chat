@@ -13,7 +13,6 @@ function authenticateToken(req, res, next) {
         // 如果没有 JWT，则返回 401 Unauthorized
         return RespError(res, RespTokenErr)
     }
-    console.log(token)
     // 验证 JWT
     jwt.verify(token, secretKey, (err, decoded) => {
         if (err) {

@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
-import { clearSessionStorage, userStorage } from '@/common/storage';
+import { useNavigate } from 'react-router-dom';
 import { Form, Input, message, Modal } from 'antd';
+
+import { clearSessionStorage, userStorage } from '@/common/storage';
 import styles from './index.module.less';
+
 import { handleChange } from './api';
 import { handleLogout } from '../api';
-import { useNavigate } from 'react-router-dom';
 import { IUserInfo } from '../api/type';
 
 interface IChangeInfoModal {
