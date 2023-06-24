@@ -135,28 +135,35 @@ async function Register(req, res) {
         signature: "",
         salt: salt
     }
-    const sqlStr = 'insert into user set ?'
-    let res2 = await Query(sqlStr, user)
-    err = res2.err
-    let result2 = res2.results
+    const sql3 = 'insert into user set ?'
+    let { err: err3, results: results3 } = await Query(sql3, user)
     // 执行 SQL 语句失败了
-    if (err) return RespError(res, RespServerErr)
+    if (err3) return RespError(res, RespServerErr)
     // 注册成功后将相关信息返回给前端
-    if (result2.affectedRows === 1) {
+    if (results3.affectedRows === 1) {
         getUserInfo(username, (info) => {
-            const payload = {
-                id: info.id,
-                avatar: info.avatar,
-                username: info.username,
-                name: info.name,
-                phone: info.phone,
+            let friend_group = {
+                user_id: info.id,
+                username: username,
+                name: "我的好友",
             }
-            const token = jwt.sign(payload, secretKey, { expiresIn: '30m' });
-            let data = {
-                token: token,
-                info: info
-            }
-            return RespData(res, data)
+            //创建一个新的默认分组("我的好友"")
+            let sql4 = 'insert into friend_group set ?'
+            db.query(sql4, friend_group, (err, results) => {
+                const payload = {
+                    id: info.id,
+                    avatar: info.avatar,
+                    username: info.username,
+                    name: info.name,
+                    phone: info.phone,
+                }
+                const token = jwt.sign(payload, secretKey);
+                let data = {
+                    token: token,
+                    info: info
+                }
+                return RespData(res, data)
+            })
         })
     }
 }

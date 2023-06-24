@@ -31,7 +31,7 @@ const db = mysql.createPool({
     multipleStatements: true,
     charset: 'utf8mb4'
 })
-//创建user表
+//创建用户user表
 function initUserTable() {
     let sql = `CREATE TABLE   IF NOT EXISTS  user (
             id INT ( 11 ) NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -50,6 +50,46 @@ function initUserTable() {
         if (error) return console.log(error);
     });
 }
+//创建好友firend表
+function initFirendTable() {
+    const sql = `CREATE TABLE   IF NOT EXISTS friend (
+        id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        user_id INT(11) NOT NULL,
+        username VARCHAR(50) NOT NULL,
+        avatar VARCHAR ( 255 ) NULL,
+        online_status ENUM('online', 'offline') DEFAULT 'offline',
+        remark VARCHAR(50),
+        group_id INT(11),
+        room  VARCHAR(255),
+        unread_msg_count INT(11) DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_group_id (group_id),
+        FOREIGN KEY (group_id) REFERENCES friend_group(id) ON DELETE SET NULL
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;      
+      `
+    db.query(sql, (error, results, fields) => {
+        if (error) return console.log(error);
+    });
+}
+//创建分组表
+function initGroupTable() {
+    const sql = `CREATE TABLE  IF NOT EXISTS friend_group (
+        id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        user_id INT(11) NOT NULL,
+        username VARCHAR ( 255 ) NOT NULL,
+        name VARCHAR(50) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_user_id (user_id),
+        FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+      `
+    db.query(sql, (error, results, fields) => {
+        if (error) return console.log(error);
+        initFirendTable();
+    });
+}
 // 3. 测试 mysql 模块能否正常工作
 db.query('select 1', (err, results) => {
     // mysql 模块工作期间报错了，就进入这个if判断语句，打印这个错误信息
@@ -58,6 +98,7 @@ db.query('select 1', (err, results) => {
         process.exit(1);
     }
     initUserTable();
+    initGroupTable();
     console.log("MySQL连接成功");
 })
 // 4. 将连接好的数据库对象向外导出,供外界使用

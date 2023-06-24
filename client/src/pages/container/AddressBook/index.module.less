@@ -1,7 +1,17 @@
-:global {
-  .addressBookTabs .ant-tabs-nav-list {
-    display: none;
-    justify-content: space-between !important;
-    width: 100%;
+.addressBookTabs{
+  :global{
+    .ant-tabs-nav-list{
+      width: 100%;
+      .ant-tabs-tab{
+        flex:1;
+        justify-content: center;
+      }
+    }
+    .ant-tabs-nav-list::before{
+      width:50%;
+    }
+    .ant-tabs-nav-list::after{
+      width:50%;
+    }
   }
 }

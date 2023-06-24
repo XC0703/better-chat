@@ -48,7 +48,9 @@ app.use(bodyParser.urlencoded({ limit: '100mb', extended: true })); //parse appl
 
 // 注册路由
 let indexRouter = require('./routes/auth')();
+let friendRouter = require('./routes/friend')();
 
 app.use('/api/chat/v1/auth', cors, indexRouter);
+app.use('/api/chat/v1/friend', cors, friendRouter);
 
 module.exports = app
