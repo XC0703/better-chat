@@ -1,5 +1,19 @@
 .addressBookTabs{
+  width:100%;
+  height: 100%;
   :global{
+    .ant-tabs{
+      width:100%;
+      height: 100%;
+      .ant-tabs-content{
+        width:100%;
+        height: 100%;
+        .ant-tabs-tabpane{
+          width:100%;
+          height: 100%;
+        }
+      }
+    }
     .ant-tabs-nav-list{
       width: 100%;
       .ant-tabs-tab{
@@ -28,5 +42,11 @@
         background-color: transparent;
       }
     }
+  }
+  .friendTree{
+    width:100%;
+    height: 100%;
+      overflow: auto;
+      overflow-Y: scroll;
   }
 }
