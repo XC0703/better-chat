@@ -1,31 +1,23 @@
+import { Tooltip, Button, message } from 'antd';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Tooltip, Modal, Button, message, Input } from 'antd';
-import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 
-import { clearSessionStorage, userStorage } from '@/common/storage';
-import styles from './index.module.less';
-import { iconList } from './variable';
-
+import { menuIconList } from '@/assets/icons';
 import ChangePwdModal from '@/components/ChangePwdModal';
-import ChangeInfoModal from './ChangeInfoModal';
-import AddFriendOrGroupModal from './AddFriendOrGroupModal';
-import CreateGroupModal from './CreateGroupModal';
-import ChatList from './ChatList';
-import AddressBook from './AddressBook';
+import ChangeInfoModal from '@/components/ChangeInfoModal';
+import { handleLogout, IUserInfo } from '@/utils/logout';
+import { clearSessionStorage, userStorage } from '@/utils/storage';
 
-import { handleLogout } from './api';
-import { IUserInfo } from './api/type';
+import AddressBook from './AddressBook';
+import ChatList from './ChatList';
+import styles from './index.module.less';
 
 const Container = () => {
   const navigate = useNavigate();
   const { name, avatar, phone, signature } = JSON.parse(userStorage.getItem() || '{}');
   const [currentIcon, setCurrentIcon] = useState<string>('icon-message');
-  const [visible, setVisible] = useState<boolean>(false);
   const [openForgetModal, setForgetModal] = useState(false);
   const [openInfoModal, setInfoModal] = useState(false);
-  const [openAddModal, setAddModal] = useState(false);
-  const [openCreateModal, setCreateModal] = useState(false);
 
   // 控制修改密码的弹窗显隐
   const handleForget = () => {
@@ -34,14 +26,6 @@ const Container = () => {
   // 控制修改信息的弹窗显隐
   const handleInfo = () => {
     setInfoModal(!openInfoModal);
-  };
-  // 控制添加好友/群聊的弹窗显隐
-  const handleAdd = () => {
-    setAddModal(!openAddModal);
-  };
-  // 控制创建群聊的弹窗显隐
-  const handleCreate = () => {
-    setCreateModal(!openCreateModal);
   };
   // 退出登录
   const confirmLogout = () => {
@@ -59,66 +43,49 @@ const Container = () => {
         message.error('退出失败,请重试', 1.5);
       });
   };
-  const addContent = (
-    <ul>
-      <li onClick={handleAdd}>加好友/加群</li>
-      <li onClick={handleCreate}>创建群聊</li>
-    </ul>
+  // 点击头像用户信息弹窗
+  const infoContent = (
+    <div className={styles.infoContent}>
+      <div className={styles.infoContainer}>
+        <div className={styles.avatar}>
+          <img src={avatar} alt="" />
+        </div>
+        <div className={styles.info}>
+          <div className={styles.name}>{name}</div>
+          <div className={styles.phone}>手机号：{phone}</div>
+          <div className={styles.signature}>{signature === '' ? '暂无个性签名' : signature}</div>
+        </div>
+      </div>
+      <div className={styles.btnContainer}>
+        <Button
+          onClick={() => {
+            handleForget();
+          }}
+        >
+          修改密码
+        </Button>
+        <Button
+          onClick={() => {
+            handleInfo();
+          }}
+        >
+          修改信息
+        </Button>
+      </div>
+    </div>
   );
   return (
     <>
       <div className={styles.container}>
         <div className={styles.leftContainer}>
-          <div
-            className={styles.avatar}
-            onClick={() => {
-              setVisible(!visible);
-            }}
-          >
-            <img src={avatar} alt="" />
-          </div>
-          {visible && (
-            <Modal
-              open={visible}
-              onCancel={() => setVisible(!visible)}
-              closable={false}
-              mask={false}
-              footer={null}
-              className="infoModal"
-            >
-              <div className={styles.infoModal}>
-                <div className={styles.infoContainer}>
-                  <div className={styles.avatar}>
-                    <img src={avatar} alt="" />
-                  </div>
-                  <div className={styles.info}>
-                    <div className={styles.name}>{name}</div>
-                    <div className={styles.phone}>手机号：{phone}</div>
-                    <div className={styles.signature}>{signature === '' ? '暂无个性签名' : signature}</div>
-                  </div>
-                </div>
-                <div className={styles.btnContainer}>
-                  <Button
-                    onClick={() => {
-                      handleForget();
-                    }}
-                  >
-                    修改密码
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      handleInfo();
-                    }}
-                  >
-                    修改信息
-                  </Button>
-                </div>
-              </div>
-            </Modal>
-          )}
+          <Tooltip placement="bottomLeft" title={infoContent} arrow={false} open={true}>
+            <div className={styles.avatar}>
+              <img src={avatar} alt="" />
+            </div>
+          </Tooltip>
           <div className={styles.iconList}>
             <ul className={styles.topIcons}>
-              {iconList.slice(0, 5).map((item) => {
+              {menuIconList.slice(0, 5).map((item) => {
                 return (
                   <Tooltip key={item.text} placement="bottomLeft" title={item.text} arrow={false}>
                     <li
@@ -137,7 +104,7 @@ const Container = () => {
               })}
             </ul>
             <ul className={styles.bottomIcons}>
-              {iconList.slice(5, 8).map((item) => {
+              {menuIconList.slice(5, 8).map((item) => {
                 return (
                   <Tooltip key={item.text} placement="bottomLeft" title={item.text} arrow={false}>
                     <li
@@ -159,20 +126,7 @@ const Container = () => {
           <div className={styles.topicons}></div>
           <div className={styles.bottomicons}></div>
         </div>
-        <div className={styles.middleContainer}>
-          <div className={styles.middleTop}>
-            <div className={styles.searchBox}>
-              <Input size="small" placeholder="搜索" prefix={<SearchOutlined />} />
-            </div>
-            <Tooltip placement="bottomLeft" title={addContent} arrow={false} overlayClassName="addContent">
-              <div className={styles.addBox}>
-                <PlusOutlined />
-              </div>
-            </Tooltip>
-          </div>
-          <div className={styles.middleBottom}>{currentIcon === 'icon-message' ? <ChatList /> : <AddressBook />}</div>
-        </div>
-        <div className={styles.rightContainer}></div>
+        <div className={styles.rightContainer}>{currentIcon === 'icon-message' ? <ChatList /> : <AddressBook />}</div>
       </div>
       {
         // 修改密码弹窗
@@ -181,14 +135,6 @@ const Container = () => {
       {
         // 修改信息弹窗
         openInfoModal && <ChangeInfoModal openmodal={openInfoModal} handleInfo={handleInfo} />
-      }
-      {
-        // 添加好友或群聊弹窗
-        openAddModal && <AddFriendOrGroupModal openmodal={openAddModal} handleAdd={handleAdd} />
-      }
-      {
-        // 创建群聊弹窗
-        openCreateModal && <CreateGroupModal openmodal={openCreateModal} handleCreate={handleCreate} />
       }
     </>
   );

@@ -1,11 +1,11 @@
+import { Input, Button, message } from 'antd';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Input, Button, message } from 'antd';
 
-import styles from './index.module.less';
 import { bgImage } from '@/assets/links/imagesLinks';
 
 import { handleRegister } from './api';
+import styles from './index.module.less';
 
 const Register = () => {
   const generateAvatarAPI = 'https://ui-avatars.com/api/?name=';

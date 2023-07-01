@@ -1,15 +1,14 @@
+import { message, Checkbox, Input, Button } from 'antd';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { message, Checkbox, Input, Button } from 'antd';
 
-import { tokenStorage, userStorage } from '@/common/storage';
-import styles from './index.module.less';
 import { bgImage } from '@/assets/links/imagesLinks';
+import ChangePwdModal from '@/components/ChangePwdModal';
+import { tokenStorage, userStorage } from '@/utils/storage';
 import { encrypt, decrypt } from '@/utils/encryption';
 
-import ChangePwdModal from '@/components/ChangePwdModal';
-
 import { handleLogin } from './api';
+import styles from './index.module.less';
 
 // 用户信息接口
 interface IUserInfo {

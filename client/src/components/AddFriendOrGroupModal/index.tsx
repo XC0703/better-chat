@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { Button, Input, message, Modal, Tabs } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
 
-import { userStorage } from '@/common/storage';
-import styles from './index.module.less';
+import { SearchOutlined } from '@ant-design/icons';
+import { userStorage } from '@/utils/storage';
 
 import { getFriendList, getGroupList, addFriend, addGroup } from './api';
 import { IFriend, IGroup } from './api/type';
+import styles from './index.module.less';
+
+const { TabPane } = Tabs;
 
 interface IChangeInfoModal {
   openmodal: boolean;
@@ -88,7 +90,7 @@ const AddFriendOrGroupModal = (props: IChangeInfoModal) => {
     <>
       <Modal open={open} footer={null} onCancel={handleCancel}>
         <Tabs defaultActiveKey="1">
-          <Tabs.TabPane tab="加好友" key="1">
+          <TabPane tab="加好友" key="1">
             <div className={styles.searchBox}>
               <Input
                 size="small"
@@ -133,8 +135,8 @@ const AddFriendOrGroupModal = (props: IChangeInfoModal) => {
                 ))}
               </div>
             )}
-          </Tabs.TabPane>
-          <Tabs.TabPane tab="加群" key="2">
+          </TabPane>
+          <TabPane tab="加群" key="2">
             <div className={styles.searchBox}>
               <Input
                 size="small"
@@ -180,7 +182,7 @@ const AddFriendOrGroupModal = (props: IChangeInfoModal) => {
                 </>
               )}
             </div>
-          </Tabs.TabPane>
+          </TabPane>
         </Tabs>
       </Modal>
     </>

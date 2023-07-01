@@ -1,11 +1,11 @@
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+
+import { withPrivateRoute } from '@/components/PrivateRoute';
 import Register from '@/pages/register';
 import Login from '@/pages/login';
 import Chat from '@/pages/chat';
-import { withPrivateRoute } from '@/components/PrivateRoute';
-import { useEffect } from 'react';
-import { tokenStorage } from '@/common/storage';
-import { useNavigate } from 'react-router-dom';
+import { tokenStorage } from '@/utils/storage';
 
 // 用于给需要登录才能访问的页面添加路由守卫
 const ChatWithPrivateRoute = withPrivateRoute(Chat);

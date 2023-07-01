@@ -1,13 +1,12 @@
+import { Form, Input, message, Modal } from 'antd';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Form, Input, message, Modal } from 'antd';
 
-import { clearSessionStorage, userStorage } from '@/common/storage';
-import styles from './index.module.less';
+import { handleLogout, IUserInfo } from '@/utils/logout';
+import { clearSessionStorage, userStorage } from '@/utils/storage';
 
 import { handleChange } from './api';
-import { handleLogout } from '../api';
-import { IUserInfo } from '../api/type';
+import styles from './index.module.less';
 
 interface IChangeInfoModal {
   openmodal: boolean;

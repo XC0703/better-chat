@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "15302322",
+      "name": "在线状态-在线",
+      "font_class": "zaixianzhuangtai-zaixian",
+      "unicode": "e787",
+      "unicode_decimal": 59271
+    },
+    {
+      "icon_id": "15302323",
+      "name": "在线状态-离线",
+      "font_class": "zaixianzhuangtai-lixian",
+      "unicode": "e788",
+      "unicode_decimal": 59272
+    },
+    {
       "icon_id": "11435447",
       "name": "退出登录",
       "font_class": "tuichudenglu",

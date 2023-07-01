@@ -1,6 +1,7 @@
 import React from 'react';
-import { tokenStorage } from '@/common/storage';
+
 import Login from '@/pages/login';
+import { tokenStorage } from '@/utils/storage';
 
 interface Props {
   element: React.ReactNode;
