@@ -1,9 +1,9 @@
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, App } from 'antd';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 
-import App from '@/App';
 import '@/assets/styles/global.less';
+import RouterConfig from '@/router';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <BrowserRouter>
@@ -14,7 +14,9 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
         },
       }}
     >
-      <App />
+      <App>
+        <RouterConfig />
+      </App>
     </ConfigProvider>
   </BrowserRouter>,
 );

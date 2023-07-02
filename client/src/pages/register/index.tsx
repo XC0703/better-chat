@@ -1,4 +1,4 @@
-import { Input, Button, message } from 'antd';
+import { Input, Button, App } from 'antd';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -8,6 +8,7 @@ import { handleRegister } from './api';
 import styles from './index.module.less';
 
 const Register = () => {
+  const { message } = App.useApp();
   const generateAvatarAPI = 'https://ui-avatars.com/api/?name=';
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);

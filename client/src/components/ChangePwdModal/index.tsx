@@ -1,4 +1,4 @@
-import { Input, message, Modal } from 'antd';
+import { App, Input, Modal } from 'antd';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -14,6 +14,8 @@ interface IChangePwdModal {
 }
 const ChangePwdModal = (props: IChangePwdModal) => {
   const { openmodal, handleForget } = props;
+
+  const { message } = App.useApp();
   const [open, setOpen] = useState(openmodal);
   const navigate = useNavigate();
 
@@ -146,6 +148,7 @@ const ChangePwdModal = (props: IChangePwdModal) => {
         onCancel={handleCancel}
         okText="确认"
         cancelText="取消"
+        wrapClassName="changePwdModal"
       >
         <div className={styles.forgetContainer}>
           <Input

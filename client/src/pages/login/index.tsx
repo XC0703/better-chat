@@ -1,4 +1,4 @@
-import { message, Checkbox, Input, Button } from 'antd';
+import { Checkbox, Input, Button, App } from 'antd';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -47,6 +47,7 @@ const generateRandomString = () => {
   return Array.from(randomValues, (decimal) => decimal.toString(16)).join('');
 };
 const Login = () => {
+  const { message } = App.useApp();
   const navigate = useNavigate();
   const [isRemember, setIsRemember] = useState(false);
   const [loading, setLoading] = useState(false);

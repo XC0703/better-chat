@@ -9,11 +9,9 @@ exports.RespUpdateErr = 4006
 exports.RespExitFriendErr = 4007
 exports.RespCreateErr = 4008
 exports.RespExitGroupErr = 4009
-exports.RespBingNotLogin = 4010
-exports.RespBingErrorProxy = 4011
-exports.RespGroupInsertError = 4012
-exports.RespGroupDeletError = 4013
-exports.RespServerErr = 5000
+exports.RespGroupInsertError = 4010
+exports.RespGroupDeletError = 4011
+exports.RespServerErr = 4012
 
 exports.RespMap = {
     4000: "客户端TOKEN错误",
@@ -26,9 +24,7 @@ exports.RespMap = {
     4007: "好友已存在",
     4008: "创建失败",
     4009: "你已加入群聊",
-    4010: "请在edge浏览器中登录new bing",
-    4011: "无法找到代理服务器,请设置正确的代理服务器",
-    4012: "你邀请的好友都已经加入群聊",
-    4013: "退出群聊失败",
-    5000: "服务有误",
+    4010: "你邀请的好友都已经加入群聊",
+    4011: "退出群聊失败",
+    4012: "服务有误",
 }

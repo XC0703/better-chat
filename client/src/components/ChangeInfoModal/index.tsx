@@ -1,4 +1,4 @@
-import { Form, Input, message, Modal } from 'antd';
+import { App, Form, Input, Modal } from 'antd';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -13,6 +13,7 @@ interface IChangeInfoModal {
   handleInfo: () => void;
 }
 const ChangeInfoModal = (props: IChangeInfoModal) => {
+  const { message } = App.useApp();
   const navigate = useNavigate();
   const { username, name, avatar, phone, signature } = JSON.parse(userStorage.getItem() || '{}');
   const [infoChangeInstance] = Form.useForm<{ newName: string; newPhone: string; newSignature: string }>();

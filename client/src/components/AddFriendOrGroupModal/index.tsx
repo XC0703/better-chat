@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Input, message, Modal, Tabs } from 'antd';
+import { App, Button, Input, Modal, Tabs, TabsProps } from 'antd';
 
 import { SearchOutlined } from '@ant-design/icons';
 import { userStorage } from '@/utils/storage';
@@ -8,8 +8,6 @@ import { getFriendList, getGroupList, addFriend, addGroup } from './api';
 import { IFriend, IGroup } from './api/type';
 import styles from './index.module.less';
 
-const { TabPane } = Tabs;
-
 interface IChangeInfoModal {
   openmodal: boolean;
   handleAdd: () => void;
@@ -17,6 +15,7 @@ interface IChangeInfoModal {
 const AddFriendOrGroupModal = (props: IChangeInfoModal) => {
   const { openmodal, handleAdd } = props;
 
+  const { message } = App.useApp();
   const [open, setOpen] = useState(openmodal);
   const [friendList, setFriendList] = useState<IFriend[]>([]);
   const [groupList, setGroupList] = useState<IGroup[]>([]);
@@ -86,104 +85,118 @@ const AddFriendOrGroupModal = (props: IChangeInfoModal) => {
   const joinGroup = (name: string, group_id: number) => {
     console.log(name, group_id);
   };
-  return (
-    <>
-      <Modal open={open} footer={null} onCancel={handleCancel}>
-        <Tabs defaultActiveKey="1">
-          <TabPane tab="加好友" key="1">
-            <div className={styles.searchBox}>
-              <Input
-                size="small"
-                placeholder="请输入对方的用户名"
-                prefix={<SearchOutlined />}
-                onChange={(value) => {
-                  handleFriendNameChange(value);
-                }}
-              />
-              <Button
-                type="primary"
-                onClick={() => {
-                  getFriendListData(friendName);
-                }}
-              >
-                查找
-              </Button>
+  // tabs标签切换
+  const items: TabsProps['items'] = [
+    {
+      key: '1',
+      label: `加好友`,
+      children: (
+        <>
+          <div className={styles.searchBox}>
+            <Input
+              size="small"
+              placeholder="请输入对方的用户名"
+              prefix={<SearchOutlined />}
+              onChange={(value) => {
+                handleFriendNameChange(value);
+              }}
+            />
+            <Button
+              type="primary"
+              onClick={() => {
+                getFriendListData(friendName);
+              }}
+            >
+              查找
+            </Button>
+          </div>
+          {friendList.length !== 0 && (
+            <div className={styles.searchResult}>
+              {friendList.map((item) => (
+                <div className={styles.list_item} key={item.username}>
+                  <img src={item.avatar} alt="" />
+                  <div className={styles.list_item_desc}>
+                    <span className={styles.list_item_username}>
+                      {item.username} ({item.username})
+                    </span>
+                    {!item.status ? (
+                      <Button
+                        onClick={() => handleAddFriend(item.id, item.username, item.avatar)}
+                        type="primary"
+                        size="small"
+                        loading={loading}
+                      >
+                        加好友
+                      </Button>
+                    ) : (
+                      <span>已经是好友</span>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
-            {friendList.length !== 0 && (
-              <div className={styles.searchResult}>
-                {friendList.map((item) => (
-                  <div className={styles.list_item} key={item.username}>
-                    <img src={item.avatar} alt="" />
-                    <div className={styles.list_item_desc}>
-                      <span className={styles.list_item_username}>
-                        {item.username} ({item.username})
-                      </span>
+          )}
+        </>
+      ),
+    },
+    {
+      key: '2',
+      label: `加群`,
+      children: (
+        <>
+          <div className={styles.searchBox}>
+            <Input
+              size="small"
+              placeholder="请输入群名称"
+              prefix={<SearchOutlined />}
+              onChange={(value) => {
+                handleGroupNameChange(value);
+              }}
+            />
+            <Button
+              type="primary"
+              onClick={() => {
+                getGroupListData(groupName);
+              }}
+            >
+              查找
+            </Button>
+          </div>
+          <div className="list">
+            {groupList.length !== 0 && (
+              <>
+                {groupList.map((item) => (
+                  <div className="list-item" key={item.group_id}>
+                    <img
+                      src={require('@/assets/logo.png')}
+                      alt=""
+                      width="50"
+                      height="50"
+                      style={{ objectFit: 'cover' }}
+                    />
+                    <div className="list-item-desc">
+                      <p className="list-item-username">
+                        {item.name} ({item.number}人)
+                      </p>
                       {!item.status ? (
-                        <Button
-                          onClick={() => handleAddFriend(item.id, item.username, item.avatar)}
-                          type="primary"
-                          size="small"
-                          loading={loading}
-                        >
-                          加好友
-                        </Button>
+                        <button onClick={() => joinGroup(item.name, item.group_id)}>加入群聊</button>
                       ) : (
-                        <span>已经是好友</span>
+                        <span style={{ fontSize: '12px', color: 'red' }}>已加入群聊</span>
                       )}
                     </div>
                   </div>
                 ))}
-              </div>
+              </>
             )}
-          </TabPane>
-          <TabPane tab="加群" key="2">
-            <div className={styles.searchBox}>
-              <Input
-                size="small"
-                placeholder="请输入群名称"
-                prefix={<SearchOutlined />}
-                onChange={(value) => {
-                  handleGroupNameChange(value);
-                }}
-              />
-              <Button
-                type="primary"
-                onClick={() => {
-                  getGroupListData(groupName);
-                }}
-              >
-                查找
-              </Button>
-            </div>
-            <div className="list">
-              {groupList.length !== 0 && (
-                <>
-                  {groupList.map((item) => (
-                    <div className="list-item" key={item.group_id}>
-                      <img
-                        src={require('@/assets/logo.png')}
-                        alt=""
-                        width="50"
-                        height="50"
-                        style={{ objectFit: 'cover' }}
-                      />
-                      <div className="list-item-desc">
-                        <p className="list-item-username">
-                          {item.name} ({item.number}人)
-                        </p>
-                        {!item.status ? (
-                          <button onClick={() => joinGroup(item.name, item.group_id)}>加入群聊</button>
-                        ) : (
-                          <span style={{ fontSize: '12px', color: 'red' }}>已加入群聊</span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </>
-              )}
-            </div>
-          </TabPane>
-        </Tabs>
+          </div>
+        </>
+      ),
+    },
+  ];
+  return (
+    <>
+      <Modal open={open} footer={null} onCancel={handleCancel}>
+        <Tabs defaultActiveKey="1" items={items}></Tabs>
       </Modal>
     </>
   );

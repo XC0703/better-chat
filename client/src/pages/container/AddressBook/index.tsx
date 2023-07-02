@@ -1,4 +1,4 @@
-import { message, Tabs, Tree, Tooltip } from 'antd';
+import { Tabs, Tree, Tooltip, TabsProps, App } from 'antd';
 import type { DirectoryTreeProps } from 'antd/es/tree';
 import { useEffect, useState } from 'react';
 
@@ -9,9 +9,9 @@ import { getFriendList } from './api';
 import { IFriendGroup } from './api/type';
 import styles from './index.module.less';
 
-const { TabPane } = Tabs;
 const { DirectoryTree } = Tree;
 const AddressBook = () => {
+  const { message } = App.useApp();
   const [friendList, setFriendList] = useState<IFriendGroup[]>([]); // 好友列表
 
   // 难点: 如何将后端返回的数据转换成Tree组件需要的数据格式
@@ -64,7 +64,25 @@ const AddressBook = () => {
   useEffect(() => {
     refreshFriendList();
   }, []);
-
+  // tabs标签切换
+  const items: TabsProps['items'] = [
+    {
+      key: '1',
+      label: `好友`,
+      children: (
+        <>
+          <div className={styles.friendTree}>
+            <DirectoryTree defaultExpandAll onSelect={onSelect} treeData={treeData} icon={null} showIcon={false} />
+          </div>
+        </>
+      ),
+    },
+    {
+      key: '2',
+      label: `群聊`,
+      children: <>群聊</>,
+    },
+  ];
   return (
     <>
       <div className={styles.addressBook}>
@@ -74,22 +92,7 @@ const AddressBook = () => {
           </div>
           <div className={styles.list}>
             <div className={styles.addressBookTabs}>
-              <Tabs centered>
-                <TabPane tab="好友" key="1">
-                  <div className={styles.friendTree}>
-                    <DirectoryTree
-                      defaultExpandAll
-                      onSelect={onSelect}
-                      treeData={treeData}
-                      icon={null}
-                      showIcon={false}
-                    />
-                  </div>
-                </TabPane>
-                <TabPane tab="群聊" key="2">
-                  群聊
-                </TabPane>
-              </Tabs>
+              <Tabs centered defaultActiveKey="1" items={items}></Tabs>
             </div>
           </div>
         </div>

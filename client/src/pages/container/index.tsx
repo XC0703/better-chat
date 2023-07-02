@@ -1,4 +1,4 @@
-import { Tooltip, Button, message } from 'antd';
+import { Tooltip, Button, App } from 'antd';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -13,6 +13,7 @@ import ChatList from './ChatList';
 import styles from './index.module.less';
 
 const Container = () => {
+  const { message } = App.useApp();
   const navigate = useNavigate();
   const { name, avatar, phone, signature } = JSON.parse(userStorage.getItem() || '{}');
   const [currentIcon, setCurrentIcon] = useState<string>('icon-message');
@@ -58,6 +59,7 @@ const Container = () => {
       </div>
       <div className={styles.btnContainer}>
         <Button
+          size="small"
           onClick={() => {
             handleForget();
           }}
@@ -65,6 +67,7 @@ const Container = () => {
           修改密码
         </Button>
         <Button
+          size="small"
           onClick={() => {
             handleInfo();
           }}
@@ -78,7 +81,7 @@ const Container = () => {
     <>
       <div className={styles.container}>
         <div className={styles.leftContainer}>
-          <Tooltip placement="bottomLeft" title={infoContent} arrow={false} open={true}>
+          <Tooltip placement="bottomLeft" title={infoContent} arrow={false} overlayClassName="infoTooltip">
             <div className={styles.avatar}>
               <img src={avatar} alt="" />
             </div>

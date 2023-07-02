@@ -9,7 +9,7 @@ import { tokenStorage } from '@/utils/storage';
 
 // 用于给需要登录才能访问的页面添加路由守卫
 const ChatWithPrivateRoute = withPrivateRoute(Chat);
-const App = () => {
+const RouterConfig = () => {
   const navigate = useNavigate();
   // 每次路由变化时，都会执行这个函数
   const { pathname } = useLocation();
@@ -35,4 +35,4 @@ const App = () => {
     </Routes>
   );
 };
-export default App;
+export default RouterConfig;
