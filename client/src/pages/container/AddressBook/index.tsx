@@ -5,14 +5,15 @@ import { useEffect, useState } from 'react';
 import { statusIconList } from '@/assets/icons';
 import SearchContainer from '@/components/SearchContainer';
 
-import { getFriendList } from './api';
-import { IFriendGroup } from './api/type';
+import { getFriendList, getFriendInfoById } from './api';
+import { IFriendGroup, IUserInfo } from './api/type';
 import styles from './index.module.less';
 
 const { DirectoryTree } = Tree;
 const AddressBook = () => {
   const { message } = App.useApp();
   const [friendList, setFriendList] = useState<IFriendGroup[]>([]); // 好友列表
+  const [userInfo, setUserInfo] = useState<IUserInfo>(); // 用户信息
 
   // 难点: 如何将后端返回的数据转换成Tree组件需要的数据格式
   const treeData = friendList.map((group) => {
@@ -42,19 +43,28 @@ const AddressBook = () => {
         ),
         key: String(friend.id),
         isLeaf: true,
-        // 其他属性可以根据需要自行添加
       })),
     };
   });
+  // 根据节点的key获取节点的信息
+  const getNodeInfoById = (id: number) => {
+    getFriendInfoById(id).then((res) => {
+      if (res.code === 200 && res.data) {
+        setUserInfo(res.data);
+      } else {
+        message.error('获取好友信息失败', 1.5);
+      }
+    });
+  };
   const onSelect: DirectoryTreeProps['onSelect'] = (selectedKeys, info) => {
-    console.log('selected', selectedKeys, info);
+    // 获取节点信息
+    getNodeInfoById(Number(info.node.key));
   };
 
   // 刷新好友列表
   const refreshFriendList = () => {
     getFriendList().then((res) => {
-      if (res.code === 200) {
-        console.log(res.data);
+      if (res.code === 200 && res.data) {
         setFriendList(res.data);
       } else {
         message.error('获取好友数据失败', 1.5);
@@ -64,6 +74,7 @@ const AddressBook = () => {
   useEffect(() => {
     refreshFriendList();
   }, []);
+
   // tabs标签切换
   const items: TabsProps['items'] = [
     {
@@ -96,7 +107,7 @@ const AddressBook = () => {
             </div>
           </div>
         </div>
-        <div className={styles.rightContainer}>好友信息</div>
+        <div className={styles.rightContainer}></div>
       </div>
     </>
   );

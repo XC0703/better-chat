@@ -96,7 +96,7 @@ const Login = () => {
         };
         handleLogin(param)
           .then((res) => {
-            if (res.code === 200) {
+            if (res.code === 200 && res.data) {
               message.success('登录成功！', 1.5);
               setLoading(false);
               tokenStorage.setItem(res.data.token);

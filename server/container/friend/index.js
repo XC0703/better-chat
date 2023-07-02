@@ -4,6 +4,7 @@ module.exports = {
     createFriendGroup,
     searchUser,
     addFriend,
+    getFriendById,
 };
 let { RespParamErr, RespServerErr, RespExitFriendErr, RespUpdateErr, RespCreateErr } = require('../../model/error');
 const { RespError, RespSuccess, RespData } = require('../../model/resp');
@@ -166,4 +167,15 @@ async function createFriendGroup(req, res) {
     if (results.affectedRows === 1) {
         return RespSuccess(res)
     }
+}
+/**
+ * 根据好友id获取好友信息
+ */
+async function getFriendById(req, res) {
+    let id = req.query.id
+    let sql = 'select * from friend where id=?'
+    let { err, results } = await Query(sql, [id])
+    // 查询数据失败
+    if (err) return RespError(res, RespServerErr)
+    RespData(res, results[0])
 }
