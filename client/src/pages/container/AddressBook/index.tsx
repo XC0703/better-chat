@@ -1,19 +1,20 @@
-import { Tabs, Tree, Tooltip, TabsProps, App } from 'antd';
+import { Tabs, Tree, Tooltip, TabsProps, App, Form, Input, Select } from 'antd';
 import type { DirectoryTreeProps } from 'antd/es/tree';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { statusIconList } from '@/assets/icons';
 import SearchContainer from '@/components/SearchContainer';
 
 import { getFriendList, getFriendInfoById } from './api';
-import { IFriendGroup, IUserInfo } from './api/type';
+import { IFriendGroup, IFriendInfo } from './api/type';
 import styles from './index.module.less';
 
 const { DirectoryTree } = Tree;
 const AddressBook = () => {
   const { message } = App.useApp();
   const [friendList, setFriendList] = useState<IFriendGroup[]>([]); // 好友列表
-  const [userInfo, setUserInfo] = useState<IUserInfo>(); // 用户信息
+  const [infoChangeInstance] = Form.useForm<{ newRemark: string; newGroup: string }>();
+  const curFriendValueRef = useRef<IFriendInfo>();
 
   // 难点: 如何将后端返回的数据转换成Tree组件需要的数据格式
   const treeData = friendList.map((group) => {
@@ -50,7 +51,12 @@ const AddressBook = () => {
   const getNodeInfoById = (id: number) => {
     getFriendInfoById(id).then((res) => {
       if (res.code === 200 && res.data) {
-        setUserInfo(res.data);
+        curFriendValueRef.current = res.data;
+        infoChangeInstance?.setFieldsValue({
+          newRemark: res.data.remark,
+          newGroup: res.data.group_name,
+        });
+        console.log(curFriendValueRef.current);
       } else {
         message.error('获取好友信息失败', 1.5);
       }
@@ -107,7 +113,44 @@ const AddressBook = () => {
             </div>
           </div>
         </div>
-        <div className={styles.rightContainer}></div>
+        <div className={styles.rightContainer}>
+          {
+            <div className={styles.infoModal}>
+              <div className={styles.infoContainer}>
+                <div className={styles.avatar}>
+                  <img src={curFriendValueRef.current?.avatar} alt="" />
+                </div>
+                <div className={styles.info}>
+                  <div className={styles.username}>{curFriendValueRef.current?.username}</div>
+                  <div className={styles.signature}>
+                    {curFriendValueRef.current?.signature === ''
+                      ? '暂无个性签名'
+                      : curFriendValueRef.current?.signature}
+                  </div>
+                </div>
+              </div>
+              <div className={styles.changeContainer}>
+                <Form form={infoChangeInstance}>
+                  <Form.Item label="账号" name="username" rules={[{ required: true }]}>
+                    <Input />
+                  </Form.Item>
+                  <Form.Item label="备注" name="newRemark">
+                    <Input
+                      placeholder="请输入好友备注"
+                      onChange={(e) => infoChangeInstance.setFieldsValue({ newRemark: e.target.value })}
+                    />
+                  </Form.Item>
+                  <Form.Item label="分组" name="newGroup">
+                    <Select
+                      placeholder="请选择分组"
+                      onChange={(e) => infoChangeInstance.setFieldsValue({ newGroup: e.target.value })}
+                    />
+                  </Form.Item>
+                </Form>
+              </div>
+            </div>
+          }
+        </div>
       </div>
     </>
   );
