@@ -101,5 +101,95 @@
   .rightContainer{
     flex:12;
     background-color: #f5f5f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .infoModal{
+      background-color: rgba(229,229,229,0.3);
+      display: flex;
+      flex-direction: column;
+      width:60%;
+      height:70%;
+      padding:0.2rem;
+      .infoContainer{
+        flex:2.2;
+        display: flex;
+        .avatar{
+          display: flex;
+          justify-content: center;
+          align-items: flex-start;
+          margin-top: .1rem;
+          img{
+            width:.8rem;
+            height:.8rem;
+          }
+        }
+        .info{
+          padding-left: .2rem;
+          padding-top:.1rem;
+          color:#999;
+          font-size: .12rem;
+          display: flex;
+          flex-direction: column;
+          .username{
+            font-size: .3rem;
+            color:#333
+          }
+        }
+      }
+      .changeContainer{
+        flex:5;
+        display: flex;
+        border-top: 0.01rem solid rgb(229,229,229);
+        justify-content: center;
+        padding:.1rem 0 0 0;
+        form{
+          width:100%;
+          input{
+            border:none;
+            box-shadow: none;
+            border-radius: 0;
+            background-color: transparent;
+            border-bottom: 0.01rem solid rgb(229,229,229);
+            box-shadow: none;
+          }
+          :global{
+            .ant-form-item{
+              margin-bottom: 0;
+              label{
+                font-size: .12rem;
+                letter-spacing: 0.05rem;
+              }
+              input{
+                line-height:1;
+                padding:none;
+              }
+              .ant-select-selector{
+                background-color: transparent;
+                border:0.01rem solid #d9d9d9;
+                box-shadow: none;
+              }
+            }
+          }
+        }
+      }
+      .btns{
+        display: flex;
+        justify-content: space-between;
+        padding:0 .2rem;
+        button{
+          font-size: .12rem;
+        }
+      }
+    }
+  }
+}
+:global{
+  .anticon-wechat{
+    color:#999;
+    font-size: .8rem;
+  }
+  .ant-select-dropdown{
+    font-size: .12rem;
   }
 }
