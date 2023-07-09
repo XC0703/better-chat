@@ -138,10 +138,13 @@ function getFriendList(req, res) {
         let friendList = []
         if (results.length != 0) {
             for (const item of results) {
-                let friend = { name: item.name, friend: [] }
+                let friend = { name: item.name, online_counts: 0,friend: [] }
                 let friends = await getFriendByGroup(item.id)
                 for (const item2 of friends) {
                     friend.friend.push(item2)
+                    if(item2.online_status === 'online'){
+                        friend.online_counts++
+                    }
                 }
                 friendList.push(friend)
             }

@@ -26,7 +26,11 @@ const AddressBook = () => {
   // 难点: 如何将后端返回的数据转换成Tree组件需要的数据格式
   const treeData = friendList.map((group) => {
     return {
-      title: group.name,
+      title: (
+        <span>
+          {group.name}&nbsp;&nbsp;&nbsp;&nbsp;{group.online_counts}/{group.friend.length}
+        </span>
+      ),
       key: String(Math.random()), // 根据实际情况生成唯一的 key，这里简单使用了随机数
       selectable: false,
       children: group.friend.map((friend) => ({

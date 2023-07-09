@@ -14,6 +14,7 @@ export interface IFriend {
 }
 export interface IFriendGroup {
   name: string;
+  online_counts:number;
   friend: IFriend[];
 }
 // 好友信息类型
