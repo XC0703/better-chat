@@ -10,6 +10,7 @@ specifiers:
   jsonwebtoken: ^9.0.0
   mysql: ^2.18.1
   nodemon: ^2.0.22
+  uuid: ^9.0.0
 
 dependencies:
   body-parser: 1.20.2
@@ -21,6 +22,7 @@ dependencies:
   jsonwebtoken: 9.0.0
   mysql: 2.18.1
   nodemon: 2.0.22
+  uuid: 9.0.0
 
 packages:
 
@@ -865,6 +867,11 @@ packages:
   /utils-merge/1.0.1:
     resolution: {integrity: sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==}
     engines: {node: '>= 0.4.0'}
+    dev: false
+
+  /uuid/9.0.0:
+    resolution: {integrity: sha512-MXcSTerfPa4uqyzStbRoTgt5XIe3x5+42+q1sDuy3R5MDk66URdLMOZe5aPX/SQd+kuYAh0FdP/pO28IkQyTeg==}
+    hasBin: true
     dev: false
 
   /vary/1.1.2:

@@ -34,5 +34,6 @@ module.exports = function () {
     router.post('/search_user', authenticateToken, friend.searchUser)
     router.post('/add_friend', authenticateToken, friend.addFriend)
     router.get('/get_friend', authenticateToken, friend.getFriendById)
+    router.post('/update_friend', authenticateToken, friend.updateFriendInfo)
     return router
 }

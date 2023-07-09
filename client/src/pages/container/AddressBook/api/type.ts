@@ -32,3 +32,25 @@ export interface IFriendInfo {
   name: string;
   signature: string | null;
 }
+// 好友分组类型
+export interface IFriendGroupList {
+  id: number;
+  user_id: number;
+  username: string;
+  name: string;
+  created_at: string;
+  updated_at: string;
+}
+// 修改好友信息传递的参数
+export interface IUpdateFriendInfo {
+  friend_id: number;
+  remark: string;
+  group_id: number;
+}
+// 新建分组传递的参数
+export interface ICreateFriendGroup {
+  user_id: number;
+  username: string;
+  name: string;
+}
+

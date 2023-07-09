@@ -19,6 +19,7 @@
     "ioredis": "^5.3.2",
     "jsonwebtoken": "^9.0.0",
     "mysql": "^2.18.1",
-    "nodemon": "^2.0.22"
+    "nodemon": "^2.0.22",
+    "uuid": "^9.0.0"
   }
 }

@@ -1,21 +1,27 @@
-import { Tabs, Tree, Tooltip, TabsProps, App, Form, Input, Select, Button } from 'antd';
+import { Tabs, Tree, Tooltip, TabsProps, App, Form, Input, Select, Button, Modal } from 'antd';
 import type { DirectoryTreeProps } from 'antd/es/tree';
 import { useEffect, useMemo, useState } from 'react';
 
 import { WechatOutlined } from '@ant-design/icons';
 import { statusIconList } from '@/assets/icons';
 import SearchContainer from '@/components/SearchContainer';
+import { userStorage } from '@/utils/storage';
 
-import { getFriendList, getFriendInfoById } from './api';
-import { IFriendGroup, IFriendInfo } from './api/type';
+import { getFriendList, getFriendInfoById, getFriendGroup, updateFriendInfo, createFriendGroup } from './api';
+import { IFriendGroup, IFriendInfo, IFriendGroupList } from './api/type';
 import styles from './index.module.less';
 
 const { DirectoryTree } = Tree;
 const AddressBook = () => {
   const { message } = App.useApp();
   const [friendList, setFriendList] = useState<IFriendGroup[]>([]); // 好友列表
-  const [infoChangeInstance] = Form.useForm<{ newRemark: string; newGroup: string }>();
+  const [infoChangeInstance] = Form.useForm<{ username: string; name: string; newRemark: string; newGroup: number }>();
   const [curFriendInfo, setCurFriendInfo] = useState<IFriendInfo>(); // 当前选中的好友信息
+  const [groupList, setGroupList] = useState<IFriendGroupList[]>([]); // 好友分组列表
+  const [newGroupName, setNewGroupName] = useState(''); // 新建分组
+
+  // 控制新建分组弹窗的显隐
+  const [openCreateGroupModal, setOpenCreateGroupModal] = useState(false);
 
   // 难点: 如何将后端返回的数据转换成Tree组件需要的数据格式
   const treeData = friendList.map((group) => {
@@ -54,8 +60,10 @@ const AddressBook = () => {
       if (res.code === 200 && res.data) {
         setCurFriendInfo(res.data);
         infoChangeInstance?.setFieldsValue({
+          username: res.data.username,
+          name: res.data.name,
           newRemark: res.data.remark,
-          newGroup: res.data.group_name,
+          newGroup: res.data.group_id,
         });
       } else {
         message.error('获取好友信息失败', 1.5);
@@ -77,15 +85,93 @@ const AddressBook = () => {
       }
     });
   };
+
+  // 获取好友分组列表
+  const getFriendGroupList = () => {
+    getFriendGroup().then((res) => {
+      if (res.code === 200 && res.data) {
+        setGroupList(res.data);
+      } else {
+        message.error('获取好友数据失败', 1.5);
+      }
+    });
+  };
+
+  // 修改好友信息
+  const updateFriend = () => {
+    infoChangeInstance.validateFields().then((values) => {
+      const params = {
+        friend_id: curFriendInfo?.friend_id as number,
+        remark: values.newRemark,
+        group_id: values.newGroup,
+      };
+      updateFriendInfo(params).then((res) => {
+        if (res.code === 200) {
+          message.success('修改成功', 1.5);
+          refreshFriendList();
+        } else {
+          message.error('修改失败', 1.5);
+        }
+      });
+    });
+  };
+
+  // 新建分组
+  const createGroup = () => {
+    if (!newGroupName) {
+      message.error('请输入分组名称', 1.5);
+      return;
+    }
+    const params = {
+      user_id: JSON.parse(userStorage.getItem()).id,
+      username: JSON.parse(userStorage.getItem()).username,
+      name: newGroupName,
+    };
+    createFriendGroup(params).then((res) => {
+      if (res.code === 200) {
+        message.success('新建成功', 1.5);
+        refreshFriendList();
+        getFriendGroupList();
+        setOpenCreateGroupModal(false);
+      } else {
+        message.error('新建失败', 1.5);
+      }
+    });
+  };
+
   useEffect(() => {
     refreshFriendList();
+    getFriendGroupList();
   }, []);
 
+  // 鼠标右键内容
+  const addContent = (
+    <ul>
+      <li onClick={refreshFriendList}>刷新列表</li>
+      <li
+        onClick={() => {
+          setOpenCreateGroupModal(true);
+        }}
+      >
+        新建分组
+      </li>
+    </ul>
+  );
   // tabs标签切换
   const items: TabsProps['items'] = [
     {
       key: '1',
-      label: `好友`,
+      label: (
+        <Tooltip
+          placement="bottomLeft"
+          title={addContent}
+          arrow={false}
+          overlayClassName="addContent"
+          trigger={'contextMenu'}
+        >
+          好友
+        </Tooltip>
+      ),
       children: (
         <>
           <div className={styles.friendTree}>
@@ -138,10 +224,10 @@ const AddressBook = () => {
               <div className={styles.changeContainer}>
                 <Form form={infoChangeInstance}>
                   <Form.Item label="账号" name="username">
-                    <Input />
+                    <Input readOnly />
                   </Form.Item>
-                  <Form.Item label="昵称" name="username">
-                    <Input />
+                  <Form.Item label="昵称" name="name">
+                    <Input readOnly />
                   </Form.Item>
                   <Form.Item label="备注" name="newRemark">
                     <Input
@@ -154,7 +240,15 @@ const AddressBook = () => {
                       size="small"
                       notFoundContent="暂无分组"
                       placeholder="请选择分组"
-                      onChange={(e) => infoChangeInstance.setFieldsValue({ newGroup: e.target.value })}
+                      onChange={(value) => {
+                        infoChangeInstance.setFieldsValue({ newGroup: value });
+                      }}
+                      options={groupList.map((item) => {
+                        return {
+                          label: item.name,
+                          value: item.id,
+                        };
+                      })}
                     />
                   </Form.Item>
                 </Form>
@@ -162,23 +256,45 @@ const AddressBook = () => {
               <div className={styles.btns}>
                 <Button
                   onClick={() => {
+                    updateFriend();
+                  }}
+                >
+                  保存信息
+                </Button>
+                <Button
+                  type="primary"
+                  onClick={() => {
                     console.log('发送消息');
                   }}
                 >
                   发送消息
                 </Button>
-                <Button
-                  type="primary"
-                  onClick={() => {
-                    console.log('保存信息');
-                  }}
-                >
-                  保存信息
-                </Button>
               </div>
             </div>
           )}
         </div>
+        {openCreateGroupModal && (
+          <Modal
+            title="新建分组"
+            open={openCreateGroupModal}
+            onCancel={() => setOpenCreateGroupModal(false)}
+            onOk={() => createGroup()}
+            cancelText="取消"
+            okText="确定"
+            width="4rem"
+          >
+            <Form>
+              <Form.Item name="groupName">
+                <Input
+                  placeholder="请输入分组名称"
+                  onChange={(e) => {
+                    setNewGroupName(e.target.value);
+                  }}
+                />
+              </Form.Item>
+            </Form>
+          </Modal>
+        )}
       </div>
     </>
   );
