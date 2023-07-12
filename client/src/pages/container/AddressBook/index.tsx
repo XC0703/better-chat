@@ -179,7 +179,7 @@ const AddressBook = () => {
       children: (
         <>
           <div className={styles.friendTree}>
-            <DirectoryTree defaultExpandAll onSelect={onSelect} treeData={treeData} icon={null} showIcon={false} />
+            <DirectoryTree onSelect={onSelect} treeData={treeData} icon={null} showIcon={false} />
           </div>
         </>
       ),
