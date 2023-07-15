@@ -41,4 +41,30 @@ export const statusIconList = [
     icon: 'icon-zaixianzhuangtai-lixian',
     text: '好友离线请留言',
   },
-]
+  {
+    icon:'icon-weiduxiaoxi',
+    text:'未读消息',
+  },
+];
+export const chatIconList = [
+  {
+    icon: 'icon-biaoqing',
+    text: '表情',
+  },
+  {
+    icon: 'icon-tupian_huaban',
+    text: '图片',
+  },
+  {
+    icon: 'icon-wenjian1',
+    text: '文件',
+  },
+  {
+    icon: 'icon-dianhua',
+    text: '语音聊天',
+  },
+  {
+    icon: 'icon-video',
+    text: '视频聊天',
+  },
+];

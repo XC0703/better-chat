@@ -90,6 +90,45 @@ function initGroupTable() {
         initFirendTable();
     });
 }
+//创建消息表
+function initMessageTable() {
+    const sql = `
+    CREATE TABLE IF NOT EXISTS  message (
+        id int(11) NOT NULL AUTO_INCREMENT,
+        sender_id int(11) NOT NULL,
+        receiver_id int(11) NOT NULL,
+        content longtext NOT NULL,
+        room  VARCHAR(255) NOT NULL,
+        type enum('private','group') NOT NULL,
+        media_type enum('text','image','video','file') NOT NULL,
+        file_size int(11) NULL DEFAULT 0,
+        status int(1) NOT NULL DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (id),
+        FOREIGN KEY (sender_id) REFERENCES user(id) ON DELETE CASCADE ON UPDATE CASCADE
+      )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `
+    db.query(sql, (error, results, fields) => {
+        initmessageStatisticsTable()
+        if (error) return console.log(error);
+    });
+}
+//创建消息统计表
+function initmessageStatisticsTable() {
+    const sql = `
+    CREATE TABLE IF NOT EXISTS  message_statistics (
+        id int(11) NOT NULL AUTO_INCREMENT,
+        room  VARCHAR(255) NOT NULL,
+        total int(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY (id)
+      )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `
+    db.query(sql, (error, results, fields) => {
+        if (error) return console.log(error);
+    });
+}
 // 3. 测试 mysql 模块能否正常工作
 db.query('select 1', (err, results) => {
     // mysql 模块工作期间报错了，就进入这个if判断语句，打印这个错误信息
@@ -99,6 +138,7 @@ db.query('select 1', (err, results) => {
     }
     initUserTable();
     initGroupTable();
+    initMessageTable();
     console.log("MySQL连接成功");
 })
 // 4. 将连接好的数据库对象向外导出,供外界使用
