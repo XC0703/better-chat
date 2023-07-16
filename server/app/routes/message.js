@@ -28,6 +28,6 @@ function authenticateToken(req, res, next) {
     });
 }
 module.exports = function () {
-    router.get('/list', authenticateToken, message.List)
+    router.get('/chat_list', authenticateToken, message.getChatList)
     return router
 }

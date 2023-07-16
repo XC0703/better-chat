@@ -30,7 +30,7 @@ module.exports = function () {
     router.post('/login', auth.Login)
     router.post('/logout', auth.Logout)
     router.post('/register', auth.Register)
-    router.post('/forget_password', auth.ForgetPassword)
-    router.post('/updateInfo', authenticateToken,auth.updateInfo)
+    router.post('/forget_password', auth.forgetPassword)
+    router.post('/update_info', authenticateToken,auth.updateInfo)
     return router
 }

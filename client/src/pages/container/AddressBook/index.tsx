@@ -187,7 +187,7 @@ const AddressBook = () => {
     {
       key: '2',
       label: `群聊`,
-      children: <>群聊</>,
+      children: <>todo：群聊列表</>,
     },
   ];
   // 用useMemo包裹，避免每次都重新渲染导致展开的好友列表收起

@@ -34,11 +34,3 @@ export interface IAddFriendParams {
   username: string;
   avatar: string;
 }
-
-// 群聊类型
-export interface IGroup {
-  group_id: number;
-  name: string;
-  number: number;
-  status: boolean;
-}

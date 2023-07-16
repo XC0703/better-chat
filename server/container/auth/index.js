@@ -2,7 +2,7 @@ module.exports = {
     Login,
     Logout,
     Register,
-    ForgetPassword,
+    forgetPassword,
     updateInfo
 };
 const jwt = require('jsonwebtoken');
@@ -172,7 +172,7 @@ async function Register(req, res) {
  * 1.判断用户手机号和用户名是否存在
  * 2.如果数据符合则修改user表的数据
  */
-async function ForgetPassword(req, res) {
+async function forgetPassword(req, res) {
     const { username, phone, password } = req.body
     if (!(username && phone && password)) {
         return RespError(res, RespParamErr)
