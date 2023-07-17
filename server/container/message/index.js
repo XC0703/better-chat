@@ -1,15 +1,17 @@
 module.exports = {
     getChatList,
+    connectChat,
 };
-const path = require('path');
 
+const path = require('path');
 let { RespParamErr, RespServerErr, RespExitFriendErr, RespUpdateErr, RespCreateErr } = require('../../model/error');
 const { RespError, RespSuccess, RespData } = require('../../model/resp');
 const { Query } = require('../../db/query');
 const fs = require('fs');
-const { generateRandomString, notExitCreate } = require('../../utils/utils')
-const { formatBytes } = require('../../utils/format')
-let rooms = {}
+const { generateRandomString, notExitCreate } = require('../../utils/createFile');
+const { formatBytes } = require('../../utils/format');
+let rooms = {};
+
 /**
  * 获取消息列表
  * 1.先获取好友聊天列表
@@ -44,10 +46,11 @@ async function getChatList(req, res) {
     if (err) return RespError(res, RespServerErr)
     return RespData(res, data)
 }
+
 /**
  * 建立聊天
- * 需要获取信息:发送人ID,接收人ID,聊天内容,房间号,头像,内容的类型,文件大小,创建时间,(群聊中的昵称)
- * 1.获取房间号和对方id(群聊ID)
+ * 需要获取信息:发送人ID,接收人ID,聊天内容,房间号,头像,内容的类型,文件大小,创建时间
+ * 1.获取房间号和对方id
  * 2. 根据房间号获取所有聊天记录
  * 3.将当前用户的所有未读变成已读
  * 4.监听message
@@ -58,38 +61,34 @@ async function getChatList(req, res) {
  * 9.并修改当前房间的最早一次的聊天时间
  * 
  */
-async function ChatConnect(ws, req) {
-    //获取name
+async function connectChat(ws, req) {
+    // 获取name和room（聊天类型默认传入为private，group只是为了方便后续群聊功能的扩展）
     let url = req.url.split("?")[1];
-    let params = new URLSearchParams(url)
-    let room = params.get("room")
-    let id = params.get("id")
-    let type = params.get("type")
+    let params = new URLSearchParams(url);
+    let room = params.get("room");
+    let id = params.get("id");
+    let type = params.get("type");
+    // 重置聊天房间
     if (!rooms[room]) {
-        rooms[room] = {}
+        rooms[room] = {};
     }
-    rooms[room][id] = ws
-    let sql
-    let resp
-    if (type == 'group') {
-        sql = 'SELECT gm.nickname,m.*,u.avatar FROM (SELECT sender_id, receiver_id, content, room, media_type,message.created_at FROM message WHERE `room` =? AND `type` = ?) AS m LEFT JOIN user as u ON u.`id`=m.`sender_id` LEFT JOIN group_members as gm on gm.group_id=? and user_id=u.`id` ORDER BY created_at ASC'
-        resp = await Query(sql, [room, type, id])
-    } else {
-        sql = 'SELECT m.*,u.avatar FROM (SELECT sender_id, receiver_id, content, room, media_type,message.created_at FROM message WHERE `room` =? AND `type` = ?  ORDER BY created_at ASC) AS m LEFT JOIN user as u ON u.`id`=m.`sender_id`'
-        resp = await Query(sql, [room, type])
-    }
-    let results = resp.results
+    rooms[room][id] = ws;
+    // 获取历史消息
+    let sql;
+    let resp;
+    sql = 'SELECT m.*,u.avatar FROM (SELECT sender_id, receiver_id, content, room, media_type,message.created_at FROM message WHERE room =? AND type = ?  ORDER BY created_at ASC) AS m LEFT JOIN user as u ON u.id=m.sender_id';
+    resp = await Query(sql, [room, type]);
+    let results = resp.results;
     let histroyMsg = results.map((item) => {
         return {
-            "sender_id": item.sender_id,
-            "receiver_id": item.receiver_id,
-            'nickname': item.nickname,
-            "content": item.content,
-            "room": item.room,
-            "avatar": item.avatar,
-            "type": item.media_type,
-            'file_size': formatBytes(item.file_size),
-            "created_at": new Date(item.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })
+            "sender_id": item.sender_id, // 发送者id
+            "receiver_id": item.receiver_id, // 接受者id
+            "content": item.content, // 文本消息内容，如果是图片、视频、文件消息则为文件路径
+            "room": item.room, // 房间号
+            "avatar": item.avatar, // 发送者头像
+            "type": item.media_type, // 媒体类型，枚举类型，可选值为’text’、‘image’、‘video’和’file’
+            'file_size': formatBytes(item.file_size),// 文件大小
+            "created_at": new Date(item.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }),  // 消息创建时间，格式化为本地时间
         }
     })
     ws.send(JSON.stringify(histroyMsg))

@@ -1,48 +1,76 @@
-import { Button, Tooltip } from 'antd';
-import { useState } from 'react';
+import { App, Button, Tooltip } from 'antd';
+import { useEffect, useState } from 'react';
 
 import { WechatOutlined } from '@ant-design/icons';
 import { statusIconList, chatIconList } from '@/assets/icons';
+import { wsBaseURL } from '@/assets/links/wsBaseURL';
 import SearchContainer from '@/components/SearchContainer';
+import { userStorage } from '@/utils/storage';
+import { toggleTime_chatList, toggleTime_chatContent } from '@/utils/formatTime';
 
+import { getChatList } from './api';
+import { IConnectParams, IMessage } from './api/type';
 import styles from './index.module.less';
 
-interface ChatItem {
-  room: string;
-  avatar?: string;
-  name: string;
-  updated_at: string;
-  unreadCount: number;
-}
-function generateMockData(): ChatItem[] {
-  const mockData: ChatItem[] = [];
-
-  // 生成多个模拟数据
-  for (let i = 0; i < 10; i++) {
-    const item: ChatItem = {
-      room: `Room ${i}`,
-      avatar: `https://ui-avatars.com/api/?name=xcgogogo`,
-      name: `User ${i}`,
-      updated_at: '2023-07-13 15:15:51', // 你可以填写当前日期时间或者其他适当的时间
-      unreadCount: Math.floor(Math.random() * 10), // 生成随机的未读消息数
-    };
-
-    mockData.push(item);
-  }
-  return mockData;
-}
-
-// 调用该函数生成模拟数据
-const mockData = generateMockData();
-
 const ChatList = () => {
-  const [curChatInfo, setCurChatInfo] = useState<ChatItem>(); // 当前选中的对话信息
+  const { message } = App.useApp();
+  const [chatList, setChatList] = useState<IMessage[]>([]); // 消息列表
+  const [curChatInfo, setCurChatInfo] = useState<IMessage>(); // 当前选中的对话信息
+  const [connectParams, setConnectParams] = useState<IConnectParams>(); // 连接参数
+  const [socket, setSocket] = useState<WebSocket | null>(null); // websocket实例
 
-  const chooseRoom = (item: ChatItem) => {
-    // 处理选择房间的逻辑
-    console.log(item);
-    setCurChatInfo(item);
+  // 建立websocket连接
+  const initSocket = () => {
+    // 如果连接参数为空，则不建立连接
+    if (connectParams === undefined) return;
+    // 如果socket已经存在，则重新建立连接
+    if (socket !== null) {
+      socket.close();
+      setSocket(null);
+    }
+    const newSocket = new WebSocket(
+      `${wsBaseURL}/message/chat?room=${connectParams?.room}&id=${connectParams?.sender_id}&type=private`,
+    );
+    newSocket.onmessage = (e) => {
+      // 处理发送的消息
+      console.log('发送消息', e.data);
+    };
+    newSocket.onerror = () => {
+      message.error('websocket连接失败，请重试！', 1.5);
+    };
+    // 建立连接
+    setSocket(newSocket);
   };
+
+  const chooseRoom = (item: IMessage) => {
+    setCurChatInfo(item);
+    // 建立webcocet连接(记得加个延时器)
+    setTimeout(() => {
+      initSocket();
+    }, 0);
+  };
+
+  // 刷新消息列表
+  const refreshChatList = () => {
+    // 获取消息列表
+    getChatList().then((res) => {
+      if (res.code === 200) {
+        setChatList(res.data);
+      } else {
+        message.error('获取消息列表失败！', 1.5);
+      }
+    });
+  };
+
+  useEffect(() => {
+    refreshChatList();
+    // 初始化连接参数
+    const params: IConnectParams = {
+      room: 'Room 1',
+      sender_id: JSON.parse(userStorage.getItem()).id,
+    };
+    setConnectParams(params);
+  }, []);
 
   return (
     <>
@@ -52,7 +80,7 @@ const ChatList = () => {
             <SearchContainer />
           </div>
           <div className={styles.list}>
-            {mockData.map((item) => (
+            {chatList.map((item) => (
               <div
                 className={styles.chat_item}
                 key={item.room}
@@ -69,8 +97,8 @@ const ChatList = () => {
                   </div>
                 </div>
                 <div className={styles.chat_info_time}>
-                  <Tooltip placement="bottomLeft" title={item.updated_at} arrow={false}>
-                    <div className={styles.chat_time}>{item.updated_at}</div>
+                  <Tooltip placement="bottomLeft" title={toggleTime_chatList(item.updated_at)} arrow={false}>
+                    <div className={styles.chat_time}>{toggleTime_chatList(item.updated_at)}</div>
                   </Tooltip>
                   {item.unreadCount !== 0 && (
                     <Tooltip placement="bottomLeft" title={'未读消息' + item.unreadCount + '条'} arrow={false}>
