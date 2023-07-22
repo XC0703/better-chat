@@ -32,5 +32,6 @@ module.exports = function () {
     router.post('/register', auth.Register)
     router.post('/forget_password', auth.forgetPassword)
     router.post('/update_info', authenticateToken,auth.updateInfo)
+    router.ws('/user_channel', auth.initUserNotification)
     return router
 }

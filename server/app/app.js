@@ -2,7 +2,9 @@
  * 用于启动node服务并处理相关路由
  */
 const express = require('express');
+const expressWs = require('express-ws');
 const app = express();
+expressWs(app);
 /**
  * 解决跨域
  */
@@ -49,10 +51,10 @@ app.use(bodyParser.urlencoded({ limit: '100mb', extended: true })); //parse appl
 // 注册路由
 let indexRouter = require('./routes/auth')();
 let friendRouter = require('./routes/friend')();
-// let messageRouter = require('./routes/message')();
+let messageRouter = require('./routes/message')();
 
 app.use('/api/chat/v1/auth', cors, indexRouter);
 app.use('/api/chat/v1/friend', cors, friendRouter);
-// app.use('/api/chat/v1/message', cors, messageRouter);
+app.use('/api/chat/v1/message', cors, messageRouter);
 
 module.exports = app

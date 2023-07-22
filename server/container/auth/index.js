@@ -3,7 +3,8 @@ module.exports = {
     Logout,
     Register,
     forgetPassword,
-    updateInfo
+    updateInfo,
+    initUserNotification
 };
 const jwt = require('jsonwebtoken');
 const secretKey = 'xWbiNA3FqnK77MnVCj5CAcfA-VlXj7xoQLd1QaAme6l_t0Yp1TdHbSw';
@@ -66,6 +67,12 @@ async function Login(req, res) {
         if (redisToken) {
             return RespError(res, RespUserAlreadyLoggedIn)
         }
+
+        // 登录成功去改变好友表中的状态，并在建立websocket后通知当前登录的所有好友进行好友列表更新
+        let sql = 'update friend set online_status=? where username=?'
+        let { err: err1, results: results1 } = await Query(sql, ['online', username])
+        if (err1) return RespError(res, RespServerErr)
+
         // 保存Token到Redis缓存中
         better_chat.set(`token:${payload.username}`, token, 'EX', 60 * 60 * 24 * 14) // 有效期为14天
         return RespData(res, data)
@@ -83,6 +90,10 @@ async function Logout(req, res) {
     if (!username) {
         return RespError(res, RespParamErr)
     }
+    // 退出登录成功去改变好友表中的状态，并通知当前登录的所有好友进行好友列表更新
+    let sql = 'update friend set online_status=? where username=?'
+    let { err: err1, results: results1 } = await Query(sql, ['offline', username])
+    if (err1) return RespError(res, RespServerErr)
     //删除redis中的token
     better_chat.del(`token:${username}`)
     return RespSuccess(res)
@@ -250,4 +261,69 @@ async function updateInfo(req, res) {
         return RespSuccess(res)
     }
     return RespError(res, RespUpdateErr)
+}
+/**
+ * 初始化用户的通知管道,接收一些对方的消息
+ */
+function initUserNotification(ws, req) {
+    //获取name
+    let url = req.url.split("?")[1];
+    let params = new URLSearchParams(url)
+    let curUsername = params.get("username")
+    LoginRooms[curUsername] = {
+        ws: ws,
+        status: false,
+    }
+    // 通知当前登录的所有好友进行好友列表更新
+    for (let username in LoginRooms) {
+        if(username==curUsername) continue
+        NotificationUser({ receiver_username: username, name: "friendList" })
+    }
+    ws.on('message', async (Resp_data) => {
+        let data = JSON.parse(Resp_data)
+        //接收者
+        let receiver_username = data.receiver_username
+        if (data.name == 'audio' || data.name == 'video') {
+            if (!LoginRooms[receiver_username]) {
+                ws.send(JSON.stringify({ name: "reject", message: "对方当前不在线!!!" }))
+                return
+            }
+            if (LoginRooms[receiver_username].status) {
+                ws.send(JSON.stringify({ name: "reject", message: "对方正在通话中!!!" }))
+                return
+            }
+            //当用户已经在音视频通话了则需要告知发送方
+            if (LoginRooms[username].status) {
+                ws.send(JSON.stringify({ name: "reject", message: "你正在通话中,请勿发送其他通话请求...." }))
+                return
+            }
+            LoginRooms[username].status = true
+            //对方在线
+            if (LoginRooms[receiver_username]) {
+                LoginRooms[receiver_username].ws.send(Resp_data)
+                data.method = data.name
+                data.name = 'peer'  //'peer' 表示已连接的消息类型，告知对方已经连接
+                ws.send(JSON.stringify(data))
+                return
+            }
+        }
+        //拒绝通话
+        if (data.name == 'reject') {
+            LoginRooms[username].status = false
+            return
+        }
+        //对方在线
+        if (LoginRooms[receiver_username]) {
+            LoginRooms[receiver_username].ws.send(Resp_data)
+        }
+    });
+    ws.on('close', function () {
+        if (LoginRooms[curUsername]) {
+            delete LoginRooms[curUsername]
+            // 通知当前登录的所有好友进行好友列表更新
+            for (let username in LoginRooms) {
+                NotificationUser({ receiver_username: username, name: "friendList" })
+            }
+        }
+    })
 }

@@ -1,5 +1,5 @@
 import { App, Button, Tooltip } from 'antd';
-import { useEffect, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 
 import { WechatOutlined } from '@ant-design/icons';
 import { statusIconList, chatIconList } from '@/assets/icons';
@@ -12,14 +12,14 @@ import { getChatList } from './api';
 import { IConnectParams, IMessage } from './api/type';
 import styles from './index.module.less';
 
-const ChatList = () => {
+const ChatList = forwardRef((props, ref) => {
   const { message } = App.useApp();
   const [chatList, setChatList] = useState<IMessage[]>([]); // 消息列表
   const [curChatInfo, setCurChatInfo] = useState<IMessage>(); // 当前选中的对话信息
   const [connectParams, setConnectParams] = useState<IConnectParams>(); // 连接参数
   const [socket, setSocket] = useState<WebSocket | null>(null); // websocket实例
 
-  // 建立websocket连接
+  // 进入聊天房间时建立websocket连接
   const initSocket = () => {
     // 如果连接参数为空，则不建立连接
     if (connectParams === undefined) return;
@@ -29,7 +29,7 @@ const ChatList = () => {
       setSocket(null);
     }
     const newSocket = new WebSocket(
-      `${wsBaseURL}/message/chat?room=${connectParams?.room}&id=${connectParams?.sender_id}&type=private`,
+      `${wsBaseURL}/message/connect_chat?room=${connectParams?.room}&id=${connectParams?.sender_id}&type=private`,
     );
     newSocket.onmessage = (e) => {
       // 处理发送的消息
@@ -72,6 +72,10 @@ const ChatList = () => {
     setConnectParams(params);
   }, []);
 
+  // 暴露方法出去
+  useImperativeHandle(ref, () => ({
+    refreshChatList,
+  }));
   return (
     <>
       <div className={styles.chatList}>
@@ -151,6 +155,7 @@ const ChatList = () => {
       </div>
     </>
   );
-};
-
+});
+// 指定显示名称
+ChatList.displayName = 'ChatList';
 export default ChatList;

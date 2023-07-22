@@ -1,6 +1,6 @@
 import { Tabs, Tree, Tooltip, TabsProps, App, Form, Input, Select, Button, Modal } from 'antd';
 import type { DirectoryTreeProps } from 'antd/es/tree';
-import { useEffect, useMemo, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 
 import { WechatOutlined } from '@ant-design/icons';
 import { statusIconList } from '@/assets/icons';
@@ -12,7 +12,8 @@ import { IFriendGroup, IFriendInfo, IFriendGroupList } from './api/type';
 import styles from './index.module.less';
 
 const { DirectoryTree } = Tree;
-const AddressBook = () => {
+
+const AddressBook = forwardRef((props, ref) => {
   const { message } = App.useApp();
   const [friendList, setFriendList] = useState<IFriendGroup[]>([]); // 好友列表
   const [infoChangeInstance] = Form.useForm<{ username: string; name: string; newRemark: string; newGroup: number }>();
@@ -205,6 +206,11 @@ const AddressBook = () => {
       </div>
     );
   }, [friendList]);
+
+  // 暴露方法出去
+  useImperativeHandle(ref, () => ({
+    refreshFriendList,
+  }));
   return (
     <>
       <div className={styles.addressBook}>
@@ -302,6 +308,7 @@ const AddressBook = () => {
       </div>
     </>
   );
-};
-
+});
+// 指定显示名称
+AddressBook.displayName = 'AddressBook';
 export default AddressBook;

@@ -1,8 +1,9 @@
 import { Tooltip, Button, App } from 'antd';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { menuIconList } from '@/assets/icons';
+import { wsBaseURL } from '@/assets/links/wsBaseURL';
 import ChangePwdModal from '@/components/ChangePwdModal';
 import ChangeInfoModal from '@/components/ChangeInfoModal';
 import { handleLogout, IUserInfo } from '@/utils/logout';
@@ -12,13 +13,23 @@ import AddressBook from './AddressBook';
 import ChatList from './ChatList';
 import styles from './index.module.less';
 
+type AddressBookRefType = {
+  refreshFriendList: () => void;
+};
+type ChatListRefType = {
+  refreshChatList: () => void;
+};
+
 const Container = () => {
   const { message } = App.useApp();
   const navigate = useNavigate();
-  const { name, avatar, phone, signature } = JSON.parse(userStorage.getItem() || '{}');
+  const { username, name, avatar, phone, signature } = JSON.parse(userStorage.getItem() || '{}');
   const [currentIcon, setCurrentIcon] = useState<string>('icon-message');
   const [openForgetModal, setForgetModal] = useState(false);
   const [openInfoModal, setInfoModal] = useState(false);
+  const [socket, setSocket] = useState<WebSocket | null>(null); // websocket实例
+  const addressBookRef = useRef<AddressBookRefType>(null); // 通讯录组件实例
+  const chatListRef = useRef<ChatListRefType>(null); // 聊天列表组件实例
 
   // 控制修改密码的弹窗显隐
   const handleForget = () => {
@@ -35,6 +46,11 @@ const Container = () => {
         if (res.code === 200) {
           clearSessionStorage();
           message.success('退出成功', 1.5);
+          // 关闭websocket连接
+          if (socket !== null) {
+            socket.close();
+            setSocket(null);
+          }
           navigate('/login');
         } else {
           message.error('退出失败,请重试', 1.5);
@@ -77,6 +93,47 @@ const Container = () => {
       </div>
     </div>
   );
+  // 进入到主页面时建立一个websocket连接
+  const initSocket = () => {
+    const newSocket = new WebSocket(`${wsBaseURL}/auth/user_channel?username=${username}`);
+    newSocket.onmessage = (message) => {
+      const data = JSON.parse(message.data);
+      switch (data.name) {
+        case 'friendList':
+          //重新加载好友列表
+          addressBookRef.current?.refreshFriendList();
+          break;
+        case 'chatList':
+          //重新加载消息列表
+          chatListRef.current?.refreshChatList();
+          break;
+        //音视频--to do
+        case 'audio':
+          console.log('音视频');
+          break;
+        //音视频--to do
+        case 'video':
+          console.log('音视频');
+          break;
+        //音视频响应--to do
+        case 'peer':
+          console.log('音视频响应');
+          break;
+        //拒绝
+        case 'reject':
+          if (data.message) {
+            App.useApp().message.error(data.message, 1.5);
+          } else {
+            socket?.send(JSON.stringify({ name: 'reject' }));
+          }
+          break;
+      }
+    };
+    setSocket(newSocket);
+  };
+  useEffect(() => {
+    initSocket();
+  }, []);
   return (
     <>
       <div className={styles.container}>
@@ -129,7 +186,9 @@ const Container = () => {
           <div className={styles.topicons}></div>
           <div className={styles.bottomicons}></div>
         </div>
-        <div className={styles.rightContainer}>{currentIcon === 'icon-message' ? <ChatList /> : <AddressBook />}</div>
+        <div className={styles.rightContainer}>
+          {currentIcon === 'icon-message' ? <ChatList ref={chatListRef} /> : <AddressBook ref={addressBookRef} />}
+        </div>
       </div>
       {
         // 修改密码弹窗
