@@ -12,6 +12,7 @@ import { clearSessionStorage, userStorage } from '@/utils/storage';
 import AddressBook from './AddressBook';
 import ChatList from './ChatList';
 import styles from './index.module.less';
+import { IFriendInfo } from './AddressBook/api/type';
 
 type AddressBookRefType = {
   refreshFriendList: () => void;
@@ -27,9 +28,10 @@ const Container = () => {
   const [currentIcon, setCurrentIcon] = useState<string>('icon-message');
   const [openForgetModal, setForgetModal] = useState(false);
   const [openInfoModal, setInfoModal] = useState(false);
-  const [socket, setSocket] = useState<WebSocket | null>(null); // websocket实例
+  const socket = useRef<WebSocket | null>(null); // websocket实例
   const addressBookRef = useRef<AddressBookRefType>(null); // 通讯录组件实例
   const chatListRef = useRef<ChatListRefType>(null); // 聊天列表组件实例
+  const [initSelectedChat, setInitSelectedChat] = useState<IFriendInfo | null>(null); // 初始化选中的聊天对象(只有从通讯录页面进入聊天页面时才会有值)
 
   // 控制修改密码的弹窗显隐
   const handleForget = () => {
@@ -47,9 +49,9 @@ const Container = () => {
           clearSessionStorage();
           message.success('退出成功', 1.5);
           // 关闭websocket连接
-          if (socket !== null) {
-            socket.close();
-            setSocket(null);
+          if (socket.current !== null) {
+            socket.current.close();
+            socket.current = null;
           }
           navigate('/login');
         } else {
@@ -124,16 +126,21 @@ const Container = () => {
           if (data.message) {
             App.useApp().message.error(data.message, 1.5);
           } else {
-            socket?.send(JSON.stringify({ name: 'reject' }));
+            socket.current?.send(JSON.stringify({ name: 'reject' }));
           }
           break;
       }
     };
-    setSocket(newSocket);
+    socket.current = newSocket;
   };
   useEffect(() => {
     initSocket();
   }, []);
+  // 在通讯录页面选择一个好友发送信息时跳转到聊天页面
+  const handleChooseFriend = (item: IFriendInfo) => {
+    setCurrentIcon('icon-message');
+    setInitSelectedChat(item);
+  };
   return (
     <>
       <div className={styles.container}>
@@ -187,7 +194,11 @@ const Container = () => {
           <div className={styles.bottomicons}></div>
         </div>
         <div className={styles.rightContainer}>
-          {currentIcon === 'icon-message' ? <ChatList ref={chatListRef} /> : <AddressBook ref={addressBookRef} />}
+          {currentIcon === 'icon-message' ? (
+            <ChatList initSelectedChat={initSelectedChat} ref={chatListRef} />
+          ) : (
+            <AddressBook handleChooseFriend={handleChooseFriend} ref={addressBookRef} />
+          )}
         </div>
       </div>
       {

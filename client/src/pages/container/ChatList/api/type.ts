@@ -5,7 +5,7 @@ export interface IConnectParams {
 }
 // 消息的类型
 export interface IMessage {
-  user_id: number;// 发送者id
+  user_id: number;// 接受者id
   name: string; // 接受者备注名字
   receiver_username: string; // 接受者用户名
   room: string; // 房间号

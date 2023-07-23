@@ -13,7 +13,12 @@ import styles from './index.module.less';
 
 const { DirectoryTree } = Tree;
 
-const AddressBook = forwardRef((props, ref) => {
+interface IAddressBookProps {
+  handleChooseFriend: (friendInfo: IFriendInfo) => void;
+}
+
+const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
+  const { handleChooseFriend } = props;
   const { message } = App.useApp();
   const [friendList, setFriendList] = useState<IFriendGroup[]>([]); // 好友列表
   const [infoChangeInstance] = Form.useForm<{ username: string; name: string; newRemark: string; newGroup: number }>();
@@ -274,7 +279,7 @@ const AddressBook = forwardRef((props, ref) => {
                 <Button
                   type="primary"
                   onClick={() => {
-                    console.log('发送消息');
+                    handleChooseFriend(curFriendInfo);
                   }}
                 >
                   发送消息

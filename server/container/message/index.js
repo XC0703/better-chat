@@ -92,7 +92,7 @@ async function connectChat(ws, req) {
         }
     })
     ws.send(JSON.stringify(histroyMsg))
-    //将所有未读消息变成已读
+    //将所有未读消息变成已读且通知更新
     sql = 'update message set status=1 where receiver_id=? and room=? and type=? and status=0'
     await Query(sql, [id, room, type])
     let fileInfo = null;
@@ -163,8 +163,7 @@ async function connectChat(ws, req) {
 
                             sql = 'insert into message set ?'
                             await Query(sql, msg)
-                            sql = `update  message_statistics set total=total+1  where room=?`
-                            await Query(sql, [room])
+                            await checkAndModifyStatistics(room)
                             for (const key in rooms[room]) {
                                 rooms[room][key].send(JSON.stringify(message))
                             }
@@ -182,11 +181,29 @@ async function connectChat(ws, req) {
         }
         sql = 'insert into message set ?'
         await Query(sql, msg)
-        sql = `update  message_statistics set total=total+1  where room=?`
-        await Query(sql, [room])
+        await checkAndModifyStatistics(room)
+        // 通知属于该房间的所有人
         for (const key in rooms[room]) {
             rooms[room][key].send(JSON.stringify(message))
-            NotificationUser({ receiver_id: message.receiver_id, name: "list" })
+        }
+        // 通知对方有新消息
+        NotificationUser({ receiver_id: message.receiver_id, name: "chatList" })
+    });
+    ws.on('close', function () {
+        if (rooms[room][id]) {
+            delete rooms[room][id]
         }
     })
 }
+
+// 检查message_statistics是否存在某条记录，如果不存在则创建后才修改，如果存在则直接修改
+const checkAndModifyStatistics = async (room) => {
+    let sql = 'select * from message_statistics where room = ?';
+    let result = await Query(sql, [room]);
+    if (result.results.length === 0) {
+        sql = 'insert into message_statistics set ?';
+        await Query(sql, { room: room, total: 0 });
+    }
+    sql = 'update message_statistics set total = total + 1 where room = ?';
+    await Query(sql, [room]);
+};
