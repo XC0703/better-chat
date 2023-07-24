@@ -5,11 +5,12 @@ import { WechatOutlined } from '@ant-design/icons';
 import { statusIconList, chatIconList } from '@/assets/icons';
 import { wsBaseURL } from '@/assets/links/wsBaseURL';
 import SearchContainer from '@/components/SearchContainer';
+import ChatContainer from '@/components/ChatContainer';
 import { userStorage } from '@/utils/storage';
-import { toggleTime_chatList, toggleTime_chatContent } from '@/utils/formatTime';
+import { toggleTime_chatList } from '@/utils/formatTime';
 
 import { getChatList } from './api';
-import { IConnectParams, IMessage } from './api/type';
+import { IConnectParams, IMessageList, IMessage } from './api/type';
 import { IFriendInfo } from '../AddressBook/api/type';
 import styles from './index.module.less';
 
@@ -20,9 +21,11 @@ interface IChatListProps {
 const ChatList = forwardRef((props: IChatListProps, ref) => {
   const { initSelectedChat } = props;
   const { message } = App.useApp();
-  const [chatList, setChatList] = useState<IMessage[]>([]); // 消息列表
-  const [curChatInfo, setCurChatInfo] = useState<IMessage>(); // 当前选中的对话信息
+  const [chatList, setChatList] = useState<IMessageList[]>([]); // 消息列表
+  const [curChatInfo, setCurChatInfo] = useState<IMessageList>(); // 当前选中的对话信息
   const socket = useRef<WebSocket | null>(null); // websocket实例
+  const [histroyMsg, setHistroyMsg] = useState<IMessage[]>([]);
+  // 保存某个房间的历史消息
 
   // 进入聊天房间时建立websocket连接
   const initSocket = (connectParams: IConnectParams) => {
@@ -38,6 +41,7 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
     );
     // 获取消息记录
     newSocket.onmessage = (e) => {
+      setHistroyMsg(JSON.parse(e.data));
       console.log('在房间的双方都会收到最新发送的一条消息拼接显示在房间的消息记录上', e.data);
     };
     newSocket.onerror = () => {
@@ -48,7 +52,7 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
   };
 
   // 选择聊天室
-  const chooseRoom = (item: IMessage) => {
+  const chooseRoom = (item: IMessageList) => {
     setCurChatInfo(item);
     // 建立连接
     const params: IConnectParams = {
@@ -182,7 +186,9 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
           ) : (
             <div className={styles.chat_window}>
               <div className={styles.chat_receiver}>{curChatInfo.name}</div>
-              <div className={styles.chat_content}></div>
+              <div className={styles.chat_content}>
+                <ChatContainer histroyMsg={histroyMsg} />
+              </div>
               <div className={styles.chat_tool}>
                 <div className={styles.chat_tool_item}>
                   <ul className={styles.leftIcons}>
