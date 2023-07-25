@@ -4,6 +4,9 @@
   overflow-Y: scroll;
   border-top: .01rem solid #e5e5e5;
   border-bottom: .01rem solid #e5e5e5;
+  .chat_item{
+    margin-bottom: .1rem;
+  }
   .chat_notice{
     width:100%;
     color: #fff;
@@ -24,46 +27,67 @@
     .avatar{
       display: flex;
       justify-content: center;
-      align-items: center;
       img{
-        width: 0.5rem;
-        height: 0.5rem;
+        width: 0.35rem;
+        height: 0.35rem;
       }
     }
     .content{
-      .triangle{
-        height: 0;
-        width: 0;
-        border-width: 0.06rem;
-        border-style: solid;
-        position: relative;
-        right: -.22rem;
-        top: 0.03rem;
-      }
+      display: block;
+      position: relative;
+      max-width: 55%;
+      padding:.05rem;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+      border-radius: .04rem;
+      flex-shrink:0;
+      min-height: .35rem;
+      align-self: flex-start;
     }
-  }
-  .self{
-    flex-direction: start;
-    .avatar{
-      margin-left: 0.01rem;
-    }
-    .content{
-      .triangle{
-        border-color: transparent #fff transparent transparent;
-      }
+    .content::before{
+      content:'';
+      display: inline-block;
+      width: 0;
+      height: 0;
+      border: .1rem solid transparent;
+      position: absolute;
+      top:.05rem;
     }
   }
   .other{
-    width:100%;
-    display: flex;
-    flex-direction: end;
+    justify-content: flex-start;
     .avatar{
-      margin-right: 0.01rem;
+      margin-left:  0.2rem;
     }
     .content{
-      .triangle{
-        border-color: transparent transparent transparent #b2e281;
-      }
+      background:#fff;
+      margin-left: .1rem;
+    }
+    .content::before{
+      border-right: .08rem solid #fff;
+      left: -.17rem;
+    }
+  }
+  .self{
+    width:100%;
+    display: flex;
+    justify-content: flex-end;
+    .avatar{
+      margin-right: 0.2rem;
+    }
+    .content{
+      background:#b2e281;
+      margin-right: .1rem;
+    }
+    .content::before{
+      display: inline-block;
+      width: 0;
+      height: 0;
+      border: .1rem solid transparent;
+      border-left: .08rem solid#b2e281;
+      position: absolute;
+      right: -.17rem;
+      top:.05rem;
     }
   }
 }

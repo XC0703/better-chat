@@ -21,19 +21,21 @@ const ChatContainer = (props: IChatContainer) => {
               <span>{toggleTime_chatContent(item.created_at)}</span>
             </div>
           )}
-          <div
-            className={`${item.sender_id === JSON.parse(userStorage.getItem()).id ? styles.self : styles.other} ${
-              styles.chat_item_content
-            }`}
-          >
-            <div className={styles.avatar}>
-              <img src={item.avatar} alt="" />
+          {item.sender_id === JSON.parse(userStorage.getItem()).id ? (
+            <div className={`${styles.self} ${styles.chat_item_content}`}>
+              <div className={styles.content}>{item.content}</div>
+              <div className={styles.avatar}>
+                <img src={item.avatar} alt="" />
+              </div>
             </div>
-            <div className={styles.content}>
-              <div className={styles.triangle}></div>
-              <span>{item.content}</span>
+          ) : (
+            <div className={`${styles.other} ${styles.chat_item_content}`}>
+              <div className={styles.avatar}>
+                <img src={item.avatar} alt="" />
+              </div>
+              <div className={styles.content}>{item.content}</div>
             </div>
-          </div>
+          )}
         </div>
       ))}
     </div>
