@@ -25,7 +25,6 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
   const [curChatInfo, setCurChatInfo] = useState<IMessageList>(); // 当前选中的对话信息
   const socket = useRef<WebSocket | null>(null); // websocket实例
   const [histroyMsg, setHistroyMsg] = useState<IMessage[]>([]);
-  // 保存某个房间的历史消息
 
   // 进入聊天房间时建立websocket连接
   const initSocket = (connectParams: IConnectParams) => {
@@ -41,8 +40,14 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
     );
     // 获取消息记录
     newSocket.onmessage = (e) => {
-      setHistroyMsg(JSON.parse(e.data));
-      console.log('在房间的双方都会收到最新发送的一条消息拼接显示在房间的消息记录上', e.data);
+      // 判断返回的信息是历史消息数组还是单条消息
+      if (Array.isArray(JSON.parse(e.data))) {
+        setHistroyMsg(JSON.parse(e.data));
+        return;
+      } else {
+        // 如果是单条消息，则将其添加到历史消息数组中
+        setHistroyMsg((prevMsg) => [...prevMsg, JSON.parse(e.data)]);
+      }
     };
     newSocket.onerror = () => {
       message.error('websocket连接失败，请重试！', 1.5);
@@ -70,6 +75,7 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
       receiver_id: curChatInfo?.user_id,
       type: 'text',
       content: '消息内容',
+      avatar: JSON.parse(userStorage.getItem()).avatar,
     };
     socket.current?.send(JSON.stringify(mockMessage));
     refreshChatList();
@@ -187,7 +193,7 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
             <div className={styles.chat_window}>
               <div className={styles.chat_receiver}>{curChatInfo.name}</div>
               <div className={styles.chat_content}>
-                <ChatContainer histroyMsg={histroyMsg} />
+                {histroyMsg && histroyMsg.length != 0 && <ChatContainer histroyMsg={histroyMsg} />}
               </div>
               <div className={styles.chat_tool}>
                 <div className={styles.chat_tool_item}>
