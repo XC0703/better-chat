@@ -2,7 +2,7 @@ import { Input, Button, App } from 'antd';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { bgImage } from '@/assets/links/imagesLinks';
+import { BgImage } from '@/assets/links/imagesLinks';
 
 import { handleRegister } from './api';
 import styles from './index.module.less';
@@ -107,7 +107,7 @@ const Register = () => {
   };
   return (
     <>
-      <div className={styles.bgContainer} style={{ backgroundImage: `url(${bgImage})` }}>
+      <div className={styles.bgContainer} style={{ backgroundImage: `url(${BgImage})` }}>
         <form action="">
           <div className={styles.registertext}>
             <h2>Welcome</h2>

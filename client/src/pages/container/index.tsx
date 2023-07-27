@@ -2,7 +2,7 @@ import { Tooltip, Button, App } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { menuIconList } from '@/assets/icons';
+import { MenuIconList } from '@/assets/icons';
 import { wsBaseURL } from '@/assets/links/wsBaseURL';
 import ChangePwdModal from '@/components/ChangePwdModal';
 import ChangeInfoModal from '@/components/ChangeInfoModal';
@@ -152,7 +152,7 @@ const Container = () => {
           </Tooltip>
           <div className={styles.iconList}>
             <ul className={styles.topIcons}>
-              {menuIconList.slice(0, 5).map((item) => {
+              {MenuIconList.slice(0, 5).map((item) => {
                 return (
                   <Tooltip key={item.text} placement="bottomLeft" title={item.text} arrow={false}>
                     <li
@@ -171,7 +171,7 @@ const Container = () => {
               })}
             </ul>
             <ul className={styles.bottomIcons}>
-              {menuIconList.slice(5, 8).map((item) => {
+              {MenuIconList.slice(5, 8).map((item) => {
                 return (
                   <Tooltip key={item.text} placement="bottomLeft" title={item.text} arrow={false}>
                     <li

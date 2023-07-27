@@ -2,7 +2,7 @@ import { Checkbox, Input, Button, App } from 'antd';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { bgImage } from '@/assets/links/imagesLinks';
+import { BgImage } from '@/assets/links/imagesLinks';
 import ChangePwdModal from '@/components/ChangePwdModal';
 import { tokenStorage, userStorage } from '@/utils/storage';
 import { encrypt, decrypt } from '@/utils/encryption';
@@ -147,7 +147,7 @@ const Login = () => {
   };
   return (
     <>
-      <div className={styles.bgContainer} style={{ backgroundImage: `url(${bgImage})` }}>
+      <div className={styles.bgContainer} style={{ backgroundImage: `url(${BgImage})` }}>
         <form action="">
           <div className={styles.logintext}>
             <h2>Welcome</h2>

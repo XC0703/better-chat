@@ -1,4 +1,4 @@
-export const menuIconList = [
+export const MenuIconList = [
   {
     icon: 'icon-message',
     text: '聊天',
@@ -32,7 +32,7 @@ export const menuIconList = [
     text: '退出登录',
   },
 ];
-export const statusIconList = [
+export const StatusIconList = [
   {
     icon: 'icon-zaixianzhuangtai-zaixian',
     text: '好友在线',
@@ -46,7 +46,7 @@ export const statusIconList = [
     text:'未读消息',
   },
 ];
-export const chatIconList = [
+export const ChatIconList = [
   {
     icon: 'icon-biaoqing',
     text: '表情',

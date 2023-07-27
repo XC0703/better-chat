@@ -3,7 +3,7 @@ import type { DirectoryTreeProps } from 'antd/es/tree';
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 
 import { WechatOutlined } from '@ant-design/icons';
-import { statusIconList } from '@/assets/icons';
+import { StatusIconList } from '@/assets/icons';
 import SearchContainer from '@/components/SearchContainer';
 import { userStorage } from '@/utils/storage';
 
@@ -47,12 +47,12 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
             <span className={styles.friendStatus}>
               <Tooltip
                 placement="bottomLeft"
-                title={friend.online_status === 'offline' ? statusIconList[1].text : statusIconList[0].text}
+                title={friend.online_status === 'offline' ? StatusIconList[1].text : StatusIconList[0].text}
                 arrow={false}
               >
                 <span
                   className={`iconfont ${
-                    friend.online_status === 'offline' ? statusIconList[1].icon : statusIconList[0].icon
+                    friend.online_status === 'offline' ? StatusIconList[1].icon : StatusIconList[0].icon
                   }`}
                 ></span>
               </Tooltip>

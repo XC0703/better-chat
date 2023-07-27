@@ -1,16 +1,18 @@
-import { App, Button, Tooltip } from 'antd';
+import { App, Tooltip } from 'antd';
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 
 import { WechatOutlined } from '@ant-design/icons';
-import { statusIconList, chatIconList } from '@/assets/icons';
+import { StatusIconList } from '@/assets/icons';
 import { wsBaseURL } from '@/assets/links/wsBaseURL';
 import SearchContainer from '@/components/SearchContainer';
 import ChatContainer from '@/components/ChatContainer';
+import ChatTool from '@/components/ChatTool';
+import { ISendMessage, IMessageList } from '@/components/ChatTool/api/type';
 import { userStorage } from '@/utils/storage';
 import { toggleTime_chatList } from '@/utils/formatTime';
 
 import { getChatList } from './api';
-import { IConnectParams, IMessageList, IMessage } from './api/type';
+import { IConnectParams, IMessage } from './api/type';
 import { IFriendInfo } from '../AddressBook/api/type';
 import styles from './index.module.less';
 
@@ -69,15 +71,8 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
   };
 
   // 发送消息
-  const sendMessage = () => {
-    const mockMessage = {
-      sender_id: JSON.parse(userStorage.getItem()).id,
-      receiver_id: curChatInfo?.user_id,
-      type: 'text',
-      content: '消息内容',
-      avatar: JSON.parse(userStorage.getItem()).avatar,
-    };
-    socket.current?.send(JSON.stringify(mockMessage));
+  const sendMessage = (message: ISendMessage) => {
+    socket.current?.send(JSON.stringify(message));
     refreshChatList();
   };
 
@@ -175,7 +170,7 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
                     </Tooltip>
                     {item.unreadCount !== 0 && (
                       <Tooltip placement="bottomLeft" title={'未读消息' + item.unreadCount + '条'} arrow={false}>
-                        <div className={`iconfont ${statusIconList[2].icon} ${styles.chat_unread}`}>
+                        <div className={`iconfont ${StatusIconList[2].icon} ${styles.chat_unread}`}>
                           <span>{item.unreadCount}</span>
                         </div>
                       </Tooltip>
@@ -195,33 +190,8 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
               <div className={styles.chat_content}>
                 {histroyMsg && histroyMsg.length != 0 && <ChatContainer histroyMsg={histroyMsg} />}
               </div>
-              <div className={styles.chat_tool}>
-                <div className={styles.chat_tool_item}>
-                  <ul className={styles.leftIcons}>
-                    {chatIconList.slice(0, 3).map((item) => {
-                      return (
-                        <Tooltip key={item.text} placement="bottomLeft" title={item.text} arrow={false}>
-                          <li className={`iconfont ${item.icon}`}></li>
-                        </Tooltip>
-                      );
-                    })}
-                  </ul>
-                  <ul className={styles.rightIcons}>
-                    {chatIconList.slice(3, 6).map((item) => {
-                      return (
-                        <Tooltip key={item.text} placement="bottomLeft" title={item.text} arrow={false}>
-                          <li className={`iconfont ${item.icon}`}></li>
-                        </Tooltip>
-                      );
-                    })}
-                  </ul>
-                </div>
-                <textarea className={styles.chat_tool_input}></textarea>
-                <div className={styles.chat_tool_btn}>
-                  <Button type="primary" onClick={sendMessage}>
-                    发送
-                  </Button>
-                </div>
+              <div className={styles.chat_input}>
+                <ChatTool curChatInfo={curChatInfo} sendMessage={sendMessage} />
               </div>
             </div>
           )}
