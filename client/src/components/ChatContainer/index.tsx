@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react';
+import { Image } from 'antd';
 
+import { serverURL } from '@/assets/links/baseURL';
 import { IMessage } from '@/pages/container/ChatList/api/type';
 import { userStorage } from '@/utils/storage';
 import { toggleTime_chatContent } from '@/utils/formatTime';
@@ -9,6 +11,11 @@ import styles from './index.module.less';
 // 给聊天框组件传递的参数
 interface IChatContainer {
   histroyMsg: IMessage[];
+}
+// 给消息展示组件传递的参数
+interface IChatContent {
+  messageType: string;
+  messageContent: string;
 }
 
 const ChatContainer = (props: IChatContainer) => {
@@ -22,6 +29,24 @@ const ChatContainer = (props: IChatContainer) => {
 
   const scrollToBottom = () => {
     chatRef.current!.scrollTop = chatRef.current!.scrollHeight;
+  };
+
+  // 消息内容(分为文本、图片、视频和文件)
+  const ChatContent = (props: IChatContent): JSX.Element | null => {
+    const { messageType, messageContent } = props;
+    switch (messageType) {
+      case 'text':
+        return <div className={styles.content_text}>{messageContent}</div>;
+      case 'image':
+        return <Image width={100} src={serverURL + messageContent} />;
+      // return <div className={styles.content_text}>{messageContent}</div>;
+      case 'video':
+        return <div className={styles.content_text}>{messageContent}</div>;
+      case 'file':
+        return <div className={styles.content_text}>{messageContent}</div>;
+      default:
+        return null;
+    }
   };
 
   return (
@@ -39,7 +64,7 @@ const ChatContainer = (props: IChatContainer) => {
             )}
             {item.sender_id === JSON.parse(userStorage.getItem()).id ? (
               <div className={`${styles.self} ${styles.chat_item_content}`}>
-                <div className={styles.content}>{item.content}</div>
+                <ChatContent messageType={item.type} messageContent={item.content} />
                 <div className={styles.avatar}>
                   <img src={item.avatar} alt="" />
                 </div>
@@ -49,7 +74,7 @@ const ChatContainer = (props: IChatContainer) => {
                 <div className={styles.avatar}>
                   <img src={item.avatar} alt="" />
                 </div>
-                <div className={styles.content}>{item.content}</div>
+                <ChatContent messageType={item.type} messageContent={item.content} />
               </div>
             )}
           </div>

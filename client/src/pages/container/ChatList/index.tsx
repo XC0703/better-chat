@@ -3,7 +3,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 're
 
 import { WechatOutlined } from '@ant-design/icons';
 import { StatusIconList } from '@/assets/icons';
-import { wsBaseURL } from '@/assets/links/wsBaseURL';
+import { wsBaseURL } from '@/assets/links/baseURL';
 import SearchContainer from '@/components/SearchContainer';
 import ChatContainer from '@/components/ChatContainer';
 import ChatTool from '@/components/ChatTool';

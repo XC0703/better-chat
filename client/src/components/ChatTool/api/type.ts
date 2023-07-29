@@ -1,16 +1,12 @@
 // 消息枚举，消息类型目前分为text(文本),image(图片),video(视频),file(文件)
-export enum MessageType {
-  Text = 'text',
-  Image = 'image',
-  Vidio = 'video',
-  File = 'file',
-}
+type MessageType = 'text'| 'image'|'video'| 'file';
 // 发送消息的类型
 export interface ISendMessage {
+  filename?:string,
   sender_id: number;
   receiver_id: number;
   type: MessageType;
-  content: string;
+  content: string|number[];
   avatar: string;
 }
 // 当前选中的消息类型

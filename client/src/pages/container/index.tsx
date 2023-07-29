@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { MenuIconList } from '@/assets/icons';
-import { wsBaseURL } from '@/assets/links/wsBaseURL';
+import { wsBaseURL } from '@/assets/links/baseURL';
 import ChangePwdModal from '@/components/ChangePwdModal';
 import ChangeInfoModal from '@/components/ChangeInfoModal';
 import { handleLogout, IUserInfo } from '@/utils/logout';

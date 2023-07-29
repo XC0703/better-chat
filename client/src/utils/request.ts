@@ -3,6 +3,8 @@
 import axios from "axios";
 import type { AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
 
+import { apiBaseURL } from '@/assets/links/baseURL'
+
 interface ApiResponse<T> {
   code: number;
   message: string; // 用一个更具体的字段来描述错误信息
@@ -11,7 +13,7 @@ interface ApiResponse<T> {
 
 export class Request {
   private instance: AxiosInstance;
-  private defaultConfig: AxiosRequestConfig = { baseURL: "http://127.0.0.1:3000/api/chat/v1", timeout: 6000 };
+  private defaultConfig: AxiosRequestConfig = { baseURL: apiBaseURL, timeout: 6000 };
 
   constructor(config: AxiosRequestConfig) {
     const mergedConfig = { ...this.defaultConfig, ...config }; // 使用浅拷贝
