@@ -1,4 +1,5 @@
-import { ConfigProvider, App } from 'antd';
+import { App, ConfigProvider } from 'antd';
+import zhCN from 'antd/es/locale/zh_CN';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 
@@ -13,6 +14,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
           colorPrimary: '#28a770',
         },
       }}
+      locale={zhCN}
     >
       <App>
         <RouterConfig />

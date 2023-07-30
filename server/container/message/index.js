@@ -76,10 +76,10 @@ async function connectChat(ws, req) {
     // 获取历史消息
     let sql;
     let resp;
-    sql = 'SELECT m.*,u.avatar FROM (SELECT sender_id, receiver_id, content, room, media_type,message.created_at FROM message WHERE room =? AND type = ?  ORDER BY created_at ASC) AS m LEFT JOIN user as u ON u.id=m.sender_id';
+    sql = 'SELECT m.*,u.avatar FROM (SELECT sender_id, receiver_id, content, room, media_type, file_size, message.created_at FROM message WHERE room =? AND type = ?  ORDER BY created_at ASC) AS m LEFT JOIN user as u ON u.id=m.sender_id';
     resp = await Query(sql, [room, type]);
     let results = resp.results;
-    let histroyMsg = results.map((item) => {
+    let historyMsg = results.map((item) => {
         return {
             "sender_id": item.sender_id, // 发送者id
             "receiver_id": item.receiver_id, // 接受者id
@@ -91,7 +91,7 @@ async function connectChat(ws, req) {
             "created_at": new Date(item.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }),  // 消息创建时间，格式化为本地时间
         }
     })
-    ws.send(JSON.stringify(histroyMsg))
+    ws.send(JSON.stringify(historyMsg))
     //将所有未读消息变成已读且通知更新
     sql = 'update message set status=1 where receiver_id=? and room=? and type=? and status=0'
     await Query(sql, [id, room, type])

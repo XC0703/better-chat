@@ -9,6 +9,8 @@ export enum ChatImage{
   ZIP='https://p0.meituan.net/travelcube/88e5bd1b68c74f4d1b8dca3418caa2741596.png',
   MP4='https://p0.meituan.net/travelcube/6e992c3596031d9a0e5256e7f80a0a461833.png',
   TXT='https://p1.meituan.net/travelcube/5ff7f30b4730c6e23caf971b38082d7f3011.png',
+  DEFAULT='https://p0.meituan.net/travelcube/0ee749fa3a864afbd368c664c42b60793531.png',
+  PLAY = 'https://p1.meituan.net/travelcube/1b3d123f2451076b7e5add742cbdf6c53946.png',
 }
 export enum OtherImage {
   LOGO = 'https://p1.meituan.net/travelcube/600e1f2e951b352dc00e01414991f50c4923.png',
@@ -16,7 +18,6 @@ export enum OtherImage {
   VIDEO = 'https://p0.meituan.net/travelcube/5d0abf84409c01a0d19ec3f40e038a8f6966.png',
   UPLOAD = 'https://p0.meituan.net/travelcube/1e7a4f528d59ce4dfa144ab1798487123533.png',
   REJECT = 'https://p1.meituan.net/travelcube/91080d4a2adc2834094892d98b129b2510890.png',
-  PLAY = 'https://p1.meituan.net/travelcube/1b3d123f2451076b7e5add742cbdf6c53946.png',
   PHOTO = 'https://p0.meituan.net/travelcube/38e7a952a4d793582b7d7ed19739083314364.png',
   MAX = 'https://p0.meituan.net/travelcube/ac5bc93a1cc3438b936f430d42cc778a1836.png',
   MINUS = 'https://p0.meituan.net/travelcube/f9677503a989ac3cac246b8fff031cda789.png',

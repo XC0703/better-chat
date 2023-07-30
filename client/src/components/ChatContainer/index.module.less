@@ -53,6 +53,64 @@
       position: absolute;
       top:.05rem;
     }
+    .content_video{
+      object-fit: cover;
+      position: relative;
+      text-align: center;
+      img{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width:.3rem;
+        height: .3rem;
+        cursor: pointer;
+      }
+    }
+    .content_file{
+      width:1.8rem;
+      height: .7rem;
+      display: flex;
+      background-color: #fff;
+      position: relative;
+      .content_file_name{
+        flex:1.5;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        span:nth-child(1){
+          font-size: .16rem;
+          color: #000;
+        }
+        span:nth-child(2){
+          font-size: .12rem;
+          color: #999;
+        }
+      }
+      .content_file_img{
+        flex:1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        img{
+          width:.4rem;
+        }
+      }
+    }
+    .content_file::before{
+      content:'';
+      display: inline-block;
+      width: 0;
+      height: 0;
+      border: .1rem solid transparent;
+      position: absolute;
+      top:.05rem;
+    }
+    .content_file:hover{
+      background-color: #eeeeee;
+      cursor: pointer;
+    }
   }
   .other{
     justify-content: flex-start;
@@ -66,6 +124,21 @@
     .content_text::before{
       border-right: .08rem solid #fff;
       left: -.17rem;
+    }
+    .content_video{
+      margin-left: .1rem;
+    }
+    .content_file{
+      margin-left: .1rem;
+    }
+    .content_file::before{
+      border-right: .08rem solid #fff;
+      left: -.17rem;
+    }
+    :global{
+      .content_image{
+        margin-left: .1rem;
+      }
     }
   }
   .self{
@@ -87,6 +160,27 @@
       right: -.17rem;
       top:.05rem;
     }
+    .content_video{
+      margin-right: .1rem;
+    }
+    .content_file{
+      margin-right: .1rem;
+    }
+    .content_file::before{
+      display: inline-block;
+      width: 0;
+      height: 0;
+      border: .1rem solid transparent;
+      border-left: .08rem solid #fff;
+      position: absolute;
+      right: -.17rem;
+      top:.05rem;
+    }
+    :global{
+      .content_image{
+        margin-right: .1rem;
+      }
+    }
   }
 }
 .chat_container::-webkit-scrollbar {
@@ -98,4 +192,11 @@
 }
 .chat_container:hover::-webkit-scrollbar-thumb {
   background-color: #e5e5e5;
+}
+:global{
+  .ant-image-preview-img-wrapper{
+    img{
+      width: auto;
+    }
+  }
 }

@@ -1,4 +1,4 @@
-import { App, Button, Tooltip } from 'antd';
+import { App, Button, Spin, Tooltip } from 'antd';
 
 import { EmojiList } from '@/assets/emoji';
 import { ChatIconList } from '@/assets/icons';
@@ -21,6 +21,7 @@ const ChatTool = (props: IChatToolProps) => {
   const { curChatInfo, sendMessage } = props;
   const { message } = App.useApp();
   const [inputValue, setInputValue] = useState<string>('');
+  const [loading, setLoading] = useState(false);
   const imageRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -56,6 +57,7 @@ const ChatTool = (props: IChatToolProps) => {
   // 发送图片/视频消息
   const handleSendImageMessage = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files!.length > 0) {
+      setLoading(true);
       const file = e.target.files![0];
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -72,8 +74,10 @@ const ChatTool = (props: IChatToolProps) => {
         };
         try {
           sendMessage(newmessage);
+          setLoading(false);
         } catch (error) {
           message.error('发送消息失败，请重试！', 1.5);
+          setLoading(false);
         }
       };
       reader.readAsArrayBuffer(file);
@@ -82,20 +86,81 @@ const ChatTool = (props: IChatToolProps) => {
 
   // 发送文件消息
   const handleSendFileMessage = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.value === '') return;
-    const newmessage: ISendMessage = {
-      sender_id: JSON.parse(userStorage.getItem()).id,
-      receiver_id: curChatInfo?.user_id,
-      type: 'text',
-      content: inputValue,
-      avatar: JSON.parse(userStorage.getItem()).avatar,
-    };
-
-    try {
-      sendMessage(newmessage);
-      setInputValue(''); // 在发送消息成功后清空输入框内容
-    } catch (error) {
-      message.error('发送消息失败，请重试！', 1.5);
+    if (e.target.files!.length > 0) {
+      setLoading(true);
+      const file = e.target.files![0];
+      // 其它文件类型，按照图片/视频文件处理
+      if (getFileSuffixByName(file.name) !== 'file') {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const fileContent = event.target!.result;
+          const content = new Uint8Array(fileContent as ArrayBuffer);
+          const filename = file.name;
+          const newmessage: ISendMessage = {
+            filename: filename,
+            sender_id: JSON.parse(userStorage.getItem()).id,
+            receiver_id: curChatInfo?.user_id,
+            type: getFileSuffixByName(filename),
+            content: Array.from(content),
+            avatar: JSON.parse(userStorage.getItem()).avatar,
+          };
+          try {
+            sendMessage(newmessage);
+            setLoading(false);
+          } catch (error) {
+            message.error('发送消息失败，请重试！', 1.5);
+            setLoading(false);
+          }
+          reader.readAsArrayBuffer(file);
+        };
+      } else {
+        // 发送文件信息
+        const fileInfo = {
+          fileName: file.name,
+          fileSize: file.size,
+        };
+        //发送文件下载指令
+        const newmessage: ISendMessage = {
+          filename: file.name,
+          sender_id: JSON.parse(userStorage.getItem()).id,
+          receiver_id: curChatInfo?.user_id,
+          type: 'file',
+          content: '',
+          avatar: JSON.parse(userStorage.getItem()).avatar,
+          fileType: 'start',
+          fileInfo: JSON.stringify(fileInfo),
+        };
+        try {
+          sendMessage(newmessage);
+        } catch (error) {
+          message.error('发送消息失败，请重试！', 1.5);
+          setLoading(false);
+        }
+        //防止文件未初始化完成就发送
+        setTimeout(async () => {
+          //开启读取文件并上传
+          const reader = file.stream().getReader();
+          let shouldExit = false; // 添加一个退出条件变量
+          let chunk;
+          while (!shouldExit) {
+            chunk = await reader.read();
+            if (chunk.done) {
+              setLoading(false);
+              shouldExit = true;
+            }
+            const newmessage: ISendMessage = {
+              filename: file.name,
+              sender_id: JSON.parse(userStorage.getItem()).id,
+              receiver_id: curChatInfo?.user_id,
+              type: 'file',
+              content: Array.from(new Uint8Array(chunk.value as ArrayBufferLike)),
+              avatar: JSON.parse(userStorage.getItem()).avatar,
+              fileType: 'upload',
+            };
+            sendMessage(newmessage);
+          }
+        }, 50);
+      }
     }
   };
 
@@ -103,11 +168,9 @@ const ChatTool = (props: IChatToolProps) => {
   const handleIconClick = (icon: string) => {
     switch (icon) {
       case 'icon-tupian_huaban':
-        console.log('选择图片发送');
         imageRef.current!.click();
         break;
       case 'icon-wenjian1':
-        console.log('选择文件发送');
         fileRef.current!.click();
         break;
       case 'icon-dianhua':
@@ -196,13 +259,16 @@ const ChatTool = (props: IChatToolProps) => {
           }}
         />
       </div>
-      <textarea
-        className={styles.chat_tool_input}
-        onChange={(e) => {
-          changeInputValue(e);
-        }}
-        value={inputValue}
-      ></textarea>
+      <div className={styles.chat_tool_input}>
+        <Spin spinning={loading} tip="正在发送中...">
+          <textarea
+            onChange={(e) => {
+              changeInputValue(e);
+            }}
+            value={inputValue}
+          ></textarea>
+        </Spin>
+      </div>
       <div className={styles.chat_tool_btn}>
         <Button type="primary" onClick={handleSendTextMessage}>
           发送

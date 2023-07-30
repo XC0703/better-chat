@@ -26,7 +26,7 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
   const [chatList, setChatList] = useState<IMessageList[]>([]); // 消息列表
   const [curChatInfo, setCurChatInfo] = useState<IMessageList>(); // 当前选中的对话信息
   const socket = useRef<WebSocket | null>(null); // websocket实例
-  const [histroyMsg, setHistroyMsg] = useState<IMessage[]>([]);
+  const [historyMsg, setHistoryMsg] = useState<IMessage[]>([]);
 
   // 进入聊天房间时建立websocket连接
   const initSocket = (connectParams: IConnectParams) => {
@@ -44,11 +44,11 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
     newSocket.onmessage = (e) => {
       // 判断返回的信息是历史消息数组还是单条消息
       if (Array.isArray(JSON.parse(e.data))) {
-        setHistroyMsg(JSON.parse(e.data));
+        setHistoryMsg(JSON.parse(e.data));
         return;
       } else {
         // 如果是单条消息，则将其添加到历史消息数组中
-        setHistroyMsg((prevMsg) => [...prevMsg, JSON.parse(e.data)]);
+        setHistoryMsg((prevMsg) => [...prevMsg, JSON.parse(e.data)]);
       }
     };
     newSocket.onerror = () => {
@@ -60,6 +60,7 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
 
   // 选择聊天室
   const chooseRoom = (item: IMessageList) => {
+    setHistoryMsg([]);
     setCurChatInfo(item);
     // 建立连接
     const params: IConnectParams = {
@@ -162,7 +163,17 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
                   </div>
                   <div className={styles.chat_info}>
                     <div className={styles.chat_name}>{item.name}</div>
-                    <div className={styles.chat_message}>{item.lastMessage}</div>
+                    <div className={styles.chat_message}>
+                      {item.type === 'text'
+                        ? item.lastMessage
+                        : item.type === 'image'
+                        ? '[图片]'
+                        : item.type === 'video'
+                        ? '[视频]'
+                        : item.type === 'file'
+                        ? '[文件]'
+                        : null}
+                    </div>
                   </div>
                   <div className={styles.chat_info_time}>
                     <Tooltip placement="bottomLeft" title={toggleTime_chatList(item.updated_at)} arrow={false}>
@@ -188,7 +199,7 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
             <div className={styles.chat_window}>
               <div className={styles.chat_receiver}>{curChatInfo.name}</div>
               <div className={styles.chat_content}>
-                {histroyMsg && histroyMsg.length != 0 && <ChatContainer histroyMsg={histroyMsg} />}
+                {historyMsg && historyMsg.length != 0 && <ChatContainer historyMsg={historyMsg} />}
               </div>
               <div className={styles.chat_input}>
                 <ChatTool curChatInfo={curChatInfo} sendMessage={sendMessage} />
