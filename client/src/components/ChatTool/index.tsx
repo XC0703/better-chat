@@ -60,6 +60,7 @@ const ChatTool = (props: IChatToolProps) => {
       setLoading(true);
       const file = e.target.files![0];
       const reader = new FileReader();
+      // 文件读取完成之后执行的回调
       reader.onload = (event) => {
         const fileContent = event.target!.result;
         const content = new Uint8Array(fileContent as ArrayBuffer);
@@ -80,7 +81,7 @@ const ChatTool = (props: IChatToolProps) => {
           setLoading(false);
         }
       };
-      reader.readAsArrayBuffer(file);
+      reader.readAsArrayBuffer(file); // 将指定文件 file 以 ArrayBuffer 的形式进行读取的操作
     }
   };
 
