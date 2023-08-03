@@ -2,9 +2,9 @@ import { useEffect } from 'react';
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 
 import { withPrivateRoute } from '@/components/PrivateRoute';
-import Register from '@/pages/register';
-import Login from '@/pages/login';
 import Chat from '@/pages/chat';
+import Login from '@/pages/login';
+import Register from '@/pages/register';
 import { tokenStorage } from '@/utils/storage';
 
 // 用于给需要登录才能访问的页面添加路由守卫

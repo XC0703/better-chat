@@ -2,17 +2,17 @@ import { Tooltip, Button, App } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { MenuIconList } from '@/assets/icons';
-import { wsBaseURL } from '@/assets/links/baseURL';
-import ChangePwdModal from '@/components/ChangePwdModal';
-import ChangeInfoModal from '@/components/ChangeInfoModal';
-import { handleLogout, IUserInfo } from '@/utils/logout';
-import { clearSessionStorage, userStorage } from '@/utils/storage';
-
 import AddressBook from './AddressBook';
+import { IFriendInfo } from './AddressBook/api/type';
 import ChatList from './ChatList';
 import styles from './index.module.less';
-import { IFriendInfo } from './AddressBook/api/type';
+
+import { MenuIconList } from '@/assets/icons';
+import { wsBaseURL } from '@/assets/links/baseURL';
+import ChangeInfoModal from '@/components/ChangeInfoModal';
+import ChangePwdModal from '@/components/ChangePwdModal';
+import { handleLogout, IUserInfo } from '@/utils/logout';
+import { clearSessionStorage, userStorage } from '@/utils/storage';
 
 type AddressBookRefType = {
   refreshFriendList: () => void;

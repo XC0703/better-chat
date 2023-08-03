@@ -1,5 +1,5 @@
-import Container from '../container';
 import styles from './index.module.less';
+import Container from '../container';
 
 const Chat = () => {
   return (

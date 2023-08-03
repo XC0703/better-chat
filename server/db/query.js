@@ -1,14 +1,14 @@
-const db = require("./db")
+const db = require("./db");
 function Query(sql, info) {
-    return new Promise((resolve, reject) => {
-        db.query(sql, info, async (err, results) => {
-            if (err) {
-                console.log(err);
-            }
-            resolve({ err, results })
-        })
-    })
+  return new Promise((resolve, reject) => {
+    db.query(sql, info, async (err, results) => {
+      if (err) {
+        console.log(err);
+      }
+      resolve({ err, results });
+    });
+  });
 }
 module.exports = {
-    Query
-}
+  Query,
+};

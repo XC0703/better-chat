@@ -2,10 +2,10 @@ import { Input, Button, App } from 'antd';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { BgImage } from '@/assets/links/imagesLinks';
-
 import { handleRegister } from './api';
 import styles from './index.module.less';
+
+import { BgImage } from '@/assets/links/imagesLinks';
 
 const Register = () => {
   const { message } = App.useApp();

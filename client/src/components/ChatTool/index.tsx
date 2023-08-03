@@ -1,13 +1,13 @@
 import { App, Button, Spin, Tooltip } from 'antd';
+import { ChangeEvent, useRef, useState } from 'react';
+
+import { IMessageList, ISendMessage } from './api/type';
+import styles from './index.module.less';
 
 import { EmojiList } from '@/assets/emoji';
 import { ChatIconList } from '@/assets/icons';
 import { getFileSuffixByName } from '@/utils/file';
 import { userStorage } from '@/utils/storage';
-
-import styles from './index.module.less';
-import { IMessageList, ISendMessage } from './api/type';
-import { ChangeEvent, useRef, useState } from 'react';
 
 // 聊天输入工具组件传递的参数类型
 interface IChatToolProps {

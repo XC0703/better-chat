@@ -1,14 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
 import { App, Image, Modal } from 'antd';
+import { useEffect, useRef, useState } from 'react';
 
-import { ChatImage } from '@/assets/links/imagesLinks';
+import styles from './index.module.less';
+
 import { serverURL } from '@/assets/links/baseURL';
+import { ChatImage } from '@/assets/links/imagesLinks';
 import { IMessage } from '@/pages/container/ChatList/api/type';
 import { getMediaSize, getMediaShowSize, getFileName, getFileIcons, downloadFile } from '@/utils/file';
 import { toggleTime_chatContent } from '@/utils/formatTime';
 import { userStorage } from '@/utils/storage';
-
-import styles from './index.module.less';
 
 // 给聊天框组件传递的参数
 interface IChatContainer {

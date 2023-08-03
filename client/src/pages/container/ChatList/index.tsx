@@ -1,20 +1,20 @@
+import { WechatOutlined } from '@ant-design/icons';
 import { App, Tooltip } from 'antd';
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 
-import { WechatOutlined } from '@ant-design/icons';
+import { getChatList } from './api';
+import { IConnectParams, IMessage } from './api/type';
+import styles from './index.module.less';
+import { IFriendInfo } from '../AddressBook/api/type';
+
 import { StatusIconList } from '@/assets/icons';
 import { wsBaseURL } from '@/assets/links/baseURL';
-import SearchContainer from '@/components/SearchContainer';
 import ChatContainer from '@/components/ChatContainer';
 import ChatTool from '@/components/ChatTool';
 import { ISendMessage, IMessageList } from '@/components/ChatTool/api/type';
-import { userStorage } from '@/utils/storage';
+import SearchContainer from '@/components/SearchContainer';
 import { toggleTime_chatList } from '@/utils/formatTime';
-
-import { getChatList } from './api';
-import { IConnectParams, IMessage } from './api/type';
-import { IFriendInfo } from '../AddressBook/api/type';
-import styles from './index.module.less';
+import { userStorage } from '@/utils/storage';
 
 interface IChatListProps {
   initSelectedChat: IFriendInfo | null;

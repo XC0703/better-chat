@@ -2,11 +2,11 @@ import { App, Input, Modal } from 'antd';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { handleLogout, IUserInfo } from '@/utils/logout';
-import { clearSessionStorage, userStorage } from '@/utils/storage';
-
 import { handleChange } from './api';
 import styles from './index.module.less';
+
+import { handleLogout, IUserInfo } from '@/utils/logout';
+import { clearSessionStorage, userStorage } from '@/utils/storage';
 
 interface IChangePwdModal {
   openmodal: boolean;

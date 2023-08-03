@@ -1,11 +1,11 @@
+import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { Tooltip, Input } from 'antd';
 import { useState } from 'react';
 
-import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import styles from './index.module.less';
+
 import AddFriendOrGroupModal from '@/components/AddFriendOrGroupModal';
 import CreateGroupChatModal from '@/components/CreateGroupChatModal';
-
-import styles from './index.module.less';
 
 const SearchContainer = () => {
   const [openAddModal, setAddModal] = useState(false);

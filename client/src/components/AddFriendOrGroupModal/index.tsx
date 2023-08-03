@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import { App, Button, Input, Modal, Tabs, TabsProps } from 'antd';
-
 import { SearchOutlined } from '@ant-design/icons';
-import { userStorage } from '@/utils/storage';
+import { App, Button, Input, Modal, Tabs, TabsProps } from 'antd';
+import { useState } from 'react';
 
 import { getFriendList, addFriend } from './api';
 import { IFriend } from './api/type';
 import styles from './index.module.less';
+
+import { userStorage } from '@/utils/storage';
 
 interface IChangeInfoModal {
   openmodal: boolean;

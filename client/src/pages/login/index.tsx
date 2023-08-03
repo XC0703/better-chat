@@ -2,13 +2,13 @@ import { Checkbox, Input, Button, App } from 'antd';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { BgImage } from '@/assets/links/imagesLinks';
-import ChangePwdModal from '@/components/ChangePwdModal';
-import { tokenStorage, userStorage } from '@/utils/storage';
-import { encrypt, decrypt } from '@/utils/encryption';
-
 import { handleLogin } from './api';
 import styles from './index.module.less';
+
+import { BgImage } from '@/assets/links/imagesLinks';
+import ChangePwdModal from '@/components/ChangePwdModal';
+import { encrypt, decrypt } from '@/utils/encryption';
+import { tokenStorage, userStorage } from '@/utils/storage';
 
 // 用户信息接口
 interface IUserInfo {
