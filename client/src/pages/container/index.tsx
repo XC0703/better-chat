@@ -9,8 +9,10 @@ import styles from './index.module.less';
 
 import { MenuIconList } from '@/assets/icons';
 import { wsBaseURL } from '@/assets/links/baseURL';
+import AudioModal from '@/components/AudioModal';
 import ChangeInfoModal from '@/components/ChangeInfoModal';
 import ChangePwdModal from '@/components/ChangePwdModal';
+import VideoModal from '@/components/VideoModal';
 import { handleLogout, IUserInfo } from '@/utils/logout';
 import { clearSessionStorage, userStorage } from '@/utils/storage';
 
@@ -28,19 +30,33 @@ const Container = () => {
   const [currentIcon, setCurrentIcon] = useState<string>('icon-message');
   const [openForgetModal, setForgetModal] = useState(false);
   const [openInfoModal, setInfoModal] = useState(false);
+  const [openAudioModal, setAudioModal] = useState(false);
+  const [openVideoModal, setVideoModal] = useState(false);
   const socket = useRef<WebSocket | null>(null); // websocket实例
   const addressBookRef = useRef<AddressBookRefType>(null); // 通讯录组件实例
   const chatListRef = useRef<ChatListRefType>(null); // 聊天列表组件实例
   const [initSelectedChat, setInitSelectedChat] = useState<IFriendInfo | null>(null); // 初始化选中的聊天对象(只有从通讯录页面进入聊天页面时才会有值)
 
   // 控制修改密码的弹窗显隐
-  const handleForget = () => {
-    setForgetModal(!openForgetModal);
+  const handleForgetModal = (visible: boolean) => {
+    setForgetModal(visible);
   };
+
   // 控制修改信息的弹窗显隐
-  const handleInfo = () => {
-    setInfoModal(!openInfoModal);
+  const handleInfoModal = (visible: boolean) => {
+    setInfoModal(visible);
   };
+
+  // 控制音频通话弹窗的显隐
+  const handleAudioModal = (visible: boolean) => {
+    setAudioModal(visible);
+  };
+
+  // 控制视频通话弹窗的显隐
+  const handleVideoModal = (visible: boolean) => {
+    setVideoModal(visible);
+  };
+
   // 退出登录
   const confirmLogout = () => {
     handleLogout(JSON.parse(userStorage.getItem() || '{}') as IUserInfo)
@@ -62,6 +78,7 @@ const Container = () => {
         message.error('退出失败,请重试', 1.5);
       });
   };
+
   // 点击头像用户信息弹窗
   const infoContent = (
     <div className={styles.infoContent}>
@@ -79,7 +96,7 @@ const Container = () => {
         <Button
           size="small"
           onClick={() => {
-            handleForget();
+            handleForgetModal(true);
           }}
         >
           修改密码
@@ -87,7 +104,7 @@ const Container = () => {
         <Button
           size="small"
           onClick={() => {
-            handleInfo();
+            handleInfoModal(true);
           }}
         >
           修改信息
@@ -95,6 +112,7 @@ const Container = () => {
       </div>
     </div>
   );
+
   // 进入到主页面时建立一个websocket连接
   const initSocket = () => {
     const newSocket = new WebSocket(`${wsBaseURL}/auth/user_channel?username=${username}`);
@@ -111,11 +129,13 @@ const Container = () => {
           break;
         //音视频--to do
         case 'audio':
-          console.log('音视频');
+          setAudioModal(true);
+          console.log('音频');
           break;
         //音视频--to do
         case 'video':
-          console.log('音视频');
+          setVideoModal(true);
+          console.log('视频');
           break;
         //音视频响应--to do
         case 'peer':
@@ -136,11 +156,13 @@ const Container = () => {
   useEffect(() => {
     initSocket();
   }, []);
+
   // 在通讯录页面选择一个好友发送信息时跳转到聊天页面
   const handleChooseFriend = (item: IFriendInfo) => {
     setCurrentIcon('icon-message');
     setInitSelectedChat(item);
   };
+
   return (
     <>
       <div className={styles.container}>
@@ -203,11 +225,19 @@ const Container = () => {
       </div>
       {
         // 修改密码弹窗
-        openForgetModal && <ChangePwdModal openmodal={openForgetModal} handleForget={handleForget} />
+        openForgetModal && <ChangePwdModal openmodal={openForgetModal} handleModal={handleForgetModal} />
       }
       {
         // 修改信息弹窗
-        openInfoModal && <ChangeInfoModal openmodal={openInfoModal} handleInfo={handleInfo} />
+        openInfoModal && <ChangeInfoModal openmodal={openInfoModal} handleModal={handleInfoModal} />
+      }
+      {
+        // 音频通话弹窗
+        openAudioModal && <AudioModal openmodal={openAudioModal} handleModal={handleAudioModal} status="receive" />
+      }
+      {
+        // 视频通话弹窗
+        openVideoModal && <VideoModal openmodal={openVideoModal} handleModal={handleVideoModal} status="receive" />
       }
     </>
   );

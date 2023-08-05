@@ -10,13 +10,12 @@ import { clearSessionStorage, userStorage } from '@/utils/storage';
 
 interface IChangePwdModal {
   openmodal: boolean;
-  handleForget: () => void;
+  handleModal: (open: boolean) => void;
 }
 const ChangePwdModal = (props: IChangePwdModal) => {
-  const { openmodal, handleForget } = props;
+  const { openmodal, handleModal } = props;
 
   const { message } = App.useApp();
-  const [open, setOpen] = useState(openmodal);
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
@@ -120,7 +119,7 @@ const ChangePwdModal = (props: IChangePwdModal) => {
         if (res.code === 200) {
           message.success('修改密码成功！', 1.5);
           setLoading(false);
-          handleForget();
+          handleModal(false);
           confirmLogout();
         } else {
           message.error(res.message, 1.5);
@@ -133,19 +132,16 @@ const ChangePwdModal = (props: IChangePwdModal) => {
       });
   };
 
-  const handleCancel = () => {
-    setOpen(false);
-    handleForget();
-  };
-
   return (
     <>
       <Modal
         title="更改密码"
-        open={open}
+        open={openmodal}
         onOk={handleSubmit}
         confirmLoading={loading}
-        onCancel={handleCancel}
+        onCancel={() => {
+          handleModal(false);
+        }}
         okText="确认"
         cancelText="取消"
         wrapClassName="changePwdModal"

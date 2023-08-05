@@ -12,17 +12,17 @@ const SearchContainer = () => {
   const [openCreateModal, setCreateModal] = useState(false);
 
   // 控制添加好友/群聊的弹窗显隐
-  const handleAdd = () => {
-    setAddModal(!openAddModal);
+  const handleAddModal = (visible: boolean) => {
+    setAddModal(visible);
   };
   // 控制创建群聊的弹窗显隐
-  const handleCreate = () => {
-    setCreateModal(!openCreateModal);
+  const handleCreateModal = (visible: boolean) => {
+    setCreateModal(visible);
   };
   const addContent = (
     <ul>
-      <li onClick={handleAdd}>加好友/加群</li>
-      <li onClick={handleCreate}>创建群聊</li>
+      <li onClick={() => handleAddModal(true)}>加好友/加群</li>
+      <li onClick={() => handleCreateModal(true)}>创建群聊</li>
     </ul>
   );
 
@@ -40,11 +40,11 @@ const SearchContainer = () => {
       </div>
       {
         // 添加好友或群聊弹窗
-        openAddModal && <AddFriendOrGroupModal openmodal={openAddModal} handleAdd={handleAdd} />
+        openAddModal && <AddFriendOrGroupModal openmodal={openAddModal} handleModal={handleAddModal} />
       }
       {
         // 创建群聊弹窗
-        openCreateModal && <CreateGroupChatModal openmodal={openCreateModal} handleCreate={handleCreate} />
+        openCreateModal && <CreateGroupChatModal openmodal={openCreateModal} handleModal={handleCreateModal} />
       }
     </>
   );

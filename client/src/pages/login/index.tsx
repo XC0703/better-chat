@@ -55,7 +55,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [status1, setStatus1] = useState<'' | 'error' | 'warning' | undefined>();
   const [status2, setStatus2] = useState<'' | 'error' | 'warning' | undefined>();
-  const [openmodal, setOpenmodal] = useState(false);
+  const [openForgetModal, setForgetModal] = useState(false);
   const handleUserNameChange = (e: { target: { value: string } }) => {
     setUsername(e.target.value);
   };
@@ -141,9 +141,9 @@ const Login = () => {
       }
     });
   }, []);
-  // 忘记密码
-  const handleForget = () => {
-    setOpenmodal(!openmodal);
+  // 控制修改密码的弹窗显隐
+  const handleForgetModal = (visible: boolean) => {
+    setForgetModal(visible);
   };
   return (
     <>
@@ -177,7 +177,12 @@ const Login = () => {
                   记住密码
                 </Checkbox>
               </div>
-              <div className={styles.forgetpasTool} onClick={handleForget}>
+              <div
+                className={styles.forgetpasTool}
+                onClick={() => {
+                  handleForgetModal(true);
+                }}
+              >
                 忘记密码？
               </div>
             </div>
@@ -191,7 +196,7 @@ const Login = () => {
         </form>
         {
           // 忘记密码弹窗
-          openmodal && <ChangePwdModal openmodal={openmodal} handleForget={handleForget} />
+          openForgetModal && <ChangePwdModal openmodal={openForgetModal} handleModal={handleForgetModal} />
         }
       </div>
     </>

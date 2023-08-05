@@ -6,6 +6,8 @@ import styles from './index.module.less';
 
 import { EmojiList } from '@/assets/emoji';
 import { ChatIconList } from '@/assets/icons';
+import AudioModal from '@/components/AudioModal';
+import VideoModal from '@/components/VideoModal';
 import { getFileSuffixByName } from '@/utils/file';
 import { userStorage } from '@/utils/storage';
 
@@ -22,6 +24,8 @@ const ChatTool = (props: IChatToolProps) => {
   const { message } = App.useApp();
   const [inputValue, setInputValue] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [openAudioModal, setAudioModal] = useState(false);
+  const [openVideoModal, setVideoModal] = useState(false);
   const imageRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -165,6 +169,16 @@ const ChatTool = (props: IChatToolProps) => {
     }
   };
 
+  // 控制音频通话弹窗的显隐
+  const handleAudioModal = (visible: boolean) => {
+    setAudioModal(visible);
+  };
+
+  // 控制视频通话弹窗的显隐
+  const handleVideoModal = (visible: boolean) => {
+    setVideoModal(visible);
+  };
+
   // 点击不同的图标产生的回调
   const handleIconClick = (icon: string) => {
     switch (icon) {
@@ -175,9 +189,11 @@ const ChatTool = (props: IChatToolProps) => {
         fileRef.current!.click();
         break;
       case 'icon-dianhua':
+        setAudioModal(true);
         console.log('发起语音聊天');
         break;
       case 'icon-video':
+        setVideoModal(true);
         console.log('发起视频聊天');
         break;
       default:
@@ -275,6 +291,36 @@ const ChatTool = (props: IChatToolProps) => {
           发送
         </Button>
       </div>
+      {
+        // 音频通话弹窗
+        openAudioModal && (
+          <AudioModal
+            openmodal={openAudioModal}
+            handleModal={handleAudioModal}
+            status="initiate"
+            friendInfo={{
+              remark: curChatInfo?.name,
+              avatar: curChatInfo?.avatar,
+              room: curChatInfo?.room,
+            }}
+          />
+        )
+      }
+      {
+        // 视频通话弹窗
+        openVideoModal && (
+          <VideoModal
+            openmodal={openVideoModal}
+            handleModal={handleVideoModal}
+            status="initiate"
+            friendInfo={{
+              remark: curChatInfo?.name,
+              avatar: curChatInfo?.avatar,
+              room: curChatInfo?.room,
+            }}
+          />
+        )
+      }
     </div>
   );
 };

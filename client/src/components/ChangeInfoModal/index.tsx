@@ -10,15 +10,14 @@ import { clearSessionStorage, userStorage } from '@/utils/storage';
 
 interface IChangeInfoModal {
   openmodal: boolean;
-  handleInfo: () => void;
+  handleModal: (open: boolean) => void;
 }
 const ChangeInfoModal = (props: IChangeInfoModal) => {
   const { message } = App.useApp();
   const navigate = useNavigate();
   const { username, name, avatar, phone, signature } = JSON.parse(userStorage.getItem() || '{}');
   const [infoChangeInstance] = Form.useForm<{ newName: string; newPhone: string; newSignature: string }>();
-  const { openmodal, handleInfo } = props;
-  const [open, setOpen] = useState(openmodal);
+  const { openmodal, handleModal } = props;
   const [newName, setNewName] = useState<string>(name);
   const newAvatar = avatar;
   // const [newAvatar, setNewAvatar] = useState<string>(avatar);
@@ -87,8 +86,7 @@ const ChangeInfoModal = (props: IChangeInfoModal) => {
         if (res.code === 200) {
           message.success('修改成功！', 1.5);
           setLoading(true);
-          setOpen(false);
-          handleInfo();
+          handleModal(false);
           confirmLogout();
         } else {
           message.error('修改失败，请稍后再试！', 1.5);
@@ -100,11 +98,6 @@ const ChangeInfoModal = (props: IChangeInfoModal) => {
         message.error('修改失败，请稍后再试！', 1.5);
         setLoading(false);
       });
-  };
-
-  const handleCancel = () => {
-    setOpen(false);
-    handleInfo();
   };
 
   // 表单数据回显
@@ -119,10 +112,12 @@ const ChangeInfoModal = (props: IChangeInfoModal) => {
   return (
     <>
       <Modal
-        open={open}
+        open={openmodal}
         onOk={handleSubmit}
         confirmLoading={loading}
-        onCancel={handleCancel}
+        onCancel={() => {
+          handleModal(false);
+        }}
         okText="确认"
         cancelText="取消"
         wrapClassName={styles.infoChangeModal}

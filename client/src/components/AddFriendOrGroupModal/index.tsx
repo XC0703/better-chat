@@ -10,20 +10,15 @@ import { userStorage } from '@/utils/storage';
 
 interface IChangeInfoModal {
   openmodal: boolean;
-  handleAdd: () => void;
+  handleModal: (open: boolean) => void;
 }
 const AddFriendOrGroupModal = (props: IChangeInfoModal) => {
-  const { openmodal, handleAdd } = props;
+  const { openmodal, handleModal } = props;
 
   const { message } = App.useApp();
-  const [open, setOpen] = useState(openmodal);
   const [friendList, setFriendList] = useState<IFriend[]>([]);
   const [friendName, setFriendName] = useState('');
   const [loading, setLoading] = useState(false);
-  const handleCancel = () => {
-    setOpen(false);
-    handleAdd();
-  };
   // 查询好友关键字改变
   const handleFriendNameChange = (e: { target: { value: string } }) => {
     setFriendName(e.target.value);
@@ -57,7 +52,7 @@ const AddFriendOrGroupModal = (props: IChangeInfoModal) => {
     if (res.code === 200) {
       message.success('添加成功', 1.5);
       setLoading(false);
-      setOpen(false);
+      handleModal(false);
     } else {
       message.error('添加失败,请重试', 1.5);
       setLoading(false);
@@ -133,7 +128,13 @@ const AddFriendOrGroupModal = (props: IChangeInfoModal) => {
   ];
   return (
     <>
-      <Modal open={open} footer={null} onCancel={handleCancel}>
+      <Modal
+        open={openmodal}
+        footer={null}
+        onCancel={() => {
+          handleModal(false);
+        }}
+      >
         <Tabs defaultActiveKey="1" items={items}></Tabs>
       </Modal>
     </>

@@ -1,25 +1,25 @@
 import { Modal } from 'antd';
-import { useState } from 'react';
 
 import styles from './index.module.less';
 
 interface IChangeInfoModal {
   openmodal: boolean;
-  handleCreate: () => void;
+  handleModal: (open: boolean) => void;
 }
 const CreateGroupModal = (props: IChangeInfoModal) => {
-  const { openmodal, handleCreate } = props;
-
-  const [open, setOpen] = useState(openmodal);
-
-  const handleCancel = () => {
-    setOpen(false);
-    handleCreate();
-  };
+  const { openmodal, handleModal } = props;
 
   return (
     <>
-      <Modal title="创建群聊" open={open} footer={null} onCancel={handleCancel} width="5rem">
+      <Modal
+        title="创建群聊"
+        open={openmodal}
+        footer={null}
+        onCancel={() => {
+          handleModal(false);
+        }}
+        width="5rem"
+      >
         <div className={styles.createModal}>todo：创建群聊</div>
       </Modal>
     </>
