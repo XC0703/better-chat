@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { handleLogin } from './api';
 import styles from './index.module.less';
 
-import { BgImage } from '@/assets/links/imagesLinks';
+import { BgImage } from '@/assets/images';
 import ChangePwdModal from '@/components/ChangePwdModal';
 import { encrypt, decrypt } from '@/utils/encryption';
 import { tokenStorage, userStorage } from '@/utils/storage';

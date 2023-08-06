@@ -1,5 +1,6 @@
-import Request from '@/utils/request';
 import { IChangeParams } from './type';
+
+import Request from '@/utils/request';
 
 // 修改密码接口
 export const handleChange = async (data: IChangeParams) => {

@@ -1,5 +1,6 @@
-import Request from '@/utils/request';
 import { IFriendGroup,IFriendInfo,IFriendGroupList,IUpdateFriendInfo,ICreateFriendGroup } from './type';
+
+import Request from '@/utils/request';
 
 // 获取好友列表
 export const getFriendList = async () => {

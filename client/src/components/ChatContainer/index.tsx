@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 
 import styles from './index.module.less';
 
-import { serverURL } from '@/assets/links/baseURL';
-import { ChatImage } from '@/assets/links/imagesLinks';
+import { ChatImage } from '@/assets/images';
+import { serverURL } from '@/config';
 import { IMessage } from '@/pages/container/ChatList/api/type';
 import { getMediaSize, getMediaShowSize, getFileName, getFileIcons, downloadFile } from '@/utils/file';
 import { toggleTime_chatContent } from '@/utils/formatTime';

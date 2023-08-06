@@ -190,11 +190,9 @@ const ChatTool = (props: IChatToolProps) => {
         break;
       case 'icon-dianhua':
         setAudioModal(true);
-        console.log('发起语音聊天');
         break;
       case 'icon-video':
         setVideoModal(true);
-        console.log('发起视频聊天');
         break;
       default:
         break;
@@ -299,6 +297,7 @@ const ChatTool = (props: IChatToolProps) => {
             handleModal={handleAudioModal}
             status="initiate"
             friendInfo={{
+              receiver_username: curChatInfo?.receiver_username,
               remark: curChatInfo?.name,
               avatar: curChatInfo?.avatar,
               room: curChatInfo?.room,
@@ -314,6 +313,7 @@ const ChatTool = (props: IChatToolProps) => {
             handleModal={handleVideoModal}
             status="initiate"
             friendInfo={{
+              receiver_username: curChatInfo?.receiver_username,
               remark: curChatInfo?.name,
               avatar: curChatInfo?.avatar,
               room: curChatInfo?.room,

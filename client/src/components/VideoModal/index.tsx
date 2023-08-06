@@ -2,10 +2,9 @@ import { App, Modal } from 'antd';
 import { useState } from 'react';
 
 import styles from './index.module.less';
-import { CallStatus, ICallModalProps, callStatusType } from '../AudioModal';
 
-import { CallIcons } from '@/assets/links/imagesLinks';
-import { CallBgImage } from '@/assets/links/imagesLinks';
+import { CallIcons, CallBgImage } from '@/assets/images';
+import { CallStatus, ICallModalProps, callStatusType } from '@/components/AudioModal/api/type';
 import { toggleTime_call } from '@/utils/formatTime';
 
 const VideoModal = (props: ICallModalProps) => {

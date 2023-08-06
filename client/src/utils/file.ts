@@ -1,4 +1,4 @@
-import { ChatImage } from '@/assets/links/imagesLinks';
+import { ChatImage } from '@/assets/images';
 
 // 根据文件路径获取文件类型（用于消息记录）
 export const getFileSuffixByPath = (path:string) => {

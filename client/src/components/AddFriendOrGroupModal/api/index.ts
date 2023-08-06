@@ -1,5 +1,6 @@
-import Request from '@/utils/request';
 import { IFriendParams,IFriend,IAddFriendParams } from './type';
+
+import Request from '@/utils/request';
 
 // 模糊查询符合条件的用户
 export const getFriendList = async (data:IFriendParams) => {

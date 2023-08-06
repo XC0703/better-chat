@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // index.ts
 import axios from "axios";
+
 import type { AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
 
-import { apiBaseURL } from '@/assets/links/baseURL'
+import { apiBaseURL } from '@/config'
 
 interface ApiResponse<T> {
   code: number;

@@ -8,11 +8,11 @@ import ChatList from './ChatList';
 import styles from './index.module.less';
 
 import { MenuIconList } from '@/assets/icons';
-import { wsBaseURL } from '@/assets/links/baseURL';
 import AudioModal from '@/components/AudioModal';
 import ChangeInfoModal from '@/components/ChangeInfoModal';
 import ChangePwdModal from '@/components/ChangePwdModal';
 import VideoModal from '@/components/VideoModal';
+import { wsBaseURL } from '@/config';
 import { handleLogout, IUserInfo } from '@/utils/logout';
 import { clearSessionStorage, userStorage } from '@/utils/storage';
 
@@ -161,6 +161,11 @@ const Container = () => {
   const handleChooseFriend = (item: IFriendInfo) => {
     setCurrentIcon('icon-message');
     setInitSelectedChat(item);
+  };
+
+  // 点击发起音视频通话按钮时，要利用当前这个websocket发送通知
+  const handleCall = (type: 'audio' | 'video') => {
+    socket.current?.send(JSON.stringify({ name: type }));
   };
 
   return (

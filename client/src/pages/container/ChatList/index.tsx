@@ -8,11 +8,11 @@ import styles from './index.module.less';
 import { IFriendInfo } from '../AddressBook/api/type';
 
 import { StatusIconList } from '@/assets/icons';
-import { wsBaseURL } from '@/assets/links/baseURL';
 import ChatContainer from '@/components/ChatContainer';
 import ChatTool from '@/components/ChatTool';
 import { ISendMessage, IMessageList } from '@/components/ChatTool/api/type';
 import SearchContainer from '@/components/SearchContainer';
+import { wsBaseURL } from '@/config';
 import { toggleTime_chatList } from '@/utils/formatTime';
 import { userStorage } from '@/utils/storage';
 

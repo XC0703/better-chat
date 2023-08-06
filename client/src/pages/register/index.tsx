@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { handleRegister } from './api';
 import styles from './index.module.less';
 
-import { BgImage } from '@/assets/links/imagesLinks';
+import { BgImage } from '@/assets/images';
 
 const Register = () => {
   const { message } = App.useApp();
