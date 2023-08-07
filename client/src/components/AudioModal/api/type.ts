@@ -16,6 +16,7 @@ export interface ICallModalProps {
     avatar: string;
     room: string;
   };
+
 }
 // 建立音视频通话的websocket连接所需要传递的参数类型
 export interface IConnectParams {

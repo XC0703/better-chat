@@ -127,27 +127,13 @@ const Container = () => {
           //重新加载消息列表
           chatListRef.current?.refreshChatList();
           break;
-        //音视频--to do
+        //打开响应语音通话窗口
         case 'audio':
           setAudioModal(true);
-          console.log('音频');
           break;
-        //音视频--to do
+        //打开响应视频通话窗口
         case 'video':
           setVideoModal(true);
-          console.log('视频');
-          break;
-        //音视频响应--to do
-        case 'peer':
-          console.log('音视频响应');
-          break;
-        //拒绝
-        case 'reject':
-          if (data.message) {
-            App.useApp().message.error(data.message, 1.5);
-          } else {
-            socket.current?.send(JSON.stringify({ name: 'reject' }));
-          }
           break;
       }
     };
@@ -161,11 +147,6 @@ const Container = () => {
   const handleChooseFriend = (item: IFriendInfo) => {
     setCurrentIcon('icon-message');
     setInitSelectedChat(item);
-  };
-
-  // 点击发起音视频通话按钮时，要利用当前这个websocket发送通知
-  const handleCall = (type: 'audio' | 'video') => {
-    socket.current?.send(JSON.stringify({ name: type }));
   };
 
   return (

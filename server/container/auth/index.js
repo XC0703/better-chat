@@ -305,53 +305,6 @@ function initUserNotification(ws, req) {
     if (username == curUsername) continue;
     NotificationUser({ receiver_username: username, name: "friendList" });
   }
-  ws.on("message", async (Resp_data) => {
-    let data = JSON.parse(Resp_data);
-    //接收者
-    let receiver_username = data.receiver_username;
-    if (data.name == "audio" || data.name == "video") {
-      if (!LoginRooms[receiver_username]) {
-        ws.send(
-          JSON.stringify({ name: "reject", message: "对方当前不在线!!!" })
-        );
-        return;
-      }
-      if (LoginRooms[receiver_username].status) {
-        ws.send(
-          JSON.stringify({ name: "reject", message: "对方正在通话中!!!" })
-        );
-        return;
-      }
-      //当用户已经在音视频通话了则需要告知发送方
-      if (LoginRooms[username].status) {
-        ws.send(
-          JSON.stringify({
-            name: "reject",
-            message: "你正在通话中,请勿发送其他通话请求....",
-          })
-        );
-        return;
-      }
-      LoginRooms[username].status = true;
-      //对方在线
-      if (LoginRooms[receiver_username]) {
-        LoginRooms[receiver_username].ws.send(Resp_data);
-        data.method = data.name;
-        data.name = "peer"; //'peer' 表示已连接的消息类型，告知对方已经连接
-        ws.send(JSON.stringify(data));
-        return;
-      }
-    }
-    //拒绝通话
-    if (data.name == "reject") {
-      LoginRooms[username].status = false;
-      return;
-    }
-    //对方在线
-    if (LoginRooms[receiver_username]) {
-      LoginRooms[receiver_username].ws.send(Resp_data);
-    }
-  });
   ws.on("close", function () {
     if (LoginRooms[curUsername]) {
       delete LoginRooms[curUsername];
