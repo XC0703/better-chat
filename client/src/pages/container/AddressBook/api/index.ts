@@ -9,7 +9,7 @@ export const getFriendList = async () => {
 }
 // 根据id获取好友信息
 export const getFriendInfoById = async (id: number) => {
-  const res = await Request.get<IFriendInfo>('friend/get_friend/?id='+id);
+  const res = await Request.get<IFriendInfo>('friend/get_friend_by_id/?id='+id);
   return res.data;
 }
 // 获取分组列表

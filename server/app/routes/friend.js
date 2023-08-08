@@ -32,7 +32,12 @@ module.exports = function () {
   router.post("/create_group", authenticateToken, friend.createFriendGroup);
   router.post("/search_user", authenticateToken, friend.searchUser);
   router.post("/add_friend", authenticateToken, friend.addFriend);
-  router.get("/get_friend", authenticateToken, friend.getFriendById);
+  router.get("/get_friend_by_id", authenticateToken, friend.getFriendById);
+  router.get(
+    "/get_friend_by_username",
+    authenticateToken,
+    friend.getFriendByUsername
+  );
   router.post("/update_friend", authenticateToken, friend.updateFriendInfo);
   return router;
 };

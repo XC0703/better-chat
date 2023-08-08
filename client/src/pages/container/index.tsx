@@ -4,11 +4,13 @@ import { useNavigate } from 'react-router-dom';
 
 import AddressBook from './AddressBook';
 import { IFriendInfo } from './AddressBook/api/type';
+import { getFriendInfoByUsername } from './api';
 import ChatList from './ChatList';
 import styles from './index.module.less';
 
 import { MenuIconList } from '@/assets/icons';
 import AudioModal from '@/components/AudioModal';
+import { ICallFriendInfo } from '@/components/AudioModal/api/type';
 import ChangeInfoModal from '@/components/ChangeInfoModal';
 import ChangePwdModal from '@/components/ChangePwdModal';
 import VideoModal from '@/components/VideoModal';
@@ -36,6 +38,7 @@ const Container = () => {
   const addressBookRef = useRef<AddressBookRefType>(null); // 通讯录组件实例
   const chatListRef = useRef<ChatListRefType>(null); // 聊天列表组件实例
   const [initSelectedChat, setInitSelectedChat] = useState<IFriendInfo | null>(null); // 初始化选中的聊天对象(只有从通讯录页面进入聊天页面时才会有值)
+  const [callFriendInfo, setCallFriendInfo] = useState<ICallFriendInfo>(); // 通话对象信息
 
   // 控制修改密码的弹窗显隐
   const handleForgetModal = (visible: boolean) => {
@@ -127,13 +130,25 @@ const Container = () => {
           //重新加载消息列表
           chatListRef.current?.refreshChatList();
           break;
-        //打开响应语音通话窗口
-        case 'audio':
-          setAudioModal(true);
-          break;
-        //打开响应视频通话窗口
-        case 'video':
-          setVideoModal(true);
+        //打开响应音视频通话窗口(根据传过来的发送方username拿到对应的好友信息)
+        case 'createRoom':
+          if (data.sender_username) {
+            getFriendInfoByUsername(data.sender_username).then((res) => {
+              if (res.code === 200) {
+                setCallFriendInfo({
+                  receiver_username: res.data.username,
+                  remark: res.data.remark,
+                  avatar: res.data.avatar,
+                  room: res.data.room,
+                });
+                if (data.mode === 'audio_invitation') {
+                  setAudioModal(true);
+                } else if (data.mode === 'video_invitation') {
+                  setVideoModal(true);
+                }
+              }
+            });
+          }
           break;
       }
     };
@@ -219,11 +234,25 @@ const Container = () => {
       }
       {
         // 音频通话弹窗
-        openAudioModal && <AudioModal openmodal={openAudioModal} handleModal={handleAudioModal} status="receive" />
+        openAudioModal && callFriendInfo && (
+          <AudioModal
+            openmodal={openAudioModal}
+            handleModal={handleAudioModal}
+            status="receive"
+            friendInfo={callFriendInfo}
+          />
+        )
       }
       {
         // 视频通话弹窗
-        openVideoModal && <VideoModal openmodal={openVideoModal} handleModal={handleVideoModal} status="receive" />
+        openVideoModal && callFriendInfo && (
+          <VideoModal
+            openmodal={openVideoModal}
+            handleModal={handleVideoModal}
+            status="receive"
+            friendInfo={callFriendInfo}
+          />
+        )
       }
     </>
   );

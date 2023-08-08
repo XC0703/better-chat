@@ -7,6 +7,7 @@ import styles from './index.module.less';
 import { CallIcons, CallBgImage } from '@/assets/images';
 import { wsBaseURL, iceServer } from '@/config';
 import { toggleTime_call } from '@/utils/formatTime';
+import { userStorage } from '@/utils/storage';
 
 const AudioModal = (props: ICallModalProps) => {
   const { message } = App.useApp();
@@ -55,50 +56,61 @@ const AudioModal = (props: ICallModalProps) => {
     }
     const ws = new WebSocket(`${wsBaseURL}/rtc/single?room=${connectParams?.room}&username=${connectParams?.username}`);
     ws.onopen = async () => {
-      // 首先通知好友打开音视频通话界面
-      ws.send(
-        JSON.stringify({
-          name: 'audio',
-          receiver_username: friendInfo?.receiver_username,
-        }),
-      );
-      // //如果是邀请人则发送创建房间指令
-      // if (callStatus === CallStatus.INITIATE) {
-      //   /**
-      //    * 1.邀请人先创建麦克风并初始化PC源
-      //    * 2.发送创建房间的指令到当前房间,后端接受到指令后,给当前房间的所有用户发送响应的指令
-      //    */
-      //   try {
-      //     //最新的标准API
-      //     const stream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
-      //     //初始化PC源
-      //     initPC();
-      //     //添加音频流
-      //     if (PC && PC.ontrack) {
-      //       const trackEvent = new RTCTrackEvent('track', {
-      //         receiver: new RTCRtpReceiver(),
-      //         streams: [stream], // 将 stream 放入数组中
-      //         track: stream.getAudioTracks()[0], // 获取音频轨道
-      //         transceiver: new RTCRtpTransceiver(),
-      //       });
-      //       PC.ontrack(trackEvent);
-      //     }
-      //     //发起邀请
-      //     socket.current!.send(JSON.stringify({ name: 'createRoom', mode: 'audio_invitation' }));
-      //   } catch (error) {
-      //     message.error('检测到当前设备不支持麦克风,请设置权限后在重试', 1.5);
-      //     socket.current?.send(
-      //       JSON.stringify({
-      //         name: 'reject',
-      //       }),
-      //     );
-      //     socket.current?.close();
-      //   }
-      // }
+      //如果是邀请人则发送创建房间指令
+      if (callStatus === CallStatus.INITIATE) {
+        /**
+         * 1.邀请人先创建麦克风并初始化PC源
+         * 2.发送创建房间的指令到当前房间,后端接受到指令后,给当前房间的所有用户发送响应的指令
+         */
+        try {
+          //最新的标准API
+          const stream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+          //添加音频流
+          if (PC && PC.ontrack) {
+            const trackEvent = new RTCTrackEvent('track', {
+              receiver: new RTCRtpReceiver(),
+              streams: [stream], // 将 stream 放入数组中
+              track: stream.getAudioTracks()[0], // 获取音频轨道
+              transceiver: new RTCRtpTransceiver(),
+            });
+            PC.ontrack(trackEvent);
+          }
+          //发起邀请
+          socket.current!.send(
+            JSON.stringify({
+              name: 'createRoom',
+              mode: 'audio_invitation',
+              receiver_username: friendInfo?.receiver_username,
+            }),
+          );
+        } catch (error) {
+          message.error('检测到当前设备不支持麦克风,请设置权限后在重试', 1.5);
+          socket.current?.send(
+            JSON.stringify({
+              name: 'reject',
+            }),
+          );
+          socket.current?.close();
+          setTimeout(() => {
+            handleModal(false);
+          }, 1500);
+        }
+      }
     };
     ws.onmessage = (msg) => {
       const data = JSON.parse(msg.data);
       switch (data.name) {
+        /**
+         * 无法建立音视频通话的情况
+         */
+        case 'notConnect':
+          socket.current!.close();
+          socket.current = null;
+          setTimeout(() => {
+            handleModal(false);
+            message.info(data.result, 1.5);
+          }, 1500);
+          break;
         /**
          * 1.邀请人接收到有新人进入房间,则发送视频流和offer指令给新人
          */
@@ -148,17 +160,13 @@ const AudioModal = (props: ICallModalProps) => {
           break;
         }
         case 'reject':
-          message.info('对方已挂断', 1.5);
           socket.current!.send(JSON.stringify({ name: 'reject' }));
           socket.current!.close();
           socket.current = null;
-          handleModal(false);
-          break;
-        case 'notConnect':
-          message.info(data.result, 1.5);
-          socket.current!.close();
-          socket.current = null;
-          handleModal(false);
+          setTimeout(() => {
+            handleModal(false);
+            message.info('对方已挂断', 1.5);
+          }, 1500);
           break;
         default:
           break;
@@ -184,8 +192,6 @@ const AudioModal = (props: ICallModalProps) => {
     try {
       //最新的标准API
       const stream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
-      //初始化PC源
-      initPC();
       //添加音频流
       if (PC && PC.ontrack) {
         const trackEvent = new RTCTrackEvent('track', {
@@ -196,8 +202,8 @@ const AudioModal = (props: ICallModalProps) => {
         });
         PC.ontrack(trackEvent);
       }
-      //发起邀请
-      socket.current!.send(JSON.stringify({ name: 'createRoom', mode: 'audio_invitation' }));
+      //通知房间的人,我要进入房间
+      socket.current!.send(JSON.stringify({ name: 'new_peer', receiver_username: friendInfo?.receiver_username }));
     } catch (error) {
       message.error('检测到当前设备不支持麦克风,请设置权限后在重试', 1.5);
       socket.current?.send(
@@ -206,6 +212,9 @@ const AudioModal = (props: ICallModalProps) => {
         }),
       );
       socket.current?.close();
+      setTimeout(() => {
+        handleModal(false);
+      }, 1500);
     }
   };
   // 拒绝通话
@@ -213,8 +222,10 @@ const AudioModal = (props: ICallModalProps) => {
     socket.current!.send(JSON.stringify({ name: 'reject' }));
     socket.current!.close();
     socket.current = null;
-    handleModal(false);
-    message.info('已挂断通话', 1.5);
+    setTimeout(() => {
+      handleModal(false);
+      message.info('已挂断通话', 1.5);
+    }, 1500);
   };
 
   // 通话时间更新
@@ -228,12 +239,13 @@ const AudioModal = (props: ICallModalProps) => {
 
   // 打开组件时初始化websocket连接
   useEffect(() => {
-    if (friendInfo) {
-      initSocket({
-        room: friendInfo.room,
-        username: friendInfo.receiver_username,
-      });
-    }
+    const { username } = JSON.parse(userStorage.getItem() || '{}');
+    initSocket({
+      room: friendInfo.room,
+      username: username,
+    });
+    //初始化PC源
+    initPC();
   }, []);
 
   return (

@@ -5,6 +5,7 @@ module.exports = {
   searchUser,
   addFriend,
   getFriendById,
+  getFriendByUsername,
   updateFriendInfo,
 };
 const {
@@ -199,6 +200,18 @@ async function getFriendById(req, res) {
   let sql =
     "select f.user_id as friend_id, f.online_status, f.remark, f.group_id, fg.name as group_name, f.room, f.unread_msg_count, u.username, u.avatar, u.phone, u.name, u.signature from friend as f join user as u on f.user_id = u.id join friend_group as fg on f.group_id = fg.id where f.id = ?";
   let { err, results } = await Query(sql, [id]);
+  // 查询数据失败
+  if (err) return RespError(res, RespServerErr);
+  RespData(res, results[0]);
+}
+/**
+ * 根据好友用户名获取好友信息
+ */
+async function getFriendByUsername(req, res) {
+  let username = req.query.username;
+  let sql =
+    "select f.user_id as friend_id, f.online_status, f.remark, f.group_id, fg.name as group_name, f.room, f.unread_msg_count, u.username, u.avatar, u.phone, u.name, u.signature from friend as f join user as u on f.user_id = u.id join friend_group as fg on f.group_id = fg.id where u.username = ?";
+  let { err, results } = await Query(sql, [username]);
   // 查询数据失败
   if (err) return RespError(res, RespServerErr);
   RespData(res, results[0]);

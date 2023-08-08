@@ -28,9 +28,8 @@ async function singleRTCConnect(ws, req) {
     let receiverWs;
     const { receiver_username } = message;
     switch (message.name) {
-      // 通知好友打开音视频通话界面
-      case "audio":
-      case "video":
+      // 创建房间，判断能不能进行通话，能则通知好友打开音视频通话界面，不能则返回notConnect及原因
+      case "createRoom":
         if (!LoginRooms[receiver_username]) {
           ws.send(
             JSON.stringify({ name: "notConnect", result: "对方当前不在线!!!" })
@@ -52,22 +51,21 @@ async function singleRTCConnect(ws, req) {
           );
           return;
         }
+        //设置当前用户通话状态
         LoginRooms[username].status = true;
-        LoginRooms[receiver_username].ws.send(Resp_data);
-      //创建房间
-      case "createRoom":
         //发送邀请
         msg = {
-          name: message.mode,
-          sender: username,
+          name: "createRoom",
+          sender_username: username,
+          mode: message.mode,
         };
-        broadcastSocket(username, room, msg);
+        LoginRooms[receiver_username].ws.send(JSON.stringify(msg));
         break;
       //新用户加入
       case "new_peer":
         msg = {
           name: "new_peer",
-          sender: username,
+          sender_username: username,
         };
         broadcastSocket(username, room, msg);
         break;
@@ -76,7 +74,7 @@ async function singleRTCConnect(ws, req) {
         //发送offer
         msg = {
           name: "offer",
-          sender: username,
+          sender_username: username,
           data: message.data,
         };
         receiverWs = rooms[room][message.receiver];
@@ -87,7 +85,7 @@ async function singleRTCConnect(ws, req) {
         //接收answer
         msg = {
           name: "answer",
-          sender: username,
+          sender_username: username,
           data: message.data,
         };
         receiverWs = rooms[room][message.receiver];
@@ -97,25 +95,20 @@ async function singleRTCConnect(ws, req) {
         //接收answer
         msg = {
           name: "ice_candidate",
-          sender: username,
+          sender_username: username,
           data: message.data,
         };
         receiverWs = rooms[room][message.receiver];
         receiverWs.send(JSON.stringify(msg));
         break;
-      //被邀请方拒绝
+      //被邀请方拒绝--两方都会收到
       case "reject":
-        //发送offer
         msg = {
           name: "reject",
-          sender: username,
+          sender_username: username,
         };
         broadcastSocket(username, room, msg);
-        NotificationUser({
-          name: "reject",
-          receiver_username: username,
-          message: "",
-        });
+        LoginRooms[username].status = false;
         break;
     }
   });
