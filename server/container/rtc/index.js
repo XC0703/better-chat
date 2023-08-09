@@ -5,12 +5,12 @@ module.exports = {
 let rooms = {};
 
 /**
- * 建立音视频聊天
- * 1. 获取房间号和当前用户名
- * 2. createRoom 邀请人会发送创建房间指令,广播给当前房间的所有人,如果被邀请者在线的话,会接受到请求,自动打开语音/视频通话界面
- * 3. peer 被邀请人收到邀请后,前端点击同意后,会携带自己的音视频流数据发送peer指令给后端,后端在发送offer指令(携带了相对于的数据)给邀请人
- * 4. answer 邀请人接受到数据后将数据进行处理后发送answer指令给被邀请人并携带自己的音视频流
- * 5. ice_candidate 双方建立音视频通道后发送ice_candidate数据
+ * 建立音视频聊天逻辑
+ * 1. 邀请方点击相关按钮后，建立websocket连接，发送createRoom通知，判断能否进行通话，能则通知好友打开音视频通话界面，不能则返回notConnect及原因
+ * 2. 被邀请方发送ice_candidate通知给邀请方，并且携带ICE 候选者（ICE Candidate）的信息给对方
+ * 2. 被邀请方如果在线，也建立websocket连接，打开音视频通话界面（注意：这里是利用LoginRooms的websocket连接收到createRoom通知的），并收到ICE 候选者（ICE Candidate）的信息
+ * 3. 被邀请方点击接受后，发送new_peer通知，通知邀请方，邀请人接收到有新人进入房间,则发送视频流和offer指令给新人
+ * 4. 被邀请方收到offer通知后，发送answer指令(携带自己的音视频)告诉对方要存储我方的音视频
  */
 async function singleRTCConnect(ws, req) {
   //获取name

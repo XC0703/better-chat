@@ -219,6 +219,9 @@ const AudioModal = (props: ICallModalProps) => {
   };
   // 拒绝通话
   const handleRejectCall = () => {
+    if (!socket.current) {
+      return;
+    }
     socket.current!.send(JSON.stringify({ name: 'reject' }));
     socket.current!.close();
     socket.current = null;
