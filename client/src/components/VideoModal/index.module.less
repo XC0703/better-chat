@@ -33,6 +33,47 @@
       }
     }
   }
+  .callingStatus{
+    justify-content:end;
+    background-color: transparent;
+    .friendVideo{
+      width:100%;
+      height:100%;
+      position: absolute;
+      z-index:-2;
+      video{
+        width:100%;
+        height:100%;
+        object-fit: cover;
+      }
+    }
+    .selfVideo{
+      width:1.2rem;
+      height:1.2rem;
+      position: absolute;
+      top:0;
+      right:0;
+      z-index:-1;
+      background-color: rgba(0, 0, 0, 0.3);
+      video{
+        width:100%;
+        height:100%;
+        object-fit: cover;
+      }
+    }
+    .bottom{
+      width:100%;
+      bottom:0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-color: rgba(0, 0, 0, 0.2);
+      .callIcons{
+        margin-bottom: .1rem;
+      }
+    }
+  }
 }
 .videoModalContent::before{
   content: '';

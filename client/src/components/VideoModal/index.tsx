@@ -16,7 +16,8 @@ const VideoModal = (props: ICallModalProps) => {
   const [duration, setDuration] = useState<number>(0);
   const [PC, setPC] = useState<RTCPeerConnection | null>(null); // RTCPeerConnection实例
   const socket = useRef<WebSocket | null>(null); // websocket实例
-  const videoRef = useRef<HTMLVideoElement>(null); // video标签实例
+  const friendVideoRef = useRef<HTMLVideoElement>(null); // 好友的video标签实例
+  const selfVideoRef = useRef<HTMLVideoElement>(null); // 自己的video标签实例
 
   //初始化PC
   const initPC = () => {
@@ -38,8 +39,8 @@ const VideoModal = (props: ICallModalProps) => {
       }
     };
     pc.ontrack = (evt) => {
-      if (evt.streams && evt.streams[0] && videoRef.current !== null) {
-        videoRef.current.srcObject = evt.streams[0];
+      if (evt.streams && evt.streams[0] && friendVideoRef.current !== null) {
+        friendVideoRef.current.srcObject = evt.streams[0];
       }
     };
     setPC(pc);
@@ -233,10 +234,10 @@ const VideoModal = (props: ICallModalProps) => {
 
   // 通话时间更新
   const handleDuration = () => {
-    if (!videoRef.current) {
+    if (!friendVideoRef.current) {
       return;
     }
-    const { currentTime } = videoRef.current;
+    const { currentTime } = friendVideoRef.current;
     setDuration(currentTime);
   };
 
@@ -247,7 +248,7 @@ const VideoModal = (props: ICallModalProps) => {
       room: friendInfo.room,
       username: username,
     });
-    //初始化PC源
+    // 初始化PC源;
     initPC();
   }, []);
 
@@ -262,47 +263,52 @@ const VideoModal = (props: ICallModalProps) => {
         title="视频通话"
         maskClosable={false}
       >
-        <div className={styles.videoModalContent} style={{ backgroundImage: `url(${CallBgImage})` }}>
-          <div className={styles.content}>
-            <div className={styles.avatar}>
-              <img src={friendInfo?.avatar} alt="" />
+        {callStatus === CallStatus.INITIATE && (
+          <div className={styles.videoModalContent} style={{ backgroundImage: `url(${CallBgImage})` }}>
+            <div className={styles.content}>
+              <div className={styles.avatar}>
+                <img src={friendInfo?.avatar} alt="" />
+              </div>
+              <span className={styles.callWords}>{`对${friendInfo?.remark}发起视频通话`}</span>
+              <div className={styles.callIcons}>
+                <img src={CallIcons.REJECT} alt="" onClick={handleRejectCall} />
+              </div>
             </div>
-            {callStatus === CallStatus.INITIATE && (
-              <>
-                <span className={styles.callWords}>{`对${friendInfo?.remark}发起视频通话`}</span>
-                <div className={styles.callIcons}>
-                  <img src={CallIcons.REJECT} alt="" onClick={handleRejectCall} />
-                </div>
-              </>
-            )}
-            {callStatus === CallStatus.RECEIVE && (
-              <>
-                <span className={styles.callWords}>{`${friendInfo?.remark}发起视频通话`}</span>
-                <div className={styles.callIcons}>
-                  <img src={CallIcons.ACCEPT} alt="" onClick={handleAcceptCall} />
-                  <img src={CallIcons.REJECT} alt="" onClick={handleRejectCall} />
-                </div>
-              </>
-            )}
-            {callStatus === CallStatus.CALLING && (
-              <>
-                <span className={styles.callWords}>{toggleTime_call(duration)}</span>
-                <video
-                  src=""
-                  ref={videoRef}
-                  autoPlay
-                  style={{ opacity: 0, width: 0, height: 0 }}
-                  onTimeUpdate={handleDuration}
-                ></video>
-                <div className={styles.callIcons}>
-                  <img src={CallIcons.REJECT} alt="" onClick={handleRejectCall} />
-                </div>
-              </>
-            )}
           </div>
-        </div>
+        )}
+        {callStatus === CallStatus.RECEIVE && (
+          <div className={styles.videoModalContent} style={{ backgroundImage: `url(${CallBgImage})` }}>
+            <div className={styles.content}>
+              <div className={styles.avatar}>
+                <img src={friendInfo?.avatar} alt="" />
+              </div>
+              <span className={styles.callWords}>{`${friendInfo?.remark}发起视频通话`}</span>
+              <div className={styles.callIcons}>
+                <img src={CallIcons.ACCEPT} alt="" onClick={handleAcceptCall} />
+                <img src={CallIcons.REJECT} alt="" onClick={handleRejectCall} />
+              </div>
+            </div>
+          </div>
+        )}
+        {callStatus === CallStatus.CALLING && (
+          <div className={styles.videoModalContent}>
+            <div className={`${styles.content} ${styles.callingStatus}`}>
+              <div className={styles.friendVideo}>
+                <video src="" ref={friendVideoRef} autoPlay onTimeUpdate={handleDuration}></video>
+              </div>
+              <div className={styles.selfVideo}>
+                <video src="" ref={selfVideoRef} autoPlay></video>
+              </div>
+              <div className={styles.bottom}>
+                <span className={styles.callWords}>{toggleTime_call(duration)}</span>
+                <div className={styles.callIcons}>
+                  <img src={CallIcons.REJECT} alt="" onClick={handleRejectCall} />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </Modal>
-      ;
     </>
   );
 };
