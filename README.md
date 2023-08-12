@@ -1,19 +1,31 @@
 # better-chat
 
-<div style="text-align:center;">
+<p align="center">
     <img src="https://p0.meituan.net/travelcube/67b20d25afd586d62a79a0d8e592d55319478.png" alt="better-chat">
-</div>
+</p>
 
-<div style="display: flex; flex-wrap:wrap;justify-content: center; gap:10px;">
-    <img src="https://badgen.net/static/vite/4.2.0/green" alt="vite">
-    <img src="https://badgen.net/static/react/18.2.0/red" alt="react">
-    <img src="https://badgen.net/static/typescript/4.9.3/blue" alt="typescript">
-    <img src="https://badgen.net/static/express/4.18.2/yellow" alt="express">
-    <img src="https://badgen.net/static/express-ws/5.0.2/orange" alt="express-ws">
-    <img src="https://badgen.net/static/mysql/2.18.1/pink" alt="mysql">
-    <img src="https://badgen.net/static/websocket/OK/green" alt="websocket">
-    <img src="https://badgen.net/static/webrtc/OK/purple" alt="webrtc">
-</div>
+<p align="center">
+   <a href="https://cn.vitejs.dev">
+      <img src="https://badgen.net/static/vite/4.2.0/green" alt="vite">
+   </a>
+   <a href="https://zh-hans.react.dev">
+      <img src="https://badgen.net/static/react/18.2.0/red" alt="react">
+   </a>
+   <a href="https://typescript.bootcss.com">
+      <img src="https://badgen.net/static/typescript/4.9.3/blue"alt="typescript">
+   </a>
+   <a href="https://express.nodejs.cn">
+      <img src="https://badgen.net/static/express/4.18.2/yellow"alt="express">
+   </a>
+   <img src="https://badgen.net/static/express-ws/5.0.2/orange"alt="express-ws">
+   <img src="https://badgen.net/static/mysql/2.18.1/pink" alt="mysql">
+</p>
+<p align="center">
+   <img src="https://badgen.net/static/websocket/OK/green" alt="websocket">
+   <a href="https://developer.mozilla.org/zh-CN/docs/Web/API/WebRTC_API">
+      <img src="https://badgen.net/static/webrtc/OK/purple" alt="webrtc">
+   </a>
+</p>
 
 ## 1、项目介绍
 
@@ -220,6 +232,6 @@
 
 本项目到目前为止都靠作者一人独立开发，但上面提到还有许多可扩展的功能点，本人心有余而力不足，因此希望更多的人参与进来，继续完善这个项目，实现更好的开源。
 
-本人掘金博客地址：http://www.xucong.zone
+✨ 本人掘金博客地址：http://www.xucong.zone
 
-github 主页地址：https://github.com/XC0703
+🎨 github 主页地址：https://github.com/XC0703
