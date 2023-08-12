@@ -235,3 +235,9 @@
 ✨ 本人掘金博客地址：http://www.xucong.zone
 
 🎨 github 主页地址：https://github.com/XC0703
+
+🏰 gitee 主页地址：https://gitee.com/fish-in-jiangan-river
+
+👉 项目 github 地址：https://github.com/XC0703/better-chat
+
+🔨 项目 gitee 地址：https://gitee.com/fish-in-jiangan-river/better-chat
