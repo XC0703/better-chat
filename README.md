@@ -1,8 +1,19 @@
 # better-chat
 
-![](https://p0.meituan.net/travelcube/67b20d25afd586d62a79a0d8e592d55319478.png)
+<div style="text-align:center;">
+    <img src="https://p0.meituan.net/travelcube/67b20d25afd586d62a79a0d8e592d55319478.png" alt="better-chat">
+</div>
 
-![](https://badgen.net/static/vite/4.2.0/green) ![](https://badgen.net/static/react/18.2.0/red) ![](https://badgen.net/static/typescript/4.9.3/blue) ![](https://badgen.net/static/express/4.18.2/yellow) ![](https://badgen.net/static/express-ws/5.0.2/orange) ![](https://badgen.net/static/mysql/2.18.1/pink) ![](https://badgen.net/static/websocket/OK/green) ![](https://badgen.net/static/webrtc/OK/purple)
+<div style="display: flex; flex-wrap:wrap;justify-content: center; gap:10px;">
+    <img src="https://badgen.net/static/vite/4.2.0/green" alt="vite">
+    <img src="https://badgen.net/static/react/18.2.0/red" alt="react">
+    <img src="https://badgen.net/static/typescript/4.9.3/blue" alt="typescript">
+    <img src="https://badgen.net/static/express/4.18.2/yellow" alt="express">
+    <img src="https://badgen.net/static/express-ws/5.0.2/orange" alt="express-ws">
+    <img src="https://badgen.net/static/mysql/2.18.1/pink" alt="mysql">
+    <img src="https://badgen.net/static/websocket/OK/green" alt="websocket">
+    <img src="https://badgen.net/static/webrtc/OK/purple" alt="webrtc">
+</div>
 
 ## 1、项目介绍
 
