@@ -1,6 +1,7 @@
 # better-chat
 
 ![](https://p0.meituan.net/travelcube/67b20d25afd586d62a79a0d8e592d55319478.png)
+
 ![](https://badgen.net/static/vite/4.2.0/green) ![](https://badgen.net/static/react/18.2.0/red) ![](https://badgen.net/static/typescript/4.9.3/blue) ![](https://badgen.net/static/express/4.18.2/yellow) ![](https://badgen.net/static/express-ws/5.0.2/orange) ![](https://badgen.net/static/mysql/2.18.1/pink) ![](https://badgen.net/static/websocket/OK/green) ![](https://badgen.net/static/webrtc/OK/purple)
 
 ## 1、项目介绍
@@ -14,9 +15,9 @@
 **先写在前面**：本项目是个人学习过程中开发的项目，功能简单、界面简洁，适合正在练习上述技术栈的小白进行学习和巩固，代码量极少且逻辑清晰。(`大佬勿喷`)
 `注意：本项目配备了极为详细的开发教程文档（多达两万字，目录如下所示），同时教程文档中也整理了需要好的文章以便读者进行学习，即使是对上述技术栈几乎陌生的小白，跟着教程也完全可以从0到1实现项目。（教程在本项目Github Star个数达100个时将会开源）`
 
-![](https://p0.meituan.net/travelcube/52127e8052d53649aac36574adc58cfc38255.png)
-![](https://p1.meituan.net/travelcube/a505cf7f22fd566b0c752d4db2625eec33634.png)
-![](https://p1.meituan.net/travelcube/b334ce890093ccc716c9509015ccb1d910587.png)
+![](https://p0.meituan.net/travelcube/c4bd6f95f2d975eb48738d2f96a6fb4e34547.png)
+![](https://p0.meituan.net/travelcube/e671a4b05cce83235d5f61ed077b7d6730796.png)
+![](https://p0.meituan.net/travelcube/115903d450338c432ce53fe9e68a2ef017132.png)
 
 ### 1.3 项目亮点？
 
@@ -46,9 +47,9 @@
 #### 1.6.1 个人模块
 
 登录界面：
-![](https://p1.meituan.net/travelcube/4fa7b5c1743273b20666259d9507ee753460255.png)
+![](https://p0.meituan.net/travelcube/08224f3faa62c70eff8e162bda3b815f812349.png)
 注册界面：
-![](https://p0.meituan.net/travelcube/dd878800800485f7ad8f02071aae12053425511.png)
+![](https://p1.meituan.net/travelcube/32e03f07f6b4bf1754d23f30e1aaa43f789806.png)
 修改个人信息：
 ![](https://p0.meituan.net/travelcube/df4f2f972ceee4c4dacddb56ef7b93b7169361.png)
 修改密码：
@@ -84,29 +85,45 @@
 
 ## 2、项目开发教程
 
-### 2.1 项目如何启动
+### 2.1 项目如何启动？
 
 1. 先拉取本项目到本地：
 
    ```
-      git clone git@github.com:XC0703/better-chat.git
+   git clone git@github.com:XC0703/better-chat.git
    ```
 
-2. 用 VScode 等编辑器打开本项目，再依次：
+2. 用 VScode 等编辑器打开本项目
+
+3. 启动服务端：
 
    ```
-      cd server
-      pnpm install
-      pnpm start
+   cd server
    ```
 
    ```
-      cd client
-      pnpm install
-      pnpm start
+   pnpm start
    ```
 
-3. 此时浏览器会自动打开项目页面
+   ```
+   pnpm start
+   ```
+
+4. 启动客户端：
+
+   ```
+   cd client
+   ```
+
+   ```
+   pnpm install
+   ```
+
+   ```
+   pnpm start
+   ```
+
+5. 此时浏览器会自动打开项目页面
 
 **注意：**
 
@@ -125,7 +142,7 @@
    > > 1、MySQL8.0.26 安装配置教程(windows 64 位)：https://blog.csdn.net/weixin_52270997/article/details/120066948
    > > 2、Navicat Premium v12.1.9 破解版\_x86_x64：https://blog.csdn.net/juanjuan_01/article/details/84102349
    > > 3、Navicat Premium 基本使用：https://blog.csdn.net/Yangchenju/article/details/80633055
-   >
+
    > Redis 安装相关：
    >
    > > 1、Redis 下载和安装（Windows 系统）参考链接：
@@ -134,15 +151,15 @@
    > > 2、windows 免费安装 redis desktop manager（上 github 找到免费版最新的是 2018 年的，可以直接下载 exe 执行程序）：
    > > https://github.com/uglide/RedisDesktopManager/releases/tag/0.9.3
 
-2. 本项目的数据库配置如下：（见 server\config.json 目录）
+2. 本项目的数据库配置如下：（见 server\config.json 文件和 server\db\db.js 文件，根据自己的实际情况作出更改）
 
    ```
    {
-   "host": "127.0.0.1",
-   "port": 3306,
-   "user": "root",
-   "password": "XC20020703",
-   "database": "better-chat"
+      "host": "127.0.0.1",
+      "port": 3306,
+      "user": "root",
+      "password": "XC20020703",
+      "database": "better-chat"
    }
    ```
 
@@ -156,7 +173,30 @@
 
 ### 2.2 具体教程
 
-上面 1.2 中讲到我为什么要开发这个项目时提到本项目配备了极为详细的开发教程文档（`多达两万字`），同时教程文档中也整理了需要好的文章以便读者进行学习，即使是对上述技术栈几乎陌生的小白，跟着教程也完全可以从 0 到 1 实现该项目。该教程将在本项目 Github Star 个数达 100 个时会开源，因此手把手带大家开发的教程不再在这里赘述，希望各位看官动动手中的小手帮忙点下 star 助力。
+上面 1.2 中讲到我为什么要开发这个项目时提到本项目配备了极为详细的开发教程文档（`多达两万字`），同时教程文档中也整理了需要好的文章以便读者进行学习，即使是对上述技术栈几乎陌生的小白，跟着教程也完全可以从 0 到 1 实现该项目。该教程将在本项目 Github Star 个数达 100 个时会开源，因此这里只放项目目录相关介绍，手把手带大家开发的教程不再在这里赘述，希望各位看官动动手中的小手帮忙点下 star 助力。
+
+**前端项目目录介绍：**
+
+![](https://p0.meituan.net/travelcube/7901350ae4293ee38101dc06a4d7914138144.png)
+
+前端项目入口文件为 client\src，主要看这里面即可：
+
+- assets 文件夹主要存放一些静态资源文件，如图片、图标、表情包、全局样式等
+- components 文件夹主要存放项目组件，如各种弹窗组件、聊天框组件等
+- config 文件夹主要存放服务器相关配置，如服务端接口的 baseURL、websocket 的 baseURL、ice 服务器地址等
+- router 文件夹主要存放路由相关配置，即用于实现路由守卫的高阶组件
+- utils 文件夹主要存放一些全局通用的工具方法，如封装的 axios 和 storage、加密解密函数、时间或文件的格式化方法等
+
+**后端项目目录介绍：**
+
+![](https://p0.meituan.net/travelcube/5e538a283ac1b126dd44c004ce71473338591.png)
+
+- app 文件夹主要负责处理路由相关，将接口路由与 container 文件夹中导出的操作函数关联起来
+- container 文件夹负责各种操作的逻辑实现，并配备了极为清晰的注释
+- db 文件夹负责处理数据库相关，如各个表的创建、封装执行 sql 语句的方法等
+- model 文件夹负责规定接口返回码
+- utils 文件夹主要存放一些全局通用的工具方法，如创建文件的方法、文件格式化方法等
+- global.js 文件存放了一些全局变量和方法，通过 node 中的 global 变量注入
 
 ### 2.3 如何参与本项目？
 
@@ -170,4 +210,5 @@
 本项目到目前为止都靠作者一人独立开发，但上面提到还有许多可扩展的功能点，本人心有余而力不足，因此希望更多的人参与进来，继续完善这个项目，实现更好的开源。
 
 本人掘金博客地址：http://www.xucong.zone
+
 github 主页地址：https://github.com/XC0703
