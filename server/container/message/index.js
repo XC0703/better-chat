@@ -218,7 +218,6 @@ async function connectChat(ws, req) {
               } else {
                 msg.status = 0;
               }
-
               sql = "insert into message set ?";
               await Query(sql, msg);
               await checkAndModifyStatistics(room);

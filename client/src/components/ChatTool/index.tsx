@@ -143,9 +143,8 @@ const ChatTool = (props: IChatToolProps) => {
         }
         //防止文件未初始化完成就发送
         setTimeout(async () => {
-          //开启读取文件并上传
           const reader = file.stream().getReader();
-          let shouldExit = false; // 添加一个退出条件变量
+          let shouldExit = false;
           let chunk;
           while (!shouldExit) {
             chunk = await reader.read();
@@ -153,16 +152,19 @@ const ChatTool = (props: IChatToolProps) => {
               setLoading(false);
               shouldExit = true;
             }
-            const newmessage: ISendMessage = {
-              filename: file.name,
-              sender_id: JSON.parse(userStorage.getItem()).id,
-              receiver_id: curChatInfo?.user_id,
-              type: 'file',
-              content: Array.from(new Uint8Array(chunk.value as ArrayBufferLike)),
-              avatar: JSON.parse(userStorage.getItem()).avatar,
-              fileType: 'upload',
-            };
-            sendMessage(newmessage);
+            if (!chunk.done) {
+              // 只在非 done 状态下调用 sendMessage
+              const newmessage: ISendMessage = {
+                filename: file.name,
+                sender_id: JSON.parse(userStorage.getItem()).id,
+                receiver_id: curChatInfo?.user_id,
+                type: 'file',
+                content: Array.from(new Uint8Array(chunk.value as ArrayBufferLike)),
+                avatar: JSON.parse(userStorage.getItem()).avatar,
+                fileType: 'upload',
+              };
+              sendMessage(newmessage);
+            }
           }
         }, 50);
       }
