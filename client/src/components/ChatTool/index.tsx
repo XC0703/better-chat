@@ -80,9 +80,13 @@ const ChatTool = (props: IChatToolProps) => {
         try {
           sendMessage(newmessage);
           setLoading(false);
+          // 清空文件输入字段的值，否则再次选择相同文件时无法触发onchange
+          imageRef.current!.value = '';
         } catch (error) {
           message.error('发送消息失败，请重试！', 1.5);
           setLoading(false);
+          // 清空文件输入字段的值，否则再次选择相同文件时无法触发onchange
+          imageRef.current!.value = '';
         }
       };
       reader.readAsArrayBuffer(file); // 将指定文件 file 以 ArrayBuffer 的形式进行读取的操作
@@ -112,9 +116,11 @@ const ChatTool = (props: IChatToolProps) => {
           try {
             sendMessage(newmessage);
             setLoading(false);
+            fileRef.current!.value = '';
           } catch (error) {
             message.error('发送消息失败，请重试！', 1.5);
             setLoading(false);
+            fileRef.current!.value = '';
           }
           reader.readAsArrayBuffer(file);
         };
@@ -140,30 +146,38 @@ const ChatTool = (props: IChatToolProps) => {
         } catch (error) {
           message.error('发送消息失败，请重试！', 1.5);
           setLoading(false);
+          fileRef.current!.value = '';
         }
         //防止文件未初始化完成就发送
         setTimeout(async () => {
           const reader = file.stream().getReader();
           let shouldExit = false;
           let chunk;
+
+          let transmittedSize = 0; // 获取服务端已传输的文件大小
+
           while (!shouldExit) {
             chunk = await reader.read();
             if (chunk.done) {
               setLoading(false);
               shouldExit = true;
+              fileRef.current!.value = '';
             }
+
             if (!chunk.done) {
-              // 只在非 done 状态下调用 sendMessage
-              const newmessage: ISendMessage = {
-                filename: file.name,
-                sender_id: JSON.parse(userStorage.getItem()).id,
-                receiver_id: curChatInfo?.user_id,
-                type: 'file',
-                content: Array.from(new Uint8Array(chunk.value as ArrayBufferLike)),
-                avatar: JSON.parse(userStorage.getItem()).avatar,
-                fileType: 'upload',
-              };
-              sendMessage(newmessage);
+              transmittedSize -= chunk.value!.byteLength; // 减去当前块的字节长度来更新已传输的大小，支持断点续传（todo：由于不准确，待完善）
+              if (transmittedSize <= 0) {
+                const newmessage: ISendMessage = {
+                  filename: file.name,
+                  sender_id: JSON.parse(userStorage.getItem()).id,
+                  receiver_id: curChatInfo?.user_id,
+                  type: 'file',
+                  content: Array.from(new Uint8Array(chunk.value as ArrayBufferLike)),
+                  avatar: JSON.parse(userStorage.getItem()).avatar,
+                  fileType: 'upload',
+                };
+                sendMessage(newmessage);
+              }
             }
           }
         }, 50);

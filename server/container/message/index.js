@@ -182,12 +182,18 @@ async function connectChat(ws, req) {
         if (message.fileType == "start") {
           receivedSize = 0;
           fileInfo = JSON.parse(message.fileInfo);
-          notExitCreate(
-            path.join(
-              process.cwd(),
-              `uploads/message/${room.replace(/-/g, "_")}/file`
-            )
+          const filePath = path.join(
+            process.cwd(),
+            `uploads/message/${room.replace(/-/g, "_")}/file`
           );
+          // 判断文件是否已经有过传输，如果有则断点续传（todo：由于不准确，待完善）
+          if (fs.existsSync(path.join(filePath, message.filename))) {
+            // 这个是已经传输的文件大小，应该传回给客户端，让客户端从这个大小开始传输
+            const transmittedSize = fs.statSync(
+              path.join(filePath, message.filename)
+            ).size;
+          }
+          notExitCreate(filePath);
           writeStream = fs.createWriteStream(
             path.join(
               process.cwd(),
@@ -221,6 +227,10 @@ async function connectChat(ws, req) {
               sql = "insert into message set ?";
               await Query(sql, msg);
               await checkAndModifyStatistics(room);
+              message.created_at = new Date().toLocaleString("zh-CN", {
+                timeZone: "Asia/Shanghai",
+              });
+              message.file_size = formatBytes(msg.file_size);
               for (const key in rooms[room]) {
                 rooms[room][key].send(JSON.stringify(message));
               }
@@ -239,6 +249,10 @@ async function connectChat(ws, req) {
     sql = "insert into message set ?";
     await Query(sql, msg);
     await checkAndModifyStatistics(room);
+    message.created_at = new Date().toLocaleString("zh-CN", {
+      timeZone: "Asia/Shanghai",
+    });
+    message.file_size = formatBytes(msg.file_size);
     // 通知属于该房间的所有人
     for (const key in rooms[room]) {
       rooms[room][key].send(JSON.stringify(message));
