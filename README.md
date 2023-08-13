@@ -40,7 +40,7 @@
 
 ![](https://p0.meituan.net/travelcube/c4bd6f95f2d975eb48738d2f96a6fb4e34547.png)
 ![](https://p0.meituan.net/travelcube/e671a4b05cce83235d5f61ed077b7d6730796.png)
-![](https://p1.meituan.net/travelcube/e0e9e0eff0bc5e21053502346f5e83a618772.png)
+![](https://p1.meituan.net/travelcube/63f8c7db6282886068a3cb134a51e81316893.png)
 
 ### 1.3 项目亮点？
 
@@ -226,6 +226,18 @@
 - utils 文件夹主要存放一些全局通用的工具方法，如创建文件的方法、文件格式化方法等
 - global.js 文件存放了一些全局变量和方法，通过 node 中的 global 变量注入
 
+对于大部分人来说，直接看源码和注释即可。因为上面提到，本项目的亮点之一便是做了较为完备的前端工程化设置，且项目目录结构合理、清晰，组件和方法抽象程度高，代码耦合度低，且配备了注释说明。下面附上几张源码图片进行证明：
+
+**client\src\components\VideoModal\index.tsx：(视频通话组件)**
+![](https://p0.meituan.net/travelcube/f4fa1e8b0cad09d180c67ccb10a0133943816.png)
+![](https://p0.meituan.net/travelcube/c01f0c696d02442c4f49ada281f60ca059215.png)
+
+**server\container\rtc\index.js：（建立音视频通话的 websocket 连接的服务端函数）**
+![](https://p0.meituan.net/travelcube/fe0a0b6f4b6e5d6b0d3c52932426c31781045.png)
+
+**client\src\utils\file.ts：（前端处理文件的函数集合）**
+![](https://p0.meituan.net/travelcube/b9a1592c2f4176957401a6897af83be259593.png)
+
 ### 2.3 如何参与本项目？
 
 1.  Fork 本仓库
@@ -235,7 +247,7 @@
 
 ## 3、写在最后
 
-本项目到目前为止都靠作者一人独立开发，但上面提到还有许多可扩展的功能点，也有很多缺陷待修复，本人心有余而力不足，因此希望更多的人参与进来，继续完善这个项目，实现更好的开源。
+本项目到目前为止都靠作者一人独立开发，但上面提到还有许多可扩展的功能点，也有很多缺陷待修复。由于本人目前还是一名准备秋招的大学生，因此接下来一段日子会比较忙，想尽快进一步完善项目却心有余而力不足，因此希望更多的人参与进来，继续完善这个项目，实现更好的开源。
 
 ✨ 本人掘金博客地址：http://www.xucong.zone
 
@@ -246,3 +258,5 @@
 👉 项目 github 地址：https://github.com/XC0703/better-chat
 
 🔨 项目 gitee 地址：https://gitee.com/fish-in-jiangan-river/better-chat
+
+上面是一些关于此项目和本人技术社区主页的地址，欢迎各位看官给小弟点个赞，与诸君共勉。
