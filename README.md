@@ -40,7 +40,7 @@
 
 ![](https://p0.meituan.net/travelcube/c4bd6f95f2d975eb48738d2f96a6fb4e34547.png)
 ![](https://p0.meituan.net/travelcube/e671a4b05cce83235d5f61ed077b7d6730796.png)
-![](https://p1.meituan.net/travelcube/63f8c7db6282886068a3cb134a51e81316893.png)
+![](https://p0.meituan.net/travelcube/87a21ed61b51e7c4780a2f5b37a4926716230.png)
 
 ### 1.3 项目亮点？
 
@@ -186,7 +186,7 @@
       "host": "127.0.0.1",
       "port": 3306,
       "user": "root",
-      "password": "XC20020703",
+      "password": "123456",
       "database": "better-chat"
    }
    ```
