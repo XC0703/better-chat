@@ -54,7 +54,7 @@
 ### 1.4 目前已经完成的功能
 
 - 个人模块（包括登录注册、记住密码、忘记密码、退出登录、防止重复登录、修改密码、修改个人信息等功能）
-- 好友模块（包括查询好友、添加好友、获取好友列表、查询好友信息、修改好友信息等功能）
+- 好友模块（包括查询好友、添加好友、新增好友分组、获取好友列表、查询好友信息、修改好友信息等功能）
 - 聊天模块（包括文本、表情包、图片、视频、其它各类文件的传输以及音视频通话等功能）
 
 **注意：本项目目前关于其他类型文件（非图片非视频）的传输还存在一定的缺陷（断点续传不准确因此没有写完、针对较大较复杂的文件会丢失信息乱码等），待后续完善。**
@@ -77,9 +77,9 @@
 注册界面：
 ![](https://p1.meituan.net/travelcube/32e03f07f6b4bf1754d23f30e1aaa43f789806.png)
 修改个人信息：
-![](https://p0.meituan.net/travelcube/df4f2f972ceee4c4dacddb56ef7b93b7169361.png)
+![](https://p0.meituan.net/travelcube/421e926de978fb93710b88c44b6e19b7171892.png)
 修改密码：
-![](https://p0.meituan.net/travelcube/df4f2f972ceee4c4dacddb56ef7b93b7169361.png)
+![](https://p0.meituan.net/travelcube/7aa29a255a88c6a2068be2d3e2cc11b4170959.png)
 
 #### 1.6.2 好友模块
 
@@ -103,7 +103,7 @@
 收到语音通话：
 ![](https://p0.meituan.net/travelcube/5cfbe283ef34b157ef46525aeb42e1a8330738.png)
 语音通话中：
-![](https://p0.meituan.net/travelcube/5cfbe283ef34b157ef46525aeb42e1a8330738.png)
+![](https://p0.meituan.net/travelcube/6144c1788d55218f091ea530149c9ea8335822.png)
 发起视频通话：
 ![](https://p0.meituan.net/travelcube/164d8d7f21ced7a00481960cf9fb7af6338274.png)
 收到视频通话：
