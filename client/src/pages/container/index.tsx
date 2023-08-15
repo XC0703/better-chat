@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import AddressBook from './AddressBook';
+import { getFriendInfoByUsername } from './AddressBook/api';
 import { IFriendInfo } from './AddressBook/api/type';
-import { getFriendInfoByUsername } from './api';
 import ChatList from './ChatList';
 import styles from './index.module.less';
 

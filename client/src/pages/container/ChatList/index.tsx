@@ -108,7 +108,7 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
           setCurChatInfo(initChatInfo);
         } else {
           const newMessage = {
-            user_id: initSelectedChat.friend_id,
+            user_id: initSelectedChat.friend_user_id,
             name: initSelectedChat.remark,
             receiver_username: initSelectedChat.username,
             room: initSelectedChat.room,

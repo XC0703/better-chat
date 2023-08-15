@@ -198,7 +198,7 @@ async function createFriendGroup(req, res) {
 async function getFriendById(req, res) {
   let id = req.query.id;
   let sql =
-    "select f.id as friend_id, f.online_status, f.remark, f.group_id, fg.name as group_name, f.room, f.unread_msg_count, u.username, u.avatar, u.phone, u.name, u.signature from friend as f join user as u on f.user_id = u.id join friend_group as fg on f.group_id = fg.id where f.id = ?";
+    "select f.id as friend_id, f.user_id as friend_user_id, f.online_status, f.remark, f.group_id, fg.name as group_name, f.room, f.unread_msg_count, u.username, u.avatar, u.phone, u.name, u.signature from friend as f join user as u on f.user_id = u.id join friend_group as fg on f.group_id = fg.id where f.id = ?";
   let { err, results } = await Query(sql, [id]);
   // 查询数据失败
   if (err) return RespError(res, RespServerErr);
@@ -210,7 +210,7 @@ async function getFriendById(req, res) {
 async function getFriendByUsername(req, res) {
   let username = req.query.username;
   let sql =
-    "select f.id as friend_id, f.online_status, f.remark, f.group_id, fg.name as group_name, f.room, f.unread_msg_count, u.username, u.avatar, u.phone, u.name, u.signature from friend as f join user as u on f.user_id = u.id join friend_group as fg on f.group_id = fg.id where u.username = ?";
+    "select f.id as friend_id, f.user_id as friend_user_id, f.online_status, f.remark, f.group_id, fg.name as group_name, f.room, f.unread_msg_count, u.username, u.avatar, u.phone, u.name, u.signature from friend as f join user as u on f.user_id = u.id join friend_group as fg on f.group_id = fg.id where u.username = ?";
   let { err, results } = await Query(sql, [username]);
   // 查询数据失败
   if (err) return RespError(res, RespServerErr);
