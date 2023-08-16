@@ -33,7 +33,7 @@ module.exports = function () {
   router.post("/search_user", authenticateToken, friend.searchUser);
   router.post("/add_friend", authenticateToken, friend.addFriend);
   router.get("/get_friend_by_id", authenticateToken, friend.getFriendById);
-  router.get(
+  router.post(
     "/get_friend_by_username",
     authenticateToken,
     friend.getFriendByUsername

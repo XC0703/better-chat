@@ -1,7 +1,7 @@
 # better-chat
 
 <p align="center">
-    <img src="https://p0.meituan.net/travelcube/67b20d25afd586d62a79a0d8e592d55319478.png" alt="better-chat">
+   <img src="https://p0.meituan.net/travelcube/67b20d25afd586d62a79a0d8e592d55319478.png" alt="better-chat">
 </p>
 
 <p align="center">

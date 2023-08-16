@@ -133,7 +133,11 @@ const Container = () => {
         //打开响应音视频通话窗口(根据传过来的发送方username拿到对应的好友信息)
         case 'createRoom':
           if (data.sender_username) {
-            getFriendInfoByUsername(data.sender_username).then((res) => {
+            const param = {
+              friend_username: data.sender_username,
+              self_username: username,
+            };
+            getFriendInfoByUsername(param).then((res) => {
               if (res.code === 200) {
                 setCallFriendInfo({
                   receiver_username: res.data.username,

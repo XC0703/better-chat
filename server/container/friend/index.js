@@ -208,10 +208,10 @@ async function getFriendById(req, res) {
  * 根据好友用户名获取好友信息
  */
 async function getFriendByUsername(req, res) {
-  let username = req.query.username;
+  const { friend_username, self_username } = req.body;
   let sql =
-    "select f.id as friend_id, f.user_id as friend_user_id, f.online_status, f.remark, f.group_id, fg.name as group_name, f.room, f.unread_msg_count, u.username, u.avatar, u.phone, u.name, u.signature from friend as f join user as u on f.user_id = u.id join friend_group as fg on f.group_id = fg.id where u.username = ?";
-  let { err, results } = await Query(sql, [username]);
+    "select * from friend where username = ? and group_id in (select id from friend_group where username = ?)";
+  let { err, results } = await Query(sql, [friend_username, self_username]);
   // 查询数据失败
   if (err) return RespError(res, RespServerErr);
   RespData(res, results[0]);

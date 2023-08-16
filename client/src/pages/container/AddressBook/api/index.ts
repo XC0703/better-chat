@@ -1,4 +1,4 @@
-import { IFriendGroup, IFriendInfo, IFriendGroupList, IUpdateFriendInfo, ICreateFriendGroup } from './type';
+import { IFriendGroup, IFriendInfo, IFriendGroupList, IUpdateFriendInfo, ICreateFriendGroup, IGetFriendInfoByUsername, IFriend } from './type';
 
 import Request from '@/utils/request';
 
@@ -28,8 +28,8 @@ export const createFriendGroup = async (data: ICreateFriendGroup) => {
   return res.data;
 }
 // 根据username获取好友信息
-export const getFriendInfoByUsername = async (username: string) => {
-  const res = await Request.get<IFriendInfo>('friend/get_friend_by_username/?username='+username);
+export const getFriendInfoByUsername = async (data: IGetFriendInfoByUsername) => {
+  const res = await Request.post('friend/get_friend_by_username',data);
   return res.data;
 }
 

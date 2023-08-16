@@ -54,4 +54,8 @@ export interface ICreateFriendGroup {
   username: string;
   name: string;
 }
-
+// 根据username获取好友信息时传递的参数
+export interface IGetFriendInfoByUsername {
+  friend_username: string;
+  self_username: string;
+}

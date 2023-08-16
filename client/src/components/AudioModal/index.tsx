@@ -82,7 +82,9 @@ const AudioModal = (props: ICallModalProps) => {
           socket.current!.send(JSON.stringify({ name: 'reject' }));
           socket.current!.close();
           socket.current = null;
-          localStream.current!.getAudioTracks()[0].stop();
+          if (localStream.current) {
+            localStream.current!.getAudioTracks()[0].stop();
+          }
           setTimeout(() => {
             handleModal(false);
           }, 1500);
@@ -98,7 +100,9 @@ const AudioModal = (props: ICallModalProps) => {
         case 'notConnect':
           socket.current!.close();
           socket.current = null;
-          localStream.current!.getAudioTracks()[0].stop();
+          if (localStream.current) {
+            localStream.current!.getAudioTracks()[0].stop();
+          }
           setTimeout(() => {
             handleModal(false);
             message.info(data.result, 1.5);
@@ -162,7 +166,9 @@ const AudioModal = (props: ICallModalProps) => {
           socket.current!.send(JSON.stringify({ name: 'reject' }));
           socket.current!.close();
           socket.current = null;
-          localStream.current!.getAudioTracks()[0].stop();
+          if (localStream.current) {
+            localStream.current!.getAudioTracks()[0].stop();
+          }
           setTimeout(() => {
             handleModal(false);
             message.info('对方已挂断', 1.5);
@@ -197,7 +203,9 @@ const AudioModal = (props: ICallModalProps) => {
       socket.current!.send(JSON.stringify({ name: 'reject' }));
       socket.current?.close();
       socket.current = null;
-      localStream.current!.getAudioTracks()[0].stop();
+      if (localStream.current) {
+        localStream.current!.getAudioTracks()[0].stop();
+      }
       setTimeout(() => {
         handleModal(false);
       }, 1500);
