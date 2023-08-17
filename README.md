@@ -34,7 +34,11 @@
 本项目是一个前端基于 `vite`、`react`、`ts`，后端基于 `express`、`express-ws`、`mysql`，并依赖 `websocket 协议`、`webrtc 协议`实现的局域网实时聊天全栈项目，且`持续开源和维护`。
 
 先放在开头：
-🔨 项目演示地址：https://www.bilibili.com/video/BV1tF411y7V6/?vd_source=d4b042d141a005b13a776cb15d5b95d9
+
+👉 项目演示地址：https://www.bilibili.com/video/BV1tF411y7V6/?vd_source=d4b042d141a005b13a776cb15d5b95d9
+
+🔨 项目说明文档掘金地址：https://juejin.cn/post/7267848386522415145
+
 （希望各位看官给新人 up 主一键三连+给本菜鸡的项目点个 star，不胜感激。）
 
 ### 1.2 为什么要开发这个项目？
