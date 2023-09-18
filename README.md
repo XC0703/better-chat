@@ -52,12 +52,12 @@
 
 ### 1.3 项目亮点？
 
-- 使用 prettier+eslint+stylelint+lint-staged+husky+commitlint 统一代码和 git 提交规范，较为完备的前端工程化设置
+- 使用 EditorConfig+Prettier+ESLint+StyleLint+CommitLint+Husky 统一代码和 Git 提交规范，较为完备的前端工程化配置
 - 项目目录结构合理、清晰，组件和方法抽象程度高，代码耦合度低，且配备较为完备的文档说明
-- 前端基于 vite、react、ts，后端基于 express、express-ws、mysql 的全栈开发，锻炼全栈能力
-- 基于 websocket 协议、webrtc 协议实现了局域网通信和音视频通话功能
+- 借助 MySQL、Express 完成了 5 张表、18 个接口的设计与开发，锻炼全栈能力
+- 基于 WebSocket 协议、WebRTC 协议实现了局域网通信和音视频通话功能
 - 针对大文件传输场景，作出分片上传、断点续传处理
-- 依赖高阶组件实现路由守卫，基于 token 和 jwt 实现鉴权
+- 依赖高阶组件实现路由守卫，基于 Token 和 JWT 实现鉴权
 
 ### 1.4 目前已经完成的功能
 
