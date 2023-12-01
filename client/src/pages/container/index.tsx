@@ -169,7 +169,7 @@ const Container = () => {
   };
 
   return (
-    <>
+    <div className={styles.parentContainer}>
       <div className={styles.container}>
         <div className={styles.leftContainer}>
           <Tooltip placement="bottomLeft" title={infoContent} arrow={false} overlayClassName="infoTooltip">
@@ -258,7 +258,7 @@ const Container = () => {
           />
         )
       }
-    </>
+    </div>
   );
 };
 
