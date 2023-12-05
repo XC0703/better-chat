@@ -17,3 +17,16 @@ export interface IFriendGroup {
   online_counts:number;
   friend: IFriend[];
 }
+// 群聊成员数据类型
+export interface IGroupMember{
+  user_id:number;
+  username: string;
+  avatar: string;
+}
+// 创建群聊时传递的参数
+export interface ICreateGroupParams{
+  name:string;
+  announcement:string;
+  avatar:string;
+  members:IGroupMember[];
+}

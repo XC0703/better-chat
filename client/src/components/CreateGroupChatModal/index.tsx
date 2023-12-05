@@ -1,8 +1,9 @@
-import { App, Button, Modal, Tree } from 'antd';
+import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
+import { App, Button, Modal, Tree, Upload, Form, Input } from 'antd';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { getFriendList } from './api';
-import { IFriend, IFriendGroup } from './api/type';
+import { getFriendList, createGroup } from './api';
+import { IFriend, IFriendGroup, IGroupMember, ICreateGroupParams } from './api/type';
 import styles from './index.module.less';
 
 interface IChangeInfoModal {
@@ -17,6 +18,7 @@ const CreateGroupModal = (props: IChangeInfoModal) => {
   const [open, setOpen] = useState(openmodal);
   const [checkedFriends, setCheckedFriends] = useState<[]>([]); // 勾选的好友列表数组
   const [loading, setLoading] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const step0Ref = useRef<HTMLDivElement | null>(null);
   const step1Ref = useRef<HTMLDivElement | null>(null);
 
@@ -60,23 +62,100 @@ const CreateGroupModal = (props: IChangeInfoModal) => {
   // 控制第一步和第二步的互相切换
   const handleSwitch = (step: number) => {
     if (step === 0 && step0Ref.current && step1Ref.current) {
-      step1Ref.current.style.display = 'none';
-      step0Ref.current.style.display = 'block';
+      step1Ref.current.style.opacity = '0';
+      step0Ref.current.style.opacity = '1';
+      setTimeout(() => {
+        if (step1Ref.current && step0Ref.current) {
+          step1Ref.current.style.display = 'none';
+          step0Ref.current.style.display = 'block';
+        }
+      }, 500);
     } else if (step === 1 && step0Ref.current && step1Ref.current) {
-      step0Ref.current.style.display = 'none';
-      step1Ref.current.style.display = 'block';
+      if (checkedFriends.length !== 0) {
+        step0Ref.current.style.opacity = '0';
+        step1Ref.current.style.opacity = '1';
+        setTimeout(() => {
+          if (step0Ref.current && step1Ref.current) {
+            step0Ref.current.style.display = 'none';
+            step1Ref.current.style.display = 'block';
+          }
+        }, 500);
+      } else {
+        message.info('请至少选择一位好友加入群聊！', 1.5);
+      }
     }
   };
 
+  // 上传图片(这里的处理是将图片的base64编码和群聊信息一并传给后端，后端将文件存在服务器后再将文件URL存在数据库表中)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleUpload = (options: any) => {
+    const file = options.file;
+    const reader = new FileReader();
+    if (file.size <= 2 * 1024 * 1024) {
+      // 判断文件大小是否超过2m
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        // 当读取操作成功完成时调用
+        const base64 = event.target!.result; // 获取文件的Base64编码
+        setImageUrl(base64 as string);
+      };
+    } else {
+      message.error('图片文件不能超过2M！', 1.5);
+    }
+  };
+
+  // upload组件写在表单里必须这样操作传值
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const normFile = (e: any) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e && e.fileList;
+  };
+
   // 创建群聊
-  const handleCreateGroup = () => {
-    console.log(checkedFriends);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleCreateGroup = (values: any) => {
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      message.success('创建群聊成功！', 1.5);
-      handleCancel();
-    }, 1000);
+    // 将第一步的好友数据筛选并作格式转化
+    const selectedFriends: IGroupMember[] = [];
+    checkedFriends.map((item) => {
+      try {
+        const parsedItem = JSON.parse(item);
+        if (parsedItem.username) {
+          selectedFriends.push({
+            user_id: parsedItem.user_id,
+            username: parsedItem.username,
+            avatar: parsedItem.avatar,
+          });
+        }
+      } catch (error) {
+        /* empty */
+      }
+    });
+
+    // 拼接选中好友数据、群聊头像（base64编码、文件）、群名、公告（可空）
+    const createGroupParams: ICreateGroupParams = {
+      name: values.groupName,
+      announcement: values.announcement ? values.announcement : null,
+      members: selectedFriends,
+      avatar: imageUrl as string,
+    };
+    createGroup(createGroupParams)
+      .then((res) => {
+        if (res.code === 200) {
+          message.success('创建群聊成功！', 1.5);
+          setLoading(false);
+          handleCancel();
+        } else {
+          message.error('创建群聊失败！', 1.5);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        message.error('创建群聊失败！', 1.5);
+        setLoading(false);
+      });
   };
 
   useEffect(() => {
@@ -98,6 +177,14 @@ const CreateGroupModal = (props: IChangeInfoModal) => {
       </div>
     );
   }, [friendList]);
+
+  // 上传按钮
+  const uploadButton = (
+    <div>
+      {loading ? <LoadingOutlined /> : <PlusOutlined />}
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </div>
+  );
 
   return (
     <>
@@ -139,12 +226,41 @@ const CreateGroupModal = (props: IChangeInfoModal) => {
             </div>
           </div>
           <div className={`${styles.step} ${styles.step1}`} ref={step1Ref}>
-            <div className={styles.selectContainer}></div>
-            <div className={styles.btns}>
-              <Button onClick={() => handleSwitch(0)}>上一步</Button>
-              <Button onClick={handleCreateGroup} type="primary" loading={loading}>
-                确定
-              </Button>
+            <div className={styles.selectContainer}>
+              <Form onFinish={handleCreateGroup}>
+                <Form.Item
+                  label="头像"
+                  rules={[{ required: true, message: '请上传头像' }]}
+                  name="avatar"
+                  valuePropName="fileList"
+                  getValueFromEvent={normFile}
+                >
+                  <Upload
+                    name="avatar"
+                    listType="picture-card"
+                    showUploadList={false}
+                    customRequest={handleUpload}
+                    accept="image/*"
+                    maxCount={1}
+                  >
+                    {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
+                  </Upload>
+                </Form.Item>
+                <Form.Item label="群名" rules={[{ required: true, message: '请输入群名' }]} name="groupName">
+                  <Input maxLength={10} showCount={true} placeholder="请输入群名" />
+                </Form.Item>
+                <Form.Item label="公告" name="announcement">
+                  <Input maxLength={30} showCount={true} />
+                </Form.Item>
+                <Form.Item>
+                  <div className={styles.btns}>
+                    <Button onClick={() => handleSwitch(0)}>上一步</Button>
+                    <Button type="primary" loading={loading} htmlType="submit">
+                      确定
+                    </Button>
+                  </div>
+                </Form.Item>
+              </Form>
             </div>
           </div>
         </div>

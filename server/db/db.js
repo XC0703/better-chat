@@ -50,7 +50,7 @@ function initUserTable() {
     if (error) return console.log(error);
   });
 }
-//创建好友firend表
+//创建好友friend表
 function initFirendTable() {
   const sql = `CREATE TABLE   IF NOT EXISTS friend (
         id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -72,7 +72,7 @@ function initFirendTable() {
     if (error) return console.log(error);
   });
 }
-//创建分组表
+//创建分组friend_group表
 function initGroupTable() {
   const sql = `CREATE TABLE  IF NOT EXISTS friend_group (
         id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -88,9 +88,10 @@ function initGroupTable() {
   db.query(sql, (error, results, fields) => {
     if (error) return console.log(error);
     initFirendTable();
+    initGroupChatTable();
   });
 }
-//创建消息表
+//创建消息message表
 function initMessageTable() {
   const sql = `
     CREATE TABLE IF NOT EXISTS  message (
@@ -113,7 +114,7 @@ function initMessageTable() {
     if (error) return console.log(error);
   });
 }
-//创建消息统计表
+//创建消息统计message_statistics表
 function initmessageStatisticsTable() {
   const sql = `
     CREATE TABLE IF NOT EXISTS  message_statistics (
@@ -125,6 +126,46 @@ function initmessageStatisticsTable() {
         PRIMARY KEY (id)
       )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     `;
+  db.query(sql, (error, results, fields) => {
+    if (error) return console.log(error);
+  });
+}
+//创建群聊group_chat表
+function initGroupChatTable() {
+  const sql = `
+  CREATE TABLE IF NOT EXISTS group_chat (
+      id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+      name VARCHAR(50) NOT NULL,
+      creator_id INT(11) NOT NULL,
+      avatar VARCHAR(255),
+      announcement TEXT,
+      room VARCHAR(255),
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      INDEX idx_creator_id (creator_id),
+      FOREIGN KEY (creator_id) REFERENCES user(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `;
+  db.query(sql, (error, results, fields) => {
+    initGroupMembersTable();
+    if (error) return console.log(error);
+  });
+}
+//创建群成员group_members表
+function initGroupMembersTable() {
+  const sql = `
+  CREATE TABLE IF NOT EXISTS group_members (
+      id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+      group_id INT(11) NOT NULL,
+      user_id INT(11) NOT NULL,
+      nickname VARCHAR(50) NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      INDEX idx_user_id (user_id),
+      INDEX idx_group_id (group_id),
+      FOREIGN KEY (group_id) REFERENCES group_chat(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `;
   db.query(sql, (error, results, fields) => {
     if (error) return console.log(error);
   });

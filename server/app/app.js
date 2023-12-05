@@ -51,11 +51,13 @@ app.use(bodyParser.urlencoded({ limit: "100mb", extended: true })); //parse appl
 const indexRouter = require("./routes/auth")();
 const friendRouter = require("./routes/friend")();
 const messageRouter = require("./routes/message")();
+const groupRouter = require("./routes/group")();
 const rtcRouter = require("./routes/rtc")();
 
 app.use("/api/chat/v1/auth", cors, indexRouter);
 app.use("/api/chat/v1/friend", cors, friendRouter);
 app.use("/api/chat/v1/message", cors, messageRouter);
+app.use("/api/chat/v1/group", cors, groupRouter);
 app.use("/api/chat/v1/rtc", cors, rtcRouter);
 
 module.exports = app;
