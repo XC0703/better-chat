@@ -1,5 +1,6 @@
 module.exports = {
   CreateGroupChat,
+  GetGroupChatList,
 };
 const { base64ToImage } = require("../../utils/createFile");
 const { RespServerErr, RespCreateErr } = require("../../model/error");
@@ -7,7 +8,9 @@ const { RespError } = require("../../model/resp");
 const { Query } = require("../../db/query");
 const { v4: uuidv4 } = require("uuid");
 
-//创建群聊
+/**
+ * 创建群聊
+ */
 async function CreateGroupChat(req, res) {
   const groupInfo = req.body;
   const uuid = uuidv4();
@@ -63,4 +66,26 @@ async function CreateGroupChat(req, res) {
   }
 
   return RespError(res, RespCreateErr);
+}
+/**
+ * 获取当前用户加入的所有群聊
+ * 1.获取当前用户id
+ * 2.根据group_members获取所有group_id,在根据left join获取group_chat对应的id下的群聊信息
+ * 3.根据group_id,使用count(*)获取group_members的成员数量
+ */
+async function GetGroupChatList(req, res) {
+  //根据id获取所有分组下的所有好友
+  const id = req.user.id;
+  let groupChatList = [];
+  let sql =
+    "SELECT gct.*  from ((select group_id from group_members where user_id=?) as gmb LEFT JOIN group_chat as gct on gmb.group_id=gct.id)";
+  let { err, results } = await Query(sql, [id]);
+  if (err) return RespError(res, RespServerErr);
+  groupChatList = results;
+  for (const index in groupChatList) {
+    sql = "select count(*) as members_len from group_members where group_id=?";
+    let resp = await Query(sql, [groupChatList[index].id]);
+    groupChatList[index].members_len = resp.results[0].members_len;
+  }
+  return RespData(res, groupChatList);
 }

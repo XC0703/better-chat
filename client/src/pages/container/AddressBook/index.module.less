@@ -66,8 +66,7 @@
         .friendTree{
           width:100%;
           height: 100%;
-          overflow: auto;
-          overflow-Y: scroll;
+          overflow: scroll;
           .nodeContent{
             display: flex;
             align-items: center;
@@ -79,22 +78,69 @@
               margin-right: .2rem;
             }
             span{
+              max-width: 1.2rem;
               font-size: .15rem;
               color: #000;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
             }
             .friendStatus{
               margin-left: auto;
             }
           }
         }
-        .friendTree::-webkit-scrollbar {
+        .groupChatList{
+          width:100%;
+          height: 4.9rem;
+          display: flex;
+          flex-direction: column;
+          overflow: scroll;
+          .groupChat{
+            display: flex;
+            align-items: center;
+            border-bottom: 0.003rem solid #d3d1d1;
+            cursor: pointer;
+            padding:.1rem;
+            img{
+              width:.4rem;
+              height:.4rem;
+              margin-right: .2rem;
+            }
+            span{
+              max-width: 1.2rem;
+              font-size: .15rem;
+              color: #000;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            }
+            span:last-child{
+              margin-left: auto;
+            }
+          }
+          .groupChat:hover{
+            background-color: rgba(0, 0, 0, 0.04);
+          }
+          .groupChat:nth-child(1){
+            border-top: 0.003rem solid #d3d1d1;
+          }
+        }
+        .friendTree::-webkit-scrollbar,
+        .groupChatList::-webkit-scrollbar {
           width: 0.01rem;
         }
-        .friendTree::-webkit-scrollbar-thumb {
+        .friendTree::-webkit-scrollbar-thumb,
+        .groupChatList::-webkit-scrollbar-thumb {
           border-radius: 0.05rem;
           background-color:transparent;
         }
-        .friendTree:hover::-webkit-scrollbar-thumb{
+        .friendTree::-webkit-scrollbar-corner,
+        .groupChatList::-webkit-scrollbar-corner {
+          background-color: #e5e5e5;
+        }
+        .friendTree:hover::-webkit-scrollbar-thumb,
+        .groupChatList:hover::-webkit-scrollbar-thumb{
           background-color: rgba(106, 184, 106, 0.4);
         }
       }

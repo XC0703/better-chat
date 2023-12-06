@@ -2,13 +2,21 @@ import { WechatOutlined } from '@ant-design/icons';
 import { Tabs, Tree, Tooltip, TabsProps, App, Form, Input, Select, Button, Modal } from 'antd';
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 
-import { getFriendList, getFriendInfoById, getFriendGroup, updateFriendInfo, createFriendGroup } from './api';
-import { IFriendGroup, IFriendInfo, IFriendGroupList } from './api/type';
+import {
+  getFriendList,
+  getFriendInfoById,
+  getFriendGroup,
+  updateFriendInfo,
+  createFriendGroup,
+  getGroupChatList,
+} from './api';
+import { IFriendGroup, IFriendInfo, IFriendGroupList, IGroupChat } from './api/type';
 import styles from './index.module.less';
 import type { DirectoryTreeProps } from 'antd/es/tree';
 
 import { StatusIconList } from '@/assets/icons';
 import SearchContainer from '@/components/SearchContainer';
+import { serverURL } from '@/config';
 import { userStorage } from '@/utils/storage';
 
 const { DirectoryTree } = Tree;
@@ -21,6 +29,7 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
   const { handleChooseFriend } = props;
   const { message } = App.useApp();
   const [friendList, setFriendList] = useState<IFriendGroup[]>([]); // 好友列表
+  const [groupChatList, setGroupChatList] = useState<IGroupChat[]>([]); //群聊列表
   const [infoChangeInstance] = Form.useForm<{ username: string; name: string; newRemark: string; newGroup: number }>();
   const [curFriendInfo, setCurFriendInfo] = useState<IFriendInfo>(); // 当前选中的好友信息
   const [groupList, setGroupList] = useState<IFriendGroupList[]>([]); // 好友分组列表
@@ -149,53 +158,97 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
     });
   };
 
+  // 获取群聊列表
+  const refreshGroupChatList = () => {
+    getGroupChatList().then((res) => {
+      if (res.code === 200) {
+        setGroupChatList(res.data);
+      } else {
+        message.error('获取群聊数据失败', 1.5);
+      }
+    });
+  };
+
+  // 选择某一群聊
+  const handleSelectGroupChat = (item: IGroupChat) => {
+    console.log(item);
+  };
+
   useEffect(() => {
     refreshFriendList();
     getFriendGroupList();
+    refreshGroupChatList();
   }, []);
 
   // 鼠标右键内容
-  const addContent = (
-    <ul>
-      <li onClick={refreshFriendList}>刷新列表</li>
-      <li
-        onClick={() => {
-          setOpenCreateGroupModal(true);
-        }}
-      >
-        新建分组
-      </li>
-    </ul>
-  );
+  const addContent = (key: number) => {
+    if (key === 1) {
+      return (
+        <ul>
+          <li onClick={refreshFriendList}>刷新列表</li>
+          <li
+            onClick={() => {
+              setOpenCreateGroupModal(true);
+            }}
+          >
+            新建分组
+          </li>
+        </ul>
+      );
+    } else {
+      return (
+        <ul>
+          <li onClick={refreshGroupChatList}>刷新列表</li>
+        </ul>
+      );
+    }
+  };
   // tabs标签切换
+  const titleLabel = (key: number) => {
+    const title = key === 1 ? '好友' : '群聊';
+    return (
+      <Tooltip
+        placement="bottomLeft"
+        title={addContent(key)}
+        arrow={false}
+        overlayClassName="addContent"
+        trigger={'contextMenu'}
+      >
+        {title}
+      </Tooltip>
+    );
+  };
   const items: TabsProps['items'] = [
     {
       key: '1',
-      label: (
-        <Tooltip
-          placement="bottomLeft"
-          title={addContent}
-          arrow={false}
-          overlayClassName="addContent"
-          trigger={'contextMenu'}
-        >
-          好友
-        </Tooltip>
-      ),
+      label: titleLabel(1),
       children: (
-        <>
-          <div className={styles.friendTree}>
-            <DirectoryTree onSelect={onSelect} treeData={treeData} icon={null} showIcon={false} />
-          </div>
-        </>
+        <div className={styles.friendTree}>
+          <DirectoryTree onSelect={onSelect} treeData={treeData} icon={null} showIcon={false} />
+        </div>
       ),
     },
     {
       key: '2',
-      label: `群聊`,
-      children: <>todo：群聊列表</>,
+      label: titleLabel(2),
+      children: (
+        <div className={styles.groupChatList}>
+          {groupChatList.map((item) => {
+            return (
+              <div className={styles.groupChat} key={item.id} onClick={() => handleSelectGroupChat(item)}>
+                <img src={serverURL + item.avatar} />
+                <span>{item.name}</span>
+                <span>
+                  ({item.members_len}/{item.members_len})
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      ),
     },
   ];
+
   // 用useMemo包裹，避免每次都重新渲染导致展开的好友列表收起
   const LeftContainer = useMemo(() => {
     return (
@@ -210,7 +263,7 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
         </div>
       </div>
     );
-  }, [friendList]);
+  }, [friendList, groupChatList]);
 
   // 暴露方法出去
   useImperativeHandle(ref, () => ({

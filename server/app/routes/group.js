@@ -28,7 +28,7 @@ function authenticateToken(req, res, next) {
   });
 }
 module.exports = function () {
-  //创建群聊
   router.post("/create_group", authenticateToken, group.CreateGroupChat);
+  router.get("/group_chat_list", authenticateToken, group.GetGroupChatList);
   return router;
 };
