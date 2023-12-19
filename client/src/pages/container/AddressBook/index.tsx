@@ -28,10 +28,12 @@ interface IAddressBookProps {
 const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
   const { handleChooseFriend } = props;
   const { message } = App.useApp();
+  const [curTab, setCurTab] = useState<string>('1'); // 当前tab是好友还是群聊
   const [friendList, setFriendList] = useState<IFriendGroup[]>([]); // 好友列表
   const [groupChatList, setGroupChatList] = useState<IGroupChat[]>([]); //群聊列表
-  const [infoChangeInstance] = Form.useForm<{ username: string; name: string; newRemark: string; newGroup: number }>();
+  const [infoChangeInstance] = Form.useForm<{ username: string; name: string; newRemark: string; newGroup: number }>(); // 好友表单实例
   const [curFriendInfo, setCurFriendInfo] = useState<IFriendInfo>(); // 当前选中的好友信息
+  const [curGroupChatInfo, setCurGroupChatInfo] = useState<IGroupChat>(); // 当前选中的群聊信息
   const [groupList, setGroupList] = useState<IFriendGroupList[]>([]); // 好友分组列表
   const [newGroupName, setNewGroupName] = useState(''); // 新建分组
 
@@ -171,7 +173,93 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 
   // 选择某一群聊
   const handleSelectGroupChat = (item: IGroupChat) => {
-    console.log(item);
+    setCurGroupChatInfo(item);
+  };
+
+  // 群成员表展示
+  const dataSource = [
+    {
+      key: '1',
+      username: '用户1',
+      nickname: '昵称1',
+      addTime: '2023-12-01',
+      lastestTime: '2023-12-18',
+    },
+    {
+      key: '2',
+      username: '用户2',
+      nickname: '昵称2',
+      addTime: '2023-11-30',
+      lastestTime: '2023-12-17',
+    },
+    {
+      key: '3',
+      username: '用户3',
+      nickname: '昵称3',
+      addTime: '2023-11-29',
+      lastestTime: '2023-12-16',
+    },
+    {
+      key: '4',
+      username: '用户4',
+      nickname: '昵称4',
+      addTime: '2023-11-28',
+      lastestTime: '2023-12-15',
+    },
+    {
+      key: '5',
+      username: '用户5',
+      nickname: '昵称5',
+      addTime: '2023-11-27',
+      lastestTime: '2023-12-14',
+    },
+    {
+      key: '6',
+      username: '用户6',
+      nickname: '昵称6',
+      addTime: '2023-11-26',
+      lastestTime: '2023-12-13',
+    },
+  ];
+
+  // 群聊具体信息tabs标签切换
+  const infoItems: TabsProps['items'] = [
+    {
+      key: '1',
+      label: '首页',
+      children: (
+        <div className={styles.homePage}>
+          <span>
+            <b>群创建时间：</b>本群创建于{curGroupChatInfo?.created_at.split('.')[0].replace('T', ' ')}
+          </span>
+          <span>
+            <b>群人数：</b>
+            {curGroupChatInfo?.members_len}
+          </span>
+          <span>
+            <b>群主id：</b>
+            {curGroupChatInfo?.id}
+          </span>
+        </div>
+      ),
+    },
+    {
+      key: '2',
+      label: '成员',
+      children: <div className={styles.memberTable}></div>,
+    },
+  ];
+
+  // 邀请好友
+  const invitFriend = (curGroupChatInfo: IGroupChat) => {
+    console.log('邀请好友');
+    console.log(curGroupChatInfo);
+  };
+
+  // 选择一个群聊后发送信息
+  const handleChooseGroupChat = (curGroupChatInfo: IGroupChat) => {
+    console.log('选择一个群聊后发送信息');
+    console.log(curGroupChatInfo);
   };
 
   useEffect(() => {
@@ -203,6 +291,7 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
       );
     }
   };
+
   // tabs标签切换
   const titleLabel = (key: number) => {
     const title = key === 1 ? '好友' : '群聊';
@@ -235,7 +324,11 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
         <div className={styles.groupChatList}>
           {groupChatList.map((item) => {
             return (
-              <div className={styles.groupChat} key={item.id} onClick={() => handleSelectGroupChat(item)}>
+              <div
+                className={`${styles.groupChat} ${curGroupChatInfo?.id === item.id ? styles.curGroupChatInfo : ''}`}
+                key={item.id}
+                onClick={() => handleSelectGroupChat(item)}
+              >
                 <img src={serverURL + item.avatar} />
                 <span>{item.name}</span>
                 <span>
@@ -248,6 +341,9 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
       ),
     },
   ];
+  const onChange = (key: string) => {
+    setCurTab(key);
+  };
 
   // 用useMemo包裹，避免每次都重新渲染导致展开的好友列表收起
   const LeftContainer = useMemo(() => {
@@ -258,12 +354,12 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
         </div>
         <div className={styles.list}>
           <div className={styles.addressBookTabs}>
-            <Tabs centered defaultActiveKey="1" items={items}></Tabs>
+            <Tabs centered defaultActiveKey="1" items={items} onChange={onChange}></Tabs>
           </div>
         </div>
       </div>
     );
-  }, [friendList, groupChatList]);
+  }, [friendList, groupChatList, curGroupChatInfo]);
 
   // 暴露方法出去
   useImperativeHandle(ref, () => ({
@@ -274,18 +370,16 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
       <div className={styles.addressBook}>
         {LeftContainer}
         <div className={styles.rightContainer}>
-          {curFriendInfo === undefined ? (
-            <WechatOutlined />
-          ) : (
+          {curTab === '1' && curFriendInfo !== undefined && (
             <div className={styles.infoModal}>
-              <div className={styles.infoContainer}>
+              <div className={styles.infoContainerHead}>
                 <div className={styles.avatar}>
                   <img src={curFriendInfo?.avatar} alt="" />
                 </div>
                 <div className={styles.info}>
                   <div className={styles.username}>{curFriendInfo?.username}</div>
                   <div className={styles.signature}>
-                    {curFriendInfo?.signature === '' ? '暂无个性签名' : curFriendInfo?.signature}
+                    {curFriendInfo.signature ? curFriendInfo.signature : '暂无个性签名'}
                   </div>
                 </div>
               </div>
@@ -340,6 +434,43 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
               </div>
             </div>
           )}
+          {curTab === '2' && curGroupChatInfo !== undefined && (
+            <div className={styles.infoModal}>
+              <div className={styles.infoContainerHead}>
+                <div className={styles.avatar}>
+                  <img src={serverURL + curGroupChatInfo?.avatar} alt="" />
+                </div>
+                <div className={styles.info}>
+                  <div className={styles.username}>{curGroupChatInfo?.name}</div>
+                  <div className={styles.signature}>
+                    {curGroupChatInfo.announcement ? curGroupChatInfo.announcement : '暂无公告'}
+                  </div>
+                </div>
+              </div>
+              <div className={styles.infoContainerBody}>
+                <Tabs centered defaultActiveKey="1" items={infoItems}></Tabs>
+              </div>
+              <div className={styles.btns}>
+                <Button
+                  onClick={() => {
+                    invitFriend(curGroupChatInfo);
+                  }}
+                >
+                  邀请好友
+                </Button>
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    handleChooseGroupChat(curGroupChatInfo);
+                  }}
+                >
+                  发送消息
+                </Button>
+              </div>
+            </div>
+          )}
+          {curTab === '1' && curFriendInfo === undefined && <WechatOutlined />}
+          {curTab === '2' && curGroupChatInfo === undefined && <WechatOutlined />}
         </div>
         {openCreateGroupModal && (
           <Modal
