@@ -6,13 +6,17 @@ import { getFriendList, createGroup } from './api';
 import { IFriend, IFriendGroup, IGroupMember, ICreateGroupParams } from './api/type';
 import styles from './index.module.less';
 
+import { IGroupChatInfo } from '@/pages/container/AddressBook/api/type';
+
 interface IChangeInfoModal {
+  type: 'create' | 'invite';
+  groupChatInfo?: IGroupChatInfo;
   openmodal: boolean;
   handleModal: (open: boolean) => void;
 }
 const CreateGroupModal = (props: IChangeInfoModal) => {
   const { message } = App.useApp();
-  const { openmodal, handleModal } = props;
+  const { type, groupChatInfo, openmodal, handleModal } = props;
 
   const [friendList, setFriendList] = useState<IFriendGroup[]>([]); // 好友列表
   const [open, setOpen] = useState(openmodal);
@@ -158,6 +162,17 @@ const CreateGroupModal = (props: IChangeInfoModal) => {
       });
   };
 
+  // todo：群聊弹窗类型是邀请新的好友时
+  const handlInvite = () => {
+    if (checkedFriends.length !== 0) {
+      console.log(checkedFriends);
+    } else {
+      message.info('请至少选择一位好友加入群聊！', 1.5);
+    }
+    console.log('邀请新的好友进群聊');
+    console.log(groupChatInfo);
+  };
+
   useEffect(() => {
     refreshFriendList();
   }, []);
@@ -188,7 +203,13 @@ const CreateGroupModal = (props: IChangeInfoModal) => {
 
   return (
     <>
-      <Modal title="创建群聊" open={open} footer={null} onCancel={handleCancel} width="5rem">
+      <Modal
+        title={type === 'invite' ? '邀请新的好友进群聊' : '创建群聊'}
+        open={open}
+        footer={null}
+        onCancel={handleCancel}
+        width="5rem"
+      >
         <div className={styles.createModal}>
           <div className={`${styles.step} ${styles.step0}`} ref={step0Ref}>
             <div className={styles.selectContainer}>
@@ -222,7 +243,11 @@ const CreateGroupModal = (props: IChangeInfoModal) => {
               </div>
             </div>
             <div className={styles.btns}>
-              <Button onClick={() => handleSwitch(1)}>下一步</Button>
+              {type === 'invite' ? (
+                <Button onClick={handlInvite}>邀请</Button>
+              ) : (
+                <Button onClick={() => handleSwitch(1)}>下一步</Button>
+              )}
             </div>
           </div>
           <div className={`${styles.step} ${styles.step1}`} ref={step1Ref}>

@@ -17,7 +17,7 @@ export interface IFriendGroup {
   online_counts:number;
   friend: IFriend[];
 }
-// 群聊成员数据类型
+// 创建群聊时成员数据类型
 export interface IGroupMember{
   user_id:number;
   username: string;

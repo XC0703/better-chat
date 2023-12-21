@@ -90,9 +90,6 @@
               text-overflow: ellipsis;
               white-space: nowrap;
             }
-            span:last-child{
-              margin-left: auto;
-            }
           }
           .curGroupChatInfo{
             background-color: rgba(0, 0, 0, 0.04);
@@ -226,7 +223,53 @@
           }
         }
         .memberTable{
-          max-height: 5rem;
+          width: 100%;
+          height: 1.6rem;
+          .tableTitle,.tableItem{
+            display: flex;
+            justify-content: space-between;
+            color: #999;
+            border-bottom: #fff solid .01rem;
+            li{
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+              text-align: center;
+            }
+            li:nth-child(1){
+              width:.6rem;
+            }
+            li:nth-child(2){
+              width:.6rem;
+            }
+            li:nth-child(3){
+              width:1rem;
+            }
+            li:nth-child(4){
+              width:1rem;
+            }
+          }
+          .tableTitle{
+            color:#666;
+          }
+          .tableContent{
+            width:100%;
+            height: 1.4rem;
+            overflow-y: scroll;
+          }
+          .tableContent::-webkit-scrollbar{
+            width: 0.01rem;
+          }
+          .tableContent::-webkit-scrollbar-thumb{
+            border-radius: 0.05rem;
+            background-color:transparent;
+          }
+          .tableContent::-webkit-scrollbar-corner{
+            background-color: #e5e5e5;
+          }
+          .tableContent:hover::-webkit-scrollbar-thumb{
+            background-color: rgba(106, 184, 106, 0.4);
+          }
         }
       }
       .btns{

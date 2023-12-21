@@ -59,16 +59,36 @@ export interface IGetFriendInfoByUsername {
   friend_username: string;
   self_username: string;
 }
-// 群聊信息
-export interface IGroupChat {
+// 群聊（列表项）信息
+export interface IGroupChatItem {
+  id: number;
+  name: string;
+  creator_id: number;
+  avatar: string;
+  announcement: string;
+  room: string;
+  created_at: string;
+  updated_at: string;
+}
+// 群聊成员信息（右边展示）
+export interface IGroupChatMember{
+  avatar:string;
+  created_at: string;
+  lastMessageTime: string|null;
+  name:string;
+  nickname:string;
+  user_id:number;
+}
+// 群聊具体信息(右边展示)
+export interface IGroupChatInfo{
   announcement: string;
   avatar: string;
   created_at: string;
   creator_id: number;
+  creator_username: string;
   id: number;
-  members_len: number;
   name: string;
   room: string;
-  updated_at: string;
+  members: IGroupChatMember[];
 }
 

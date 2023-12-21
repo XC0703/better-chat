@@ -30,5 +30,7 @@ function authenticateToken(req, res, next) {
 module.exports = function () {
   router.post("/create_group", authenticateToken, group.CreateGroupChat);
   router.get("/group_chat_list", authenticateToken, group.GetGroupChatList);
+  router.get("/search_group", authenticateToken, group.SearchGroupChat);
+  router.get("/group_chat_info", authenticateToken, group.GroupInfo);
   return router;
 };

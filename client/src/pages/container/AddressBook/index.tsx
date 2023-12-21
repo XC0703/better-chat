@@ -9,12 +9,14 @@ import {
   updateFriendInfo,
   createFriendGroup,
   getGroupChatList,
+  getGroupChatInfo,
 } from './api';
-import { IFriendGroup, IFriendInfo, IFriendGroupList, IGroupChat } from './api/type';
+import { IFriendGroup, IFriendInfo, IFriendGroupList, IGroupChatItem, IGroupChatInfo } from './api/type';
 import styles from './index.module.less';
 import type { DirectoryTreeProps } from 'antd/es/tree';
 
 import { StatusIconList } from '@/assets/icons';
+import CreateGroupChatModal from '@/components/CreateGroupChatModal';
 import SearchContainer from '@/components/SearchContainer';
 import { serverURL } from '@/config';
 import { userStorage } from '@/utils/storage';
@@ -30,12 +32,13 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
   const { message } = App.useApp();
   const [curTab, setCurTab] = useState<string>('1'); // 当前tab是好友还是群聊
   const [friendList, setFriendList] = useState<IFriendGroup[]>([]); // 好友列表
-  const [groupChatList, setGroupChatList] = useState<IGroupChat[]>([]); //群聊列表
+  const [groupChatList, setGroupChatList] = useState<IGroupChatItem[]>([]); //群聊列表
   const [infoChangeInstance] = Form.useForm<{ username: string; name: string; newRemark: string; newGroup: number }>(); // 好友表单实例
   const [curFriendInfo, setCurFriendInfo] = useState<IFriendInfo>(); // 当前选中的好友信息
-  const [curGroupChatInfo, setCurGroupChatInfo] = useState<IGroupChat>(); // 当前选中的群聊信息
+  const [curGroupChatInfo, setCurGroupChatInfo] = useState<IGroupChatInfo>(); // 当前选中的群聊信息
   const [groupList, setGroupList] = useState<IFriendGroupList[]>([]); // 好友分组列表
   const [newGroupName, setNewGroupName] = useState(''); // 新建分组
+  const [openCreateModal, setCreateModal] = useState(false); // 是否打开邀请新的好友进群聊
 
   // 控制新建分组弹窗的显隐
   const [openCreateGroupModal, setOpenCreateGroupModal] = useState(false);
@@ -172,55 +175,16 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
   };
 
   // 选择某一群聊
-  const handleSelectGroupChat = (item: IGroupChat) => {
-    setCurGroupChatInfo(item);
+  const handleSelectGroupChat = (item: IGroupChatItem) => {
+    getGroupChatInfo(item.id).then((res) => {
+      if (res.code === 200) {
+        setCurGroupChatInfo(res.data);
+        console.log(res.data);
+      } else {
+        message.error('获取群聊信息失败', 1.5);
+      }
+    });
   };
-
-  // 群成员表展示
-  const dataSource = [
-    {
-      key: '1',
-      username: '用户1',
-      nickname: '昵称1',
-      addTime: '2023-12-01',
-      lastestTime: '2023-12-18',
-    },
-    {
-      key: '2',
-      username: '用户2',
-      nickname: '昵称2',
-      addTime: '2023-11-30',
-      lastestTime: '2023-12-17',
-    },
-    {
-      key: '3',
-      username: '用户3',
-      nickname: '昵称3',
-      addTime: '2023-11-29',
-      lastestTime: '2023-12-16',
-    },
-    {
-      key: '4',
-      username: '用户4',
-      nickname: '昵称4',
-      addTime: '2023-11-28',
-      lastestTime: '2023-12-15',
-    },
-    {
-      key: '5',
-      username: '用户5',
-      nickname: '昵称5',
-      addTime: '2023-11-27',
-      lastestTime: '2023-12-14',
-    },
-    {
-      key: '6',
-      username: '用户6',
-      nickname: '昵称6',
-      addTime: '2023-11-26',
-      lastestTime: '2023-12-13',
-    },
-  ];
 
   // 群聊具体信息tabs标签切换
   const infoItems: TabsProps['items'] = [
@@ -230,15 +194,15 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
       children: (
         <div className={styles.homePage}>
           <span>
+            <b>群主：</b>
+            {curGroupChatInfo?.creator_username}
+          </span>
+          <span>
             <b>群创建时间：</b>本群创建于{curGroupChatInfo?.created_at.split('.')[0].replace('T', ' ')}
           </span>
           <span>
             <b>群人数：</b>
-            {curGroupChatInfo?.members_len}
-          </span>
-          <span>
-            <b>群主id：</b>
-            {curGroupChatInfo?.id}
+            {curGroupChatInfo?.members.length}
           </span>
         </div>
       ),
@@ -246,18 +210,38 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
     {
       key: '2',
       label: '成员',
-      children: <div className={styles.memberTable}></div>,
+      children: (
+        <div className={styles.memberTable}>
+          <div className={styles.tableTitle}>
+            <li>用户名</li>
+            <li>群昵称</li>
+            <li>加入时间</li>
+            <li>最后发言时间</li>
+          </div>
+          <div className={styles.tableContent}>
+            {curGroupChatInfo?.members.map((item) => {
+              return (
+                <div className={styles.tableItem} key={item.user_id}>
+                  <li>{item.name}</li>
+                  <li>{item.nickname}</li>
+                  <li>{item.created_at.split('.')[0].replace('T', ' ')}</li>
+                  <li>{item.lastMessageTime?.split('.')[0].replace('T', ' ')}</li>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ),
     },
   ];
 
-  // 邀请好友
-  const invitFriend = (curGroupChatInfo: IGroupChat) => {
-    console.log('邀请好友');
-    console.log(curGroupChatInfo);
+  // 邀请好友（控制创建群聊的弹窗显隐）
+  const handleCreateModal = (visible: boolean) => {
+    setCreateModal(visible);
   };
 
   // 选择一个群聊后发送信息
-  const handleChooseGroupChat = (curGroupChatInfo: IGroupChat) => {
+  const handleChooseGroupChat = (curGroupChatInfo: IGroupChatInfo) => {
     console.log('选择一个群聊后发送信息');
     console.log(curGroupChatInfo);
   };
@@ -331,9 +315,6 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
               >
                 <img src={serverURL + item.avatar} />
                 <span>{item.name}</span>
-                <span>
-                  ({item.members_len}/{item.members_len})
-                </span>
               </div>
             );
           })}
@@ -451,13 +432,7 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
                 <Tabs centered defaultActiveKey="1" items={infoItems}></Tabs>
               </div>
               <div className={styles.btns}>
-                <Button
-                  onClick={() => {
-                    invitFriend(curGroupChatInfo);
-                  }}
-                >
-                  邀请好友
-                </Button>
+                <Button onClick={() => handleCreateModal(true)}>邀请好友</Button>
                 <Button
                   type="primary"
                   onClick={() => {
@@ -494,6 +469,17 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
             </Form>
           </Modal>
         )}
+        {
+          // 创建群聊弹窗
+          openCreateModal && (
+            <CreateGroupChatModal
+              openmodal={openCreateModal}
+              groupChatInfo={curGroupChatInfo}
+              handleModal={handleCreateModal}
+              type={'invite'}
+            />
+          )
+        }
       </div>
     </>
   );

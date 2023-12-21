@@ -1,4 +1,4 @@
-import { IFriendGroup, IFriendInfo, IFriendGroupList, IUpdateFriendInfo, ICreateFriendGroup, IGetFriendInfoByUsername, IGroupChat } from './type';
+import { IFriendGroup, IFriendInfo, IFriendGroupList, IUpdateFriendInfo, ICreateFriendGroup, IGetFriendInfoByUsername,IGroupChatItem,IGroupChatInfo } from './type';
 
 import Request from '@/utils/request';
 
@@ -34,7 +34,12 @@ export const getFriendInfoByUsername = async (data: IGetFriendInfoByUsername) =>
 }
 // 获取群聊列表
 export const getGroupChatList = async () => {
-  const res = await Request.get<IGroupChat[]>('group/group_chat_list');
+  const res = await Request.get<IGroupChatItem[]>('group/group_chat_list');
+  return res.data;
+}
+// 获取群聊信息
+export const getGroupChatInfo= async (group_id:number) => {
+  const res = await Request.get<IGroupChatInfo>('group/group_chat_info?group_id='+group_id);
   return res.data;
 }
 

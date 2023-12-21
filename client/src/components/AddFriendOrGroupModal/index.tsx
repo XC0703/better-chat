@@ -6,6 +6,7 @@ import { getFriendList, addFriend, getGroupList, addGroup } from './api';
 import { IFriend, IGroup } from './api/type';
 import styles from './index.module.less';
 
+import { serverURL } from '@/config';
 import { userStorage } from '@/utils/storage';
 
 interface IChangeInfoModal {
@@ -157,27 +158,25 @@ const AddFriendOrGroupModal = (props: IChangeInfoModal) => {
               查找
             </Button>
           </div>
-          <div className="list">
-            {groupList.length !== 0 && (
-              <>
-                {groupList.map((item) => (
-                  <div className="list-item" key={item.group_id}>
-                    <img src="https://ui-avatars.com/api/?name=%E7%BE%A4%E8%81%8A" alt="" />
-                    <div className={styles.list_item_desc}>
-                      <span className={styles.list_item_username}>
-                        {item.name} ({item.number}人)
-                      </span>
-                      {!item.status ? (
-                        <button onClick={() => joinGroup(item.name, item.group_id)}>加入群聊</button>
-                      ) : (
-                        <span>已加入群聊</span>
-                      )}
-                    </div>
+          {groupList.length !== 0 && (
+            <div className={styles.searchResult}>
+              {groupList.map((item) => (
+                <div className={styles.list_item} key={item.group_id}>
+                  <img src={serverURL + item.avatar} alt="" />
+                  <div className={styles.list_item_desc}>
+                    <span className={styles.list_item_username}>
+                      {item.name} ({item.number}人)
+                    </span>
+                    {!item.status ? (
+                      <button onClick={() => joinGroup(item.name, item.group_id)}>加入群聊</button>
+                    ) : (
+                      <span>已加入群聊</span>
+                    )}
                   </div>
-                ))}
-              </>
-            )}
-          </div>
+                </div>
+              ))}
+            </div>
+          )}
         </>
       ),
     },

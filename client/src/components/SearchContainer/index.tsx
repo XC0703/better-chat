@@ -44,7 +44,9 @@ const SearchContainer = () => {
       }
       {
         // 创建群聊弹窗
-        openCreateModal && <CreateGroupChatModal openmodal={openCreateModal} handleModal={handleCreateModal} />
+        openCreateModal && (
+          <CreateGroupChatModal openmodal={openCreateModal} handleModal={handleCreateModal} type={'create'} />
+        )
       }
     </>
   );
