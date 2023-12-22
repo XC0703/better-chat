@@ -179,7 +179,6 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
     getGroupChatInfo(item.id).then((res) => {
       if (res.code === 200) {
         setCurGroupChatInfo(res.data);
-        console.log(res.data);
       } else {
         message.error('获取群聊信息失败', 1.5);
       }

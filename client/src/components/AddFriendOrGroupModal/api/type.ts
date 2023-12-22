@@ -35,7 +35,7 @@ export interface IAddFriendParams {
   avatar: string;
 }
 // 群聊类型
-export interface IGroup {
+export interface IGroupChat {
   avatar: string;
   group_id: number;
   name: string;

@@ -2,8 +2,8 @@ import { SearchOutlined } from '@ant-design/icons';
 import { App, Button, Input, Modal, Tabs, TabsProps } from 'antd';
 import { useState } from 'react';
 
-import { getFriendList, addFriend, getGroupList, addGroup } from './api';
-import { IFriend, IGroup } from './api/type';
+import { getFriendList, addFriend, getGroupList, addGroupChat } from './api';
+import { IFriend, IGroupChat } from './api/type';
 import styles from './index.module.less';
 
 import { serverURL } from '@/config';
@@ -18,7 +18,7 @@ const AddFriendOrGroupModal = (props: IChangeInfoModal) => {
 
   const { message } = App.useApp();
   const [friendList, setFriendList] = useState<IFriend[]>([]);
-  const [groupList, setGroupList] = useState<IGroup[]>([]);
+  const [groupList, setGroupList] = useState<IGroupChat[]>([]);
   const [friendName, setFriendName] = useState('');
   const [groupName, setGroupName] = useState('');
   const [loading, setLoading] = useState(false);
@@ -78,8 +78,17 @@ const AddFriendOrGroupModal = (props: IChangeInfoModal) => {
     }
   };
   // 加入群聊
-  const joinGroup = (name: string, group_id: number) => {
-    console.log(name, group_id);
+  const joinGroup = async (group_id: number) => {
+    setLoading(true);
+    const res = await addGroupChat({ group_id: group_id });
+    if (res.code === 200) {
+      message.success('成功加入该群聊', 1.5);
+      setLoading(false);
+      handleModal(false);
+    } else {
+      message.error('加入群聊失败,请重试', 1.5);
+      setLoading(false);
+    }
   };
   // tabs标签切换
   const items: TabsProps['items'] = [
@@ -168,7 +177,7 @@ const AddFriendOrGroupModal = (props: IChangeInfoModal) => {
                       {item.name} ({item.number}人)
                     </span>
                     {!item.status ? (
-                      <button onClick={() => joinGroup(item.name, item.group_id)}>加入群聊</button>
+                      <button onClick={() => joinGroup(item.group_id)}>加入群聊</button>
                     ) : (
                       <span>已加入群聊</span>
                     )}

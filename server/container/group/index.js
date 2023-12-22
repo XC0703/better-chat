@@ -3,18 +3,25 @@ module.exports = {
   GetGroupChatList,
   SearchGroupChat,
   GroupInfo,
+  InviteFriendsToGroupChat,
+  JoinGroupChat,
 };
 const { base64ToImage } = require("../../utils/createFile");
-const { RespServerErr, RespCreateErr } = require("../../model/error");
+const {
+  RespServerErr,
+  RespCreateErr,
+  RespGroupInsertError,
+  RespExitGroupErr,
+} = require("../../model/error");
 const { RespError } = require("../../model/resp");
 const { Query } = require("../../db/query");
 const { v4: uuidv4 } = require("uuid");
 
 /**
  * 创建群聊
- * 1. 将前端传过来的群聊头像base64码转成图片文件并保存在本地服务器
- * 2. 服务端拿到创建群聊所需要的信息后在群聊表(group_chat)新建一个群聊
- * 3. 在群聊成员表(group_numbers)中循环插入所有群聊成员记录
+ * 1.将前端传过来的群聊头像base64码转成图片文件并保存在本地服务器
+ * 2.服务端拿到创建群聊所需要的信息后在群聊表(group_chat)新建一个群聊
+ * 3.在群聊成员表(group_numbers)中循环插入所有群聊成员记录
  */
 async function CreateGroupChat(req, res) {
   const groupInfo = req.body;
@@ -156,4 +163,77 @@ async function GroupInfo(req, res) {
     info.members.push({ ...item });
   }
   return RespData(res, info);
+}
+/**
+ * 邀请新的好友进入群聊
+ * 1.获取邀请名单和group_id
+ * 2.根据group_id查询group_numbers表去筛选邀请名单,过滤掉已经存在群里的用户
+ * 3.在group_members表插入新的数据（包含group_id、user_id、nickname三个字段，其中nickname直接为name即可）
+ */
+async function InviteFriendsToGroupChat(req, res) {
+  let { groupId, invitationList } = req.body;
+  let userIdArr = invitationList.map((item) => item.user_id);
+  let sql =
+    "SELECT user_id FROM group_members WHERE group_id = ? AND FIND_IN_SET(user_id, ?)";
+  let { err, results } = await Query(sql, [groupId, userIdArr.join(",")]);
+  // 查询数据失败
+  if (err) return RespError(res, RespServerErr);
+
+  let invitationInfoList = [];
+  let hasInvitedUserIdArr = results.map((item) => item.user_id);
+  for (const item of invitationList) {
+    if (!hasInvitedUserIdArr.includes(item.user_id)) {
+      invitationInfoList.push({
+        group_id: groupId,
+        user_id: item.user_id,
+        nickname: item.username,
+      });
+    }
+  }
+  if (invitationInfoList.length === 0) {
+    return RespError(res, RespGroupInsertError);
+  }
+  // 插入成员
+  sql = "insert into group_members set ?";
+  let resp = await Query(sql, invitationInfoList);
+  err = resp.err;
+  // 查询数据失败
+  if (err) return RespError(res, RespServerErr);
+  return RespSuccess(res);
+}
+/**
+ * 加入新的群聊
+ * 1.获取邀请名单和group_id
+ * 2.根据group_id查询group_numbers表去筛选邀请名单,过滤掉已经存在群里的用户
+ * 3.在group_members表插入新的数据（包含group_id、user_id、nickname三个字段，其中nickname直接为name即可）
+ */
+async function JoinGroupChat(req, res) {
+  const group_id = req.body.group_id;
+  const { id, name } = req.user;
+  let sql = "select id from group_members where group_id=? and user_id=?";
+  let { err, results } = await Query(sql, [group_id, id]);
+  // 查询数据失败
+  if (err) return RespError(res, RespServerErr);
+  if (results.length != 0) {
+    return RespError(res, RespExitGroupErr);
+  }
+  const info = {
+    group_id: group_id,
+    user_id: id,
+    nickname: name,
+  };
+  //插入成员
+  sql = "insert into group_members set ?";
+  let resp = await Query(sql, info);
+  err = resp.err;
+  // 查询数据失败
+  if (err) return RespError(res, RespServerErr);
+  sql = "select name,room from group_chat where id=?";
+  resp = await Query(sql, [group_id]);
+  const options = {
+    room: resp.results[0].room,
+    name: resp.results[0].name,
+    group_id: group_id,
+  };
+  return RespData(res, options);
 }

@@ -30,3 +30,8 @@ export interface ICreateGroupParams{
   avatar:string;
   members:IGroupMember[];
 }
+// 邀请新的好友进入群聊时传递的参数
+export interface InviteFriendsParams{
+  groupId:number;
+  invitationList:IGroupMember[];
+}

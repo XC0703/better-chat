@@ -8,6 +8,8 @@ exports.RespUserExitErr = 4005;
 exports.RespUserNotExitErr = 4006;
 exports.RespUpdateErr = 4007;
 exports.RespCreateErr = 4008;
+exports.RespGroupInsertError = 4009;
+exports.RespExitGroupErr = 4010;
 
 exports.RespMap = {
   4000: "服务有误",
@@ -19,4 +21,6 @@ exports.RespMap = {
   4006: "用户名与手机号不匹配",
   4007: "修改失败",
   4008: "创建失败",
+  4009: "你邀请的好友都已经加入群聊",
+  4010: "你已加入群聊",
 };

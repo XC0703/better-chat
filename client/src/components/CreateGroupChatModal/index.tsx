@@ -2,7 +2,7 @@ import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import { App, Button, Modal, Tree, Upload, Form, Input } from 'antd';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { getFriendList, createGroup } from './api';
+import { getFriendList, createGroup, inviteFriends } from './api';
 import { IFriend, IFriendGroup, IGroupMember, ICreateGroupParams } from './api/type';
 import styles from './index.module.less';
 
@@ -162,15 +162,42 @@ const CreateGroupModal = (props: IChangeInfoModal) => {
       });
   };
 
-  // todo：群聊弹窗类型是邀请新的好友时
+  // 群聊弹窗类型是邀请新的好友时
   const handlInvite = () => {
     if (checkedFriends.length !== 0) {
-      console.log(checkedFriends);
+      // 将第一步的好友数据筛选并作格式转化
+      const selectedFriends: IGroupMember[] = [];
+      checkedFriends.map((item) => {
+        try {
+          const parsedItem = JSON.parse(item);
+          if (parsedItem.username) {
+            selectedFriends.push({
+              user_id: parsedItem.user_id,
+              username: parsedItem.username,
+              avatar: parsedItem.avatar,
+            });
+          }
+        } catch (error) {
+          /* empty */
+        }
+      });
+      const inviteFriendsParams = {
+        groupId: groupChatInfo?.id as number,
+        invitationList: selectedFriends,
+      };
+      inviteFriends(inviteFriendsParams).then((res) => {
+        if (res.code === 200) {
+          message.success('邀请成功！', 1.5);
+          handleCancel();
+        } else if (res.code === 4009) {
+          message.info('你邀请的好友都已经加入群聊！', 1.5);
+        } else {
+          message.error('邀请失败！', 1.5);
+        }
+      });
     } else {
       message.info('请至少选择一位好友加入群聊！', 1.5);
     }
-    console.log('邀请新的好友进群聊');
-    console.log(groupChatInfo);
   };
 
   useEffect(() => {

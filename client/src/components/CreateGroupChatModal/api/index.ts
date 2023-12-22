@@ -1,4 +1,4 @@
-import { IFriendGroup,ICreateGroupParams } from './type';
+import { IFriendGroup,ICreateGroupParams,InviteFriendsParams } from './type';
 
 import Request from '@/utils/request';
 
@@ -10,5 +10,10 @@ export const getFriendList = async () => {
 // 创建群聊
 export const createGroup = async (data:ICreateGroupParams)=>{
   const res = await Request.post<ICreateGroupParams>('/group/create_group',data);
+  return res.data;
+}
+// 邀请新的好友进入群聊
+export const inviteFriends =  async (data:InviteFriendsParams)=>{
+  const res = await Request.post<InviteFriendsParams>('/group/invite_friends',data);
   return res.data;
 }

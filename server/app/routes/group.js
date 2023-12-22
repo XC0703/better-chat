@@ -32,5 +32,11 @@ module.exports = function () {
   router.get("/group_chat_list", authenticateToken, group.GetGroupChatList);
   router.get("/search_group", authenticateToken, group.SearchGroupChat);
   router.get("/group_chat_info", authenticateToken, group.GroupInfo);
+  router.post(
+    "/invite_friends",
+    authenticateToken,
+    group.InviteFriendsToGroupChat
+  );
+  router.post("/add_group", authenticateToken, group.JoinGroupChat);
   return router;
 };
