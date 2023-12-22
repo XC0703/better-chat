@@ -20,6 +20,7 @@ import { clearSessionStorage, userStorage } from '@/utils/storage';
 
 type AddressBookRefType = {
   refreshFriendList: () => void;
+  refreshGroupChatList: () => void;
 };
 type ChatListRefType = {
   refreshChatList: () => void;
@@ -123,14 +124,18 @@ const Container = () => {
       const data = JSON.parse(message.data);
       switch (data.name) {
         case 'friendList':
-          //重新加载好友列表
+          // 重新加载好友列表
           addressBookRef.current?.refreshFriendList();
           break;
+        case 'groupChatList':
+          // 重新加载群聊列表
+          addressBookRef.current?.refreshGroupChatList();
+          break;
         case 'chatList':
-          //重新加载消息列表
+          // 重新加载消息列表
           chatListRef.current?.refreshChatList();
           break;
-        //打开响应音视频通话窗口(根据传过来的发送方username拿到对应的好友信息)
+        // 打开响应音视频通话窗口(根据传过来的发送方username拿到对应的好友信息)
         case 'createRoom':
           if (data.sender_username) {
             const param = {

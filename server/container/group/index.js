@@ -37,13 +37,13 @@ async function CreateGroupChat(req, res) {
     room: uuid,
   };
 
-  //创建群聊
+  // 创建群聊
   let sql = "insert into group_chat set ?";
   let { err, results } = await Query(sql, group_chat);
   // 查询数据失败
   if (err) return RespError(res, RespServerErr);
   if (results.affectedRows === 1) {
-    //发送消息
+    // 发送消息
     let message = {
       sender_id: req.user.id,
       receiver_id: results.insertId,
@@ -57,14 +57,20 @@ async function CreateGroupChat(req, res) {
     await Query(sql, message);
     sql = "insert into message_statistics set ?";
     await Query(sql, { room: uuid, total: 1 });
+
     let members = groupInfo.members;
-    //插入自己
+    // 插入自己
     members.push({
       user_id: req.user.id,
       username: req.user.name,
       avatar: req.user.avatar,
     });
-    //插入成员
+    // 通知自己，让群聊列表进行更新
+    NotificationUser({
+      receiver_username: req.user.name,
+      name: "groupChatList",
+    });
+    // 插入成员
     for (const member of members) {
       const memberInfo = {
         group_id: results.insertId,
@@ -73,6 +79,11 @@ async function CreateGroupChat(req, res) {
       };
       sql = "insert into group_members set ?";
       await Query(sql, memberInfo);
+      // 通知对方,让其群聊列表进行更新
+      NotificationUser({
+        receiver_username: member.username,
+        name: "groupChatList",
+      });
     }
     return RespSuccess(res);
   }
@@ -199,6 +210,13 @@ async function InviteFriendsToGroupChat(req, res) {
   err = resp.err;
   // 查询数据失败
   if (err) return RespError(res, RespServerErr);
+  // 通知对方,让其群聊列表进行更新
+  for (const item of invitationInfoList) {
+    NotificationUser({
+      receiver_username: item.username,
+      name: "groupChatList",
+    });
+  }
   return RespSuccess(res);
 }
 /**
@@ -235,5 +253,10 @@ async function JoinGroupChat(req, res) {
     name: resp.results[0].name,
     group_id: group_id,
   };
+  // 通知自己，让群聊列表进行更新
+  NotificationUser({
+    receiver_username: req.user.name,
+    name: "groupChatList",
+  });
   return RespData(res, options);
 }

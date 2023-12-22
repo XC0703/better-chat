@@ -239,7 +239,7 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
     setCreateModal(visible);
   };
 
-  // 选择一个群聊后发送信息
+  // todo：选择一个群聊后发送信息
   const handleChooseGroupChat = (curGroupChatInfo: IGroupChatInfo) => {
     console.log('选择一个群聊后发送信息');
     console.log(curGroupChatInfo);
@@ -344,6 +344,7 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
   // 暴露方法出去
   useImperativeHandle(ref, () => ({
     refreshFriendList,
+    refreshGroupChatList,
   }));
   return (
     <>
