@@ -213,7 +213,7 @@ async function InviteFriendsToGroupChat(req, res) {
   // 通知对方,让其群聊列表进行更新
   for (const item of invitationInfoList) {
     NotificationUser({
-      receiver_username: item.username,
+      receiver_username: item.nickname,
       name: "groupChatList",
     });
   }

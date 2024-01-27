@@ -24,11 +24,11 @@ import { userStorage } from '@/utils/storage';
 const { DirectoryTree } = Tree;
 
 interface IAddressBookProps {
-  handleChooseFriend: (friendInfo: IFriendInfo) => void;
+  handleChooseChat: (chatInfo: IFriendInfo | IGroupChatInfo) => void;
 }
 
 const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
-  const { handleChooseFriend } = props;
+  const { handleChooseChat } = props;
   const { message } = App.useApp();
   const [curTab, setCurTab] = useState<string>('1'); // 当前tab是好友还是群聊
   const [friendList, setFriendList] = useState<IFriendGroup[]>([]); // 好友列表
@@ -239,12 +239,6 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
     setCreateModal(visible);
   };
 
-  // todo：选择一个群聊后发送信息
-  const handleChooseGroupChat = (curGroupChatInfo: IGroupChatInfo) => {
-    console.log('选择一个群聊后发送信息');
-    console.log(curGroupChatInfo);
-  };
-
   useEffect(() => {
     refreshFriendList();
     getFriendGroupList();
@@ -407,7 +401,7 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
                 <Button
                   type="primary"
                   onClick={() => {
-                    handleChooseFriend(curFriendInfo);
+                    handleChooseChat(curFriendInfo);
                   }}
                 >
                   发送消息
@@ -436,7 +430,7 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
                 <Button
                   type="primary"
                   onClick={() => {
-                    handleChooseGroupChat(curGroupChatInfo);
+                    handleChooseChat(curGroupChatInfo);
                   }}
                 >
                   发送消息

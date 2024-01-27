@@ -16,37 +16,83 @@ const { formatBytes } = require("../../utils/format");
 let rooms = {};
 
 /**
- * 获取消息列表
+ * 获取消息列表--私聊类型
  * 1.先获取好友聊天列表
  * 2.先根据好友分组表中获取当前用户的所有好友分组id,然后根据分组id获取指定房间的用户的所有聊天记录,在根据消息统计表获取最后一次发送消息的时间
  * 3.如何根据对方id和房间号获取未读消息的数量
  * 4.根据房间号和创建时间获取最后一次消息内容
+ * 获取消息列表--群聊类型
+ * 1.根据用户id去查询加入的所有群聊id（gm查询子表）
+ * 2.再根据群聊id去查询群聊的信息，群聊room（联合查询，gc查询子表）
+ * 3.再根据群聊room去查询群聊的最后一条消息（联合查询，msg_sta查询子表）
  */
 async function getChatList(req, res) {
   let data = [];
-  let id = req.user.id;
-  //获取所有好友聊天列表
-  let sql = `SELECT user_id,remark as name,username as receiver_username,f.room,msg_sta.updated_at from friend as f,(SELECT id FROM friend_group WHERE user_id=?) as fp,message_statistics as msg_sta WHERE fp.id=f.group_id and f.room=msg_sta.room  ORDER BY msg_sta.updated_at DESC;`;
-  let { err, results } = await Query(sql, [id]);
+  const id = req.user.id;
+  // 获取所有好友聊天列表
+  const sqlFriend = `SELECT user_id as receiver_id,remark as name,username as receiver_username,f.room,msg_sta.updated_at from friend as f,(SELECT id FROM friend_group WHERE user_id=?) as fp,message_statistics as msg_sta WHERE fp.id=f.group_id and f.room=msg_sta.room  ORDER BY msg_sta.updated_at DESC;`;
+  const sqlfriendRes = await Query(sqlFriend, [id]);
+  // 查询数据失败
+  if (sqlfriendRes.err) return RespError(res, RespServerErr);
+  let results = sqlfriendRes.results;
   for (const index in results) {
-    let item = results[index];
-    sql = `SELECT count(*) as unreadCount FROM message WHERE room=? and receiver_id=? and status=0`;
+    const item = results[index];
+    // 获取未读消息的数量
+    let sql = `SELECT count(*) as unreadCount FROM message WHERE room=? and receiver_id=? and status=0`;
     let r = await Query(sql, [item.room, id]);
     results[index].unreadCount = r.results[0].unreadCount;
-    sql = `SELECT  content as lastMessage,media_type as type FROM message WHERE room=? ORDER BY created_at DESC LIMIT 1`;
+    // 获取最后一条消息
+    sql = `SELECT content as lastMessage,media_type as type FROM message WHERE room=? ORDER BY created_at DESC LIMIT 1`;
     r = await Query(sql, [item.room, id]);
     results[index].lastMessage = r.results[0].lastMessage;
     results[index].type = r.results[0].type;
+    // 获取好友头像
     sql = `SELECT  avatar from user where id=?`;
-    r = await Query(sql, [item.user_id]);
+    r = await Query(sql, [item.receiver_id]);
     results[index].avatar = r.results[0].avatar;
   }
   // 处理 一开始查询结果可能为空 results的值undefined导致报错
   if (results) {
     data.push(...results);
   }
+
+  // 获取所有群聊聊天列表
+  const sqlGroupChat =
+    "SELECT gc.id as receiver_id,avatar,name,gc.room,msg_sta.updated_at FROM group_chat as gc,(SELECT * FROM group_members WHERE user_id=?) as gm,message_statistics as msg_sta  WHERE gc.id=gm.group_id and gc.room=msg_sta.room  ORDER BY msg_sta.updated_at DESC;";
+  const sqlGroupChatRes = await Query(sqlGroupChat, [id]);
   // 查询数据失败
-  if (err) return RespError(res, RespServerErr);
+  if (sqlGroupChatRes.err) return RespError(res, RespServerErr);
+
+  results = sqlGroupChatRes.results;
+  for (const index in results) {
+    const item = results[index];
+    // 获取未读消息的数量(因为是群聊消息,此时的receiver_id为group_id，因此目前无法处理，先设置为0)
+    results[index].unreadCount = 0;
+
+    // 获取最后一条消息
+    let sql = `SELECT content as lastMessage,media_type as type FROM message WHERE room=? ORDER BY created_at DESC LIMIT 1`;
+    r = await Query(sql, [item.room, id]);
+    results[index].lastMessage = r.results[0]?.lastMessage;
+    results[index].type = r.results[0]?.type;
+  }
+  if (results) {
+    data.push(...results);
+  }
+
+  // 根据时间排序
+  data.sort((a, b) => {
+    let t1 = new Date(a.updated_at).getTime();
+    let t2 = new Date(b.updated_at).getTime();
+
+    if (t1 < t2) {
+      return 1; // a 应该排在 b 前面
+    } else if (t1 > t2) {
+      return -1; // a 应该排在 b 后面
+    } else {
+      return 0; // a 和 b 相等，位置不变
+    }
+  });
+
   return RespData(res, data);
 }
 

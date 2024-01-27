@@ -5,4 +5,4 @@ import Request from '@/utils/request';
 export const getChatList = async () => {
   const res = await Request.get<IMessageList[]>('message/chat_list');
   return res.data;
-}
+};

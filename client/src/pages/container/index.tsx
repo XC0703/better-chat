@@ -1,10 +1,10 @@
-import { Tooltip, Button, App } from 'antd';
+import { Tooltip, Button, App, Popover } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import AddressBook from './AddressBook';
 import { getFriendInfoByUsername } from './AddressBook/api';
-import { IFriendInfo } from './AddressBook/api/type';
+import { IFriendInfo, IGroupChatInfo } from './AddressBook/api/type';
 import ChatList from './ChatList';
 import styles from './index.module.less';
 
@@ -38,7 +38,7 @@ const Container = () => {
   const socket = useRef<WebSocket | null>(null); // websocket实例
   const addressBookRef = useRef<AddressBookRefType>(null); // 通讯录组件实例
   const chatListRef = useRef<ChatListRefType>(null); // 聊天列表组件实例
-  const [initSelectedChat, setInitSelectedChat] = useState<IFriendInfo | null>(null); // 初始化选中的聊天对象(只有从通讯录页面进入聊天页面时才会有值)
+  const [initSelectedChat, setInitSelectedChat] = useState<IFriendInfo | IGroupChatInfo | null>(null); // 初始化选中的聊天对象(只有从通讯录页面进入聊天页面时才会有值)
   const [callFriendInfo, setCallFriendInfo] = useState<ICallFriendInfo>(); // 通话对象信息
 
   // 控制修改密码的弹窗显隐
@@ -167,8 +167,8 @@ const Container = () => {
     initSocket();
   }, []);
 
-  // 在通讯录页面选择一个好友发送信息时跳转到聊天页面
-  const handleChooseFriend = (item: IFriendInfo) => {
+  // 在通讯录页面选择一个好友或群聊进行发送信息时跳转到聊天页面
+  const handleChooseChat = (item: IFriendInfo | IGroupChatInfo) => {
     setCurrentIcon('icon-message');
     setInitSelectedChat(item);
   };
@@ -177,11 +177,11 @@ const Container = () => {
     <div className={styles.parentContainer}>
       <div className={styles.container}>
         <div className={styles.leftContainer}>
-          <Tooltip placement="bottomLeft" title={infoContent} arrow={false} overlayClassName="infoTooltip">
-            <div className={styles.avatar}>
+          <div className={styles.avatar}>
+            <Popover content={infoContent} placement="rightTop">
               <img src={avatar} alt="" />
-            </div>
-          </Tooltip>
+            </Popover>
+          </div>
           <div className={styles.iconList}>
             <ul className={styles.topIcons}>
               {MenuIconList.slice(0, 5).map((item) => {
@@ -229,7 +229,7 @@ const Container = () => {
           {currentIcon === 'icon-message' ? (
             <ChatList initSelectedChat={initSelectedChat} ref={chatListRef} />
           ) : (
-            <AddressBook handleChooseFriend={handleChooseFriend} ref={addressBookRef} />
+            <AddressBook handleChooseChat={handleChooseChat} ref={addressBookRef} />
           )}
         </div>
       </div>

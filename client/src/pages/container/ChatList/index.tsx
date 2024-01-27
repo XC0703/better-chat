@@ -5,7 +5,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 're
 import { getChatList } from './api';
 import { IConnectParams, IMessage } from './api/type';
 import styles from './index.module.less';
-import { IFriendInfo } from '../AddressBook/api/type';
+import { IFriendInfo, IGroupChatInfo } from '../AddressBook/api/type';
 
 import { StatusIconList } from '@/assets/icons';
 import ChatContainer from '@/components/ChatContainer';
@@ -15,10 +15,16 @@ import SearchContainer from '@/components/SearchContainer';
 import { wsBaseURL } from '@/config';
 import { toggleTime_chatList } from '@/utils/formatTime';
 import { userStorage } from '@/utils/storage';
+import { serverURL } from '@/config';
 
 interface IChatListProps {
-  initSelectedChat: IFriendInfo | null;
+  initSelectedChat: IFriendInfo | IGroupChatInfo | null;
 }
+
+// 自定义的类型保护，用于判断是否为IFriendInfo类型/IGroupChatInfo类型
+const isFriendInfo = (chatInfo: IFriendInfo | IGroupChatInfo): chatInfo is IFriendInfo => {
+  return (chatInfo as IFriendInfo).friend_id !== undefined;
+};
 
 const ChatList = forwardRef((props: IChatListProps, ref) => {
   const { initSelectedChat } = props;
@@ -62,19 +68,29 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
   const chooseRoom = (item: IMessageList) => {
     setHistoryMsg([]);
     setCurChatInfo(item);
-    // 建立连接
-    const params: IConnectParams = {
-      room: item.room,
-      sender_id: JSON.parse(userStorage.getItem()).id,
-    };
-    initSocket(params);
-    refreshChatList();
+    // 如果是私聊，则建立连接
+    if (item.receiver_username) {
+      const params: IConnectParams = {
+        room: item.room,
+        sender_id: JSON.parse(userStorage.getItem()).id,
+      };
+      initSocket(params);
+      refreshChatList();
+    } else {
+      // 如果是群聊，TODO：待处理websocket
+      console.log('当前是群聊，TODO：待处理websocket！！！点击选择的聊天室为：', item);
+    }
   };
 
   // 发送消息
   const sendMessage = (message: ISendMessage) => {
-    socket.current?.send(JSON.stringify(message));
-    refreshChatList();
+    if (curChatInfo?.receiver_username) {
+      socket.current?.send(JSON.stringify(message));
+      refreshChatList();
+    } else {
+      // 如果是群聊，TODO：待处理websocket
+      console.log('当前是群聊，TODO：待处理websocket！！！发送的文本消息为：', message);
+    }
   };
 
   // 刷新消息列表
@@ -97,20 +113,19 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
     const init = async () => {
       await refreshChatList();
       // 如果有初始选中的聊天室，则选中且建立连接
-      if (initSelectedChat !== null) {
+      if (initSelectedChat) {
         // 等待获取消息列表后再进行后续操作
         const updatedChatList = (await getChatList()).data;
 
-        const initChatInfo = updatedChatList.find((item) => item.room === initSelectedChat.room);
-
+        const targetIndex = updatedChatList.findIndex((item) => item.room === initSelectedChat.room);
         // 如果消息列表中存在该聊天室，则选中，否则造一个假的以便用于发送消息
-        if (initChatInfo !== undefined) {
+        if (targetIndex > -1) {
+          const initChatInfo = updatedChatList.splice(targetIndex, 1)[0];
           setCurChatInfo(initChatInfo);
         } else {
-          const newMessage = {
-            user_id: initSelectedChat.friend_user_id,
-            name: initSelectedChat.remark,
-            receiver_username: initSelectedChat.username,
+          let newMessage = {
+            receiver_id: 0,
+            name: '',
             room: initSelectedChat.room,
             updated_at: new Date(),
             unreadCount: 0,
@@ -118,15 +133,35 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
             type: 'text',
             avatar: initSelectedChat.avatar,
           };
-          setChatList([...updatedChatList, newMessage]);
+          // 如果是私聊
+          if (isFriendInfo(initSelectedChat)) {
+            newMessage = Object.assign(newMessage, {
+              receiver_id: initSelectedChat.friend_user_id,
+              name: initSelectedChat.remark,
+              receiver_username: initSelectedChat.username,
+            });
+          } else {
+            // 如果是群聊
+            newMessage = Object.assign(newMessage, {
+              receiver_id: initSelectedChat.id,
+              name: initSelectedChat.name,
+            });
+          }
+          setChatList([newMessage, ...updatedChatList]);
           setCurChatInfo(newMessage);
         }
 
-        const params: IConnectParams = {
-          room: initSelectedChat?.room as string,
-          sender_id: JSON.parse(userStorage.getItem()).id,
-        };
-        initSocket(params);
+        // 如果是私聊，则建立连接
+        if (isFriendInfo(initSelectedChat)) {
+          const params: IConnectParams = {
+            room: initSelectedChat?.room as string,
+            sender_id: JSON.parse(userStorage.getItem()).id,
+          };
+          initSocket(params);
+        } else {
+          // 如果是群聊，TODO：待处理websocket
+          console.log('当前是群聊，TODO：待处理websocket！！！默认选择的聊天室为：', initSelectedChat);
+        }
       }
     };
     init();
@@ -155,11 +190,12 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
                 <div
                   className={styles.chat_item}
                   key={item.room}
+                  id={`chatList_${item.room}`}
                   onClick={() => chooseRoom(item)}
                   style={{ backgroundColor: curChatInfo?.room === item.room ? 'rgba(106, 184, 106, 0.4)' : '' }}
                 >
                   <div className={styles.chat_avatar}>
-                    <img src={item.avatar} alt="" />
+                    <img src={item.receiver_username ? item.avatar : serverURL + item.avatar} alt="" />
                   </div>
                   <div className={styles.chat_info}>
                     <div className={styles.chat_name}>{item.name}</div>

@@ -44,7 +44,7 @@ const ChatTool = (props: IChatToolProps) => {
     if (inputValue === '') return;
     const newmessage: ISendMessage = {
       sender_id: JSON.parse(userStorage.getItem()).id,
-      receiver_id: curChatInfo?.user_id,
+      receiver_id: curChatInfo?.receiver_id,
       type: 'text',
       content: inputValue,
       avatar: JSON.parse(userStorage.getItem()).avatar,
@@ -72,7 +72,7 @@ const ChatTool = (props: IChatToolProps) => {
         const newmessage: ISendMessage = {
           filename: filename,
           sender_id: JSON.parse(userStorage.getItem()).id,
-          receiver_id: curChatInfo?.user_id,
+          receiver_id: curChatInfo?.receiver_id,
           type: getFileSuffixByName(filename),
           content: Array.from(content),
           avatar: JSON.parse(userStorage.getItem()).avatar,
@@ -108,7 +108,7 @@ const ChatTool = (props: IChatToolProps) => {
           const newmessage: ISendMessage = {
             filename: filename,
             sender_id: JSON.parse(userStorage.getItem()).id,
-            receiver_id: curChatInfo?.user_id,
+            receiver_id: curChatInfo?.receiver_id,
             type: getFileSuffixByName(filename),
             content: Array.from(content),
             avatar: JSON.parse(userStorage.getItem()).avatar,
@@ -134,7 +134,7 @@ const ChatTool = (props: IChatToolProps) => {
         const newmessage: ISendMessage = {
           filename: file.name,
           sender_id: JSON.parse(userStorage.getItem()).id,
-          receiver_id: curChatInfo?.user_id,
+          receiver_id: curChatInfo?.receiver_id,
           type: 'file',
           content: '',
           avatar: JSON.parse(userStorage.getItem()).avatar,
@@ -170,7 +170,7 @@ const ChatTool = (props: IChatToolProps) => {
                 const newmessage: ISendMessage = {
                   filename: file.name,
                   sender_id: JSON.parse(userStorage.getItem()).id,
-                  receiver_id: curChatInfo?.user_id,
+                  receiver_id: curChatInfo?.receiver_id,
                   type: 'file',
                   content: Array.from(new Uint8Array(chunk.value as ArrayBufferLike)),
                   avatar: JSON.parse(userStorage.getItem()).avatar,
@@ -306,14 +306,14 @@ const ChatTool = (props: IChatToolProps) => {
         </Button>
       </div>
       {
-        // 音频通话弹窗
-        openAudioModal && (
+        // 音频通话弹窗（私聊）
+        openAudioModal && curChatInfo?.receiver_username && (
           <AudioModal
             openmodal={openAudioModal}
             handleModal={handleAudioModal}
             status="initiate"
             friendInfo={{
-              receiver_username: curChatInfo?.receiver_username,
+              receiver_username: curChatInfo.receiver_username,
               remark: curChatInfo?.name,
               avatar: curChatInfo?.avatar,
               room: curChatInfo?.room,
@@ -322,8 +322,8 @@ const ChatTool = (props: IChatToolProps) => {
         )
       }
       {
-        // 视频通话弹窗
-        openVideoModal && (
+        // 视频通话弹窗（私聊）
+        openVideoModal && curChatInfo?.receiver_username && (
           <VideoModal
             openmodal={openVideoModal}
             handleModal={handleVideoModal}
