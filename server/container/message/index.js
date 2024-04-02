@@ -99,7 +99,7 @@ async function getChatList(req, res) {
 /**
  * 建立聊天
  * 需要获取信息:发送人ID,接收人ID,聊天内容,房间号,头像,内容的类型,文件大小,创建时间
- * 1.获取房间号和对方id
+ * 1.获取房间号和对方id/群聊id
  * 2. 根据房间号获取所有聊天记录
  * 3.将当前用户的所有未读变成已读
  * 4.监听message
@@ -125,9 +125,15 @@ async function connectChat(ws, req) {
   // 获取历史消息
   let sql;
   let resp;
-  sql =
-    "SELECT m.*,u.avatar FROM (SELECT sender_id, receiver_id, content, room, media_type, file_size, message.created_at FROM message WHERE room =? AND type = ?  ORDER BY created_at ASC) AS m LEFT JOIN user as u ON u.id=m.sender_id";
-  resp = await Query(sql, [room, type]);
+  if (type == "group") {
+    sql =
+      "SELECT gm.nickname,m.*,u.avatar FROM (SELECT sender_id, receiver_id, content, room, media_type,message.created_at FROM message WHERE `room` =? AND `type` = ?) AS m LEFT JOIN user as u ON u.`id`=m.`sender_id` LEFT JOIN group_members as gm on gm.group_id=? and user_id=u.`id` ORDER BY created_at ASC";
+    resp = await Query(sql, [room, type, id]);
+  } else {
+    sql =
+      "SELECT m.*,u.avatar FROM (SELECT sender_id, receiver_id, content, room, media_type, file_size, message.created_at FROM message WHERE room =? AND type = ?  ORDER BY created_at ASC) AS m LEFT JOIN user as u ON u.id=m.sender_id";
+    resp = await Query(sql, [room, type]);
+  }
   let results = resp.results;
   let historyMsg = results.map((item) => {
     return {
@@ -144,7 +150,7 @@ async function connectChat(ws, req) {
     };
   });
   ws.send(JSON.stringify(historyMsg));
-  //将所有未读消息变成已读且通知更新
+  // 进入房间时，将所有未读消息变成已读且通知更新
   sql =
     "update message set status=1 where receiver_id=? and room=? and type=? and status=0";
   await Query(sql, [id, room, type]);
@@ -287,7 +293,12 @@ async function connectChat(ws, req) {
         }
         break;
     }
-    if (rooms[room][message.receiver_id]) {
+    // 这里的处理存在纰漏，因为群聊时，message.receiver_id是群聊id，不是用户id，所以无法判断对方是否在房间，且群聊信息存在很多个接收者，但消息表的结构设计导致一条消息只能有一个接收者，所以这里的处理是不完善的
+    // 默认群聊消息都是已读状态
+    if (
+      type === "group" ||
+      (type === "private" && rooms[room][message.receiver_id])
+    ) {
       msg.status = 1;
     } else {
       msg.status = 0;
@@ -299,12 +310,27 @@ async function connectChat(ws, req) {
       timeZone: "Asia/Shanghai",
     });
     message.file_size = formatBytes(msg.file_size);
-    // 通知属于该房间的所有人
+    // 通知属于该房间的所有人（当前的websocket连接）
     for (const key in rooms[room]) {
       rooms[room][key].send(JSON.stringify(message));
     }
-    // 通知对方有新消息
-    NotificationUser({ receiver_id: message.receiver_id, name: "chatList" });
+    // 通知对方有新消息以便刷新消息列表（登录时的websocket连接）
+    if (type === "group") {
+      // 通过群聊id获取所有成员id
+      let sql = "select user_id from group_members where group_id = ?";
+      let result = await Query(sql, [message.receiver_id]);
+      for (const key in result.results) {
+        // 排除自己
+        if (result.results[key].user_id !== message.sender_id) {
+          NotificationUser({
+            receiver_id: result.results[key].user_id,
+            name: "chatList",
+          });
+        }
+      }
+    } else {
+      NotificationUser({ receiver_id: message.receiver_id, name: "chatList" });
+    }
   });
   ws.on("close", function () {
     if (rooms[room][id]) {

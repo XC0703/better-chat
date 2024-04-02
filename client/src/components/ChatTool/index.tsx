@@ -165,7 +165,7 @@ const ChatTool = (props: IChatToolProps) => {
             }
 
             if (!chunk.done) {
-              transmittedSize -= chunk.value!.byteLength; // 减去当前块的字节长度来更新已传输的大小，支持断点续传（todo：由于不准确，待完善）
+              transmittedSize -= chunk.value!.byteLength; // 减去当前块的字节长度来更新已传输的大小，支持断点续传（TODO：由于不准确，待完善）
               if (transmittedSize <= 0) {
                 const newmessage: ISendMessage = {
                   filename: file.name,

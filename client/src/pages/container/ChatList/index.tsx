@@ -44,7 +44,7 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
       socket.current = null;
     }
     const newSocket = new WebSocket(
-      `${wsBaseURL}/message/connect_chat?room=${connectParams?.room}&id=${connectParams?.sender_id}&type=private`,
+      `${wsBaseURL}/message/connect_chat?room=${connectParams?.room}&id=${connectParams?.sender_id}&type=${connectParams?.type}`,
     );
     // 获取消息记录
     newSocket.onmessage = (e) => {
@@ -68,29 +68,19 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
   const chooseRoom = (item: IMessageList) => {
     setHistoryMsg([]);
     setCurChatInfo(item);
-    // 如果是私聊，则建立连接
-    if (item.receiver_username) {
-      const params: IConnectParams = {
-        room: item.room,
-        sender_id: JSON.parse(userStorage.getItem()).id,
-      };
-      initSocket(params);
-      refreshChatList();
-    } else {
-      // 如果是群聊，TODO：待处理websocket
-      console.log('当前是群聊，TODO：待处理websocket！！！点击选择的聊天室为：', item);
-    }
+    const params: IConnectParams = {
+      room: item.room,
+      sender_id: JSON.parse(userStorage.getItem()).id,
+      type: item.receiver_username ? 'private' : 'group',
+    };
+    initSocket(params);
+    refreshChatList();
   };
 
   // 发送消息
   const sendMessage = (message: ISendMessage) => {
-    if (curChatInfo?.receiver_username) {
-      socket.current?.send(JSON.stringify(message));
-      refreshChatList();
-    } else {
-      // 如果是群聊，TODO：待处理websocket
-      console.log('当前是群聊，TODO：待处理websocket！！！发送的文本消息为：', message);
-    }
+    socket.current?.send(JSON.stringify(message));
+    refreshChatList();
   };
 
   // 刷新消息列表
@@ -151,17 +141,12 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
           setCurChatInfo(newMessage);
         }
 
-        // 如果是私聊，则建立连接
-        if (isFriendInfo(initSelectedChat)) {
-          const params: IConnectParams = {
-            room: initSelectedChat?.room as string,
-            sender_id: JSON.parse(userStorage.getItem()).id,
-          };
-          initSocket(params);
-        } else {
-          // 如果是群聊，TODO：待处理websocket
-          console.log('当前是群聊，TODO：待处理websocket！！！默认选择的聊天室为：', initSelectedChat);
-        }
+        const params: IConnectParams = {
+          room: initSelectedChat?.room as string,
+          sender_id: JSON.parse(userStorage.getItem()).id,
+          type: isFriendInfo(initSelectedChat) ? 'private' : 'group',
+        };
+        initSocket(params);
       }
     };
     init();
