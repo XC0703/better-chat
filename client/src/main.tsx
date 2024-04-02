@@ -7,18 +7,18 @@ import '@/assets/styles/global.less';
 import RouterConfig from '@/router';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <BrowserRouter>
-    <ConfigProvider
-      theme={{
-        token: {
-          colorPrimary: '#28a770',
-        },
-      }}
-      locale={zhCN}
-    >
-      <App>
-        <RouterConfig />
-      </App>
-    </ConfigProvider>
-  </BrowserRouter>,
+	<BrowserRouter>
+		<ConfigProvider
+			theme={{
+				token: {
+					colorPrimary: '#28a770'
+				}
+			}}
+			locale={zhCN}
+		>
+			<App>
+				<RouterConfig />
+			</App>
+		</ConfigProvider>
+	</BrowserRouter>
 );

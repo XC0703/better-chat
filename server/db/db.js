@@ -1,62 +1,64 @@
-// 1. 导入 mysql和fs 模块
-const mysql = require("mysql");
-const fs = require("fs");
+/* global process */
+// 1. 导入 mysql 和 fs 模块
+const mysql = require('mysql');
+const fs = require('fs');
 /**
  * 初始化参数
  */
-let host = "127.0.0.1";
+let host = '127.0.0.1';
 let port = 3306;
-let user = "root";
-let password = "123456";
-let database = "better-chat";
+let user = 'root';
+let password = '123456';
+let database = 'better-chat';
 /**
- * 如果配置文件存在,则读取配置文件,不存在则默认
+ * 如果配置文件存在, 则读取配置文件, 不存在则默认
  */
 
-if (fs.existsSync("config.json")) {
-  const res = JSON.parse(fs.readFileSync(`config.json`));
-  host = res.host;
-  port = res.port;
-  user = res.user;
-  password = res.password;
-  database = res.database;
+if (fs.existsSync('config.json')) {
+	const res = JSON.parse(fs.readFileSync(`config.json`));
+	host = res.host;
+	port = res.port;
+	user = res.user;
+	password = res.password;
+	database = res.database;
 }
 // 2. 建立与 MySQL 数据库的连接关系
 const db = mysql.createPool({
-  host, // 数据库的 IP 地址
-  port, //端口
-  user, // 登录数据库的账号
-  password, // 登录数据库的密码
-  database, // 指定要操作哪个数据库
-  multipleStatements: true,
-  charset: "utf8mb4",
+	host, // 数据库的 IP 地址
+	port, // 端口
+	user, // 登录数据库的账号
+	password, // 登录数据库的密码
+	database, // 指定要操作哪个数据库
+	multipleStatements: true,
+	charset: 'utf8mb4'
 });
-//创建用户user表
+// 创建用户 user 表
 function initUserTable() {
-  let sql = `CREATE TABLE   IF NOT EXISTS  user (
-            id INT ( 11 ) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            username VARCHAR ( 255 ) NOT NULL UNIQUE,
-            password VARCHAR ( 255 ) NOT NULL,
-            phone VARCHAR ( 50 ) NOT NULL,
-            avatar VARCHAR ( 255 ) NULL,
-            name VARCHAR ( 255 ) NULL,
-            salt VARCHAR ( 20 ) NOT NULL,
+	const sql = `CREATE TABLE   IF NOT EXISTS  user (
+            id INT (11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            username VARCHAR (255) NOT NULL UNIQUE,
+            password VARCHAR (255) NOT NULL,
+            phone VARCHAR (50) NOT NULL,
+            avatar VARCHAR (255) NULL,
+            name VARCHAR (255) NULL,
+            salt VARCHAR (20) NOT NULL,
             signature LONGTEXT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
     ENGINE = INNODB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
     `;
-  db.query(sql, (error, results, fields) => {
-    if (error) return console.log(error);
-  });
+	db.query(sql, error => {
+		// eslint-disable-next-line no-console
+		if (error) console.log(error);
+	});
 }
-//创建好友friend表
+// 创建好友 friend 表
 function initFirendTable() {
-  const sql = `CREATE TABLE   IF NOT EXISTS friend (
+	const sql = `CREATE TABLE   IF NOT EXISTS friend (
         id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
         user_id INT(11) NOT NULL,
         username VARCHAR(50) NOT NULL,
-        avatar VARCHAR ( 255 ) NULL,
+        avatar VARCHAR (255) NULL,
         online_status ENUM('online', 'offline') DEFAULT 'offline',
         remark VARCHAR(50),
         group_id INT(11),
@@ -68,16 +70,17 @@ function initFirendTable() {
         FOREIGN KEY (group_id) REFERENCES friend_group(id) ON DELETE SET NULL
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
       `;
-  db.query(sql, (error, results, fields) => {
-    if (error) return console.log(error);
-  });
+	db.query(sql, error => {
+		// eslint-disable-next-line no-console
+		if (error) console.log(error);
+	});
 }
-//创建分组friend_group表
+// 创建分组 friend_group 表
 function initGroupTable() {
-  const sql = `CREATE TABLE  IF NOT EXISTS friend_group (
+	const sql = `CREATE TABLE  IF NOT EXISTS friend_group (
         id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
         user_id INT(11) NOT NULL,
-        username VARCHAR ( 255 ) NOT NULL,
+        username VARCHAR (255) NOT NULL,
         name VARCHAR(50) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -85,15 +88,16 @@ function initGroupTable() {
         FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
       `;
-  db.query(sql, (error, results, fields) => {
-    if (error) return console.log(error);
-    initFirendTable();
-    initGroupChatTable();
-  });
+	db.query(sql, error => {
+		// eslint-disable-next-line no-console
+		if (error) console.log(error);
+		initFirendTable();
+		initGroupChatTable();
+	});
 }
-//创建消息message表
+// 创建消息 message 表
 function initMessageTable() {
-  const sql = `
+	const sql = `
     CREATE TABLE IF NOT EXISTS  message (
         id int(11) NOT NULL AUTO_INCREMENT,
         sender_id int(11) NOT NULL,
@@ -109,14 +113,15 @@ function initMessageTable() {
         FOREIGN KEY (sender_id) REFERENCES user(id) ON DELETE CASCADE ON UPDATE CASCADE
       )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     `;
-  db.query(sql, (error, results, fields) => {
-    initmessageStatisticsTable();
-    if (error) return console.log(error);
-  });
+	db.query(sql, error => {
+		// eslint-disable-next-line no-console
+		if (error) console.log(error);
+		initmessageStatisticsTable();
+	});
 }
-//创建消息统计message_statistics表
+// 创建消息统计 message_statistics 表
 function initmessageStatisticsTable() {
-  const sql = `
+	const sql = `
     CREATE TABLE IF NOT EXISTS  message_statistics (
         id int(11) NOT NULL AUTO_INCREMENT,
         room  VARCHAR(255) NOT NULL,
@@ -126,13 +131,14 @@ function initmessageStatisticsTable() {
         PRIMARY KEY (id)
       )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     `;
-  db.query(sql, (error, results, fields) => {
-    if (error) return console.log(error);
-  });
+	db.query(sql, error => {
+		// eslint-disable-next-line no-console
+		if (error) console.log(error);
+	});
 }
-//创建群聊group_chat表
+// 创建群聊 group_chat 表
 function initGroupChatTable() {
-  const sql = `
+	const sql = `
   CREATE TABLE IF NOT EXISTS group_chat (
       id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
       name VARCHAR(50) NOT NULL,
@@ -146,14 +152,15 @@ function initGroupChatTable() {
       FOREIGN KEY (creator_id) REFERENCES user(id) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
   `;
-  db.query(sql, (error, results, fields) => {
-    initGroupMembersTable();
-    if (error) return console.log(error);
-  });
+	db.query(sql, error => {
+		// eslint-disable-next-line no-console
+		if (error) console.log(error);
+		initGroupMembersTable();
+	});
 }
-//创建群成员group_members表
+// 创建群成员 group_members 表
 function initGroupMembersTable() {
-  const sql = `
+	const sql = `
   CREATE TABLE IF NOT EXISTS group_members (
       id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
       group_id INT(11) NOT NULL,
@@ -166,21 +173,24 @@ function initGroupMembersTable() {
       FOREIGN KEY (group_id) REFERENCES group_chat(id) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
   `;
-  db.query(sql, (error, results, fields) => {
-    if (error) return console.log(error);
-  });
+	db.query(sql, error => {
+		// eslint-disable-next-line no-console
+		if (error) console.log(error);
+	});
 }
 // 3. 测试 mysql 模块能否正常工作
-db.query("select 1", (err, results) => {
-  // mysql 模块工作期间报错了，就进入这个if判断语句，打印这个错误信息
-  if (err) {
-    console.log("MySQL连接失败", err.message);
-    process.exit(1);
-  }
-  initUserTable();
-  initGroupTable();
-  initMessageTable();
-  console.log("MySQL连接成功");
+db.query('select 1', err => {
+	// mysql 模块工作期间报错了，就进入这个 if 判断语句，打印这个错误信息
+	if (err) {
+		// eslint-disable-next-line no-console
+		console.log('MySQL 连接失败', err.message);
+		process.exit(1);
+	}
+	initUserTable();
+	initGroupTable();
+	initMessageTable();
+	// eslint-disable-next-line no-console
+	console.log('MySQL 连接成功');
 });
-// 4. 将连接好的数据库对象向外导出,供外界使用
+// 4. 将连接好的数据库对象向外导出, 供外界使用
 module.exports = db;
