@@ -1,5 +1,5 @@
 import { SearchOutlined } from '@ant-design/icons';
-import { App, Button, Input, Modal, Tabs, TabsProps } from 'antd';
+import { Button, Input, Modal, Tabs, TabsProps } from 'antd';
 import { useState } from 'react';
 
 import { getFriendList, addFriend, getGroupList, addGroupChat } from './api';
@@ -7,6 +7,8 @@ import { IFriend, IGroupChat } from './api/type';
 import styles from './index.module.less';
 
 import { serverURL } from '@/config';
+import useShowMessage from '@/hooks/useShowMessage';
+import { HttpStatus } from '@/utils/constant';
 import { userStorage } from '@/utils/storage';
 
 interface IChangeInfoModal {
@@ -16,7 +18,7 @@ interface IChangeInfoModal {
 const AddFriendOrGroupModal = (props: IChangeInfoModal) => {
 	const { openmodal, handleModal } = props;
 
-	const { message } = App.useApp();
+	const showMessage = useShowMessage();
 	const [friendList, setFriendList] = useState<IFriend[]>([]);
 	const [groupList, setGroupList] = useState<IGroupChat[]>([]);
 	const [friendName, setFriendName] = useState('');
@@ -31,33 +33,44 @@ const AddFriendOrGroupModal = (props: IChangeInfoModal) => {
 	};
 	// 获取模糊查询的好友列表
 	const getFriendListData = async (username: string) => {
-		const params = {
-			sender: JSON.parse(userStorage.getItem() || '{}'),
-			username: username
-		};
-		const res = await getFriendList(params);
-		if (res.code === 200 && res.data) {
-			setFriendList(res.data);
-		} else {
+		try {
+			const params = {
+				sender: JSON.parse(userStorage.getItem() || '{}'),
+				username: username
+			};
+			const res = await getFriendList(params);
+			if (res.code === HttpStatus.SUCCESS && res.data) {
+				setFriendList(res.data);
+			} else {
+				showMessage('error', '查询失败, 请重试');
+				setFriendList([]);
+			}
+		} catch {
+			showMessage('error', '查询失败, 请重试');
 			setFriendList([]);
 		}
 	};
 	// 加好友
 	const handleAddFriend = async (id: number, username: string, avatar: string) => {
-		const params = {
-			sender: JSON.parse(userStorage.getItem() || '{}'),
-			id: id,
-			username: username,
-			avatar: avatar
-		};
 		setLoading(true);
-		const res = await addFriend(params);
-		if (res.code === 200) {
-			message.success('添加成功', 1.5);
-			setLoading(false);
-			handleModal(false);
-		} else {
-			message.error('添加失败, 请重试', 1.5);
+		try {
+			const params = {
+				sender: JSON.parse(userStorage.getItem() || '{}'),
+				id: id,
+				username: username,
+				avatar: avatar
+			};
+			const res = await addFriend(params);
+			if (res.code === HttpStatus.SUCCESS) {
+				showMessage('success', '添加成功');
+				setLoading(false);
+				handleModal(false);
+			} else {
+				showMessage('error', '添加失败, 请重试');
+				setLoading(false);
+			}
+		} catch {
+			showMessage('error', '添加失败, 请重试');
 			setLoading(false);
 		}
 	};
@@ -70,23 +83,34 @@ const AddFriendOrGroupModal = (props: IChangeInfoModal) => {
 	};
 	// 获取模糊查询的群列表
 	const getGroupListData = async (name: string) => {
-		const res = await getGroupList(name);
-		if (res.code === 200 && res.data) {
-			setGroupList(res.data);
-		} else {
+		try {
+			const res = await getGroupList(name);
+			if (res.code === HttpStatus.SUCCESS && res.data) {
+				setGroupList(res.data);
+			} else {
+				showMessage('error', '查询失败, 请重试');
+				setGroupList([]);
+			}
+		} catch {
+			showMessage('error', '查询失败, 请重试');
 			setGroupList([]);
 		}
 	};
 	// 加入群聊
 	const joinGroup = async (group_id: number) => {
 		setLoading(true);
-		const res = await addGroupChat({ group_id: group_id });
-		if (res.code === 200) {
-			message.success('成功加入该群聊', 1.5);
-			setLoading(false);
-			handleModal(false);
-		} else {
-			message.error('加入群聊失败, 请重试', 1.5);
+		try {
+			const res = await addGroupChat({ group_id: group_id });
+			if (res.code === HttpStatus.SUCCESS) {
+				showMessage('success', '成功加入该群聊');
+				setLoading(false);
+				handleModal(false);
+			} else {
+				showMessage('error', '加入群聊失败, 请重试');
+				setLoading(false);
+			}
+		} catch {
+			showMessage('error', '加入群聊失败, 请重试');
 			setLoading(false);
 		}
 	};

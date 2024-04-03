@@ -1,4 +1,4 @@
-import { Tooltip, Button, App, Popover } from 'antd';
+import { Tooltip, Button, Popover } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -15,6 +15,8 @@ import ChangeInfoModal from '@/components/ChangeInfoModal';
 import ChangePwdModal from '@/components/ChangePwdModal';
 import VideoModal from '@/components/VideoModal';
 import { wsBaseURL } from '@/config';
+import useShowMessage from '@/hooks/useShowMessage';
+import { HttpStatus } from '@/utils/constant';
 import { handleLogout, IUserInfo } from '@/utils/logout';
 import { clearSessionStorage, userStorage } from '@/utils/storage';
 
@@ -27,7 +29,7 @@ type ChatListRefType = {
 };
 
 const Container = () => {
-	const { message } = App.useApp();
+	const showMessage = useShowMessage();
 	const navigate = useNavigate();
 	const { username, name, avatar, phone, signature } = JSON.parse(userStorage.getItem() || '{}');
 	const [currentIcon, setCurrentIcon] = useState<string>('icon-message');
@@ -64,25 +66,24 @@ const Container = () => {
 	};
 
 	// 退出登录
-	const confirmLogout = () => {
-		handleLogout(JSON.parse(userStorage.getItem() || '{}') as IUserInfo)
-			.then(res => {
-				if (res.code === 200) {
-					clearSessionStorage();
-					message.success('退出成功', 1.5);
-					// 关闭 websocket 连接
-					if (socket.current !== null) {
-						socket.current.close();
-						socket.current = null;
-					}
-					navigate('/login');
-				} else {
-					message.error('退出失败, 请重试', 1.5);
+	const confirmLogout = async () => {
+		try {
+			const res = await handleLogout(JSON.parse(userStorage.getItem() || '{}') as IUserInfo);
+			if (res.code === HttpStatus.SUCCESS) {
+				clearSessionStorage();
+				showMessage('success', '退出成功');
+				// 关闭 websocket 连接
+				if (socket.current !== null) {
+					socket.current.close();
+					socket.current = null;
 				}
-			})
-			.catch(() => {
-				message.error('退出失败, 请重试', 1.5);
-			});
+				navigate('/login');
+			} else {
+				showMessage('error', '退出失败, 请重试');
+			}
+		} catch {
+			showMessage('error', '退出失败, 请重试');
+		}
 	};
 
 	// 点击头像用户信息弹窗
@@ -122,7 +123,7 @@ const Container = () => {
 	// 进入到主页面时建立一个 websocket 连接
 	const initSocket = () => {
 		const newSocket = new WebSocket(`${wsBaseURL}/auth/user_channel?username=${username}`);
-		newSocket.onmessage = message => {
+		newSocket.onmessage = async message => {
 			const data = JSON.parse(message.data);
 			switch (data.name) {
 				case 'friendList':
@@ -140,12 +141,13 @@ const Container = () => {
 				// 打开响应音视频通话窗口 (根据传过来的发送方 username 拿到对应的好友信息)
 				case 'createRoom':
 					if (data.sender_username) {
-						const param = {
-							friend_username: data.sender_username,
-							self_username: username
-						};
-						getFriendInfoByUsername(param).then(res => {
-							if (res.code === 200) {
+						try {
+							const param = {
+								friend_username: data.sender_username,
+								self_username: username
+							};
+							const res = await getFriendInfoByUsername(param);
+							if (res.code === HttpStatus.SUCCESS) {
 								setCallFriendInfo({
 									receiver_username: res.data.username,
 									remark: res.data.remark,
@@ -157,8 +159,12 @@ const Container = () => {
 								} else if (data.mode === 'video_invitation') {
 									setVideoModal(true);
 								}
+							} else {
+								showMessage('error', '获取好友信息失败');
 							}
-						});
+						} catch {
+							showMessage('error', '音视频通话响应失败');
+						}
 					}
 					break;
 			}

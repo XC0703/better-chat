@@ -1,319 +1,313 @@
-.addressBook{
-  display: flex;
-  .leftContainer{
-    flex:5;
-    background-color: #e5e5e5;
-    display: flex;
-    flex-direction: column;
-    border-right: #e5e5e5 0.002rem solid;
-    height: 6rem;
-    .search{
-      height: 0.6rem;
-    }
-    .list{
-      height: 5.4rem;
-      .addressBookTabs{
-        width:100%;
-        height: 100%;
-        :global{
-          .ant-tree{
-            background-color: #e5e5e5;
-            .ant-tree-treenode{
-              width: 100%;
-              padding: .03rem 0;
-            }
-            .ant-tree-treenode-selected::before{
-              display: none;
-            }
-            .ant-tree-treenode-selected{
-              background-color: rgba(106, 184, 106, 0.4);
-            }
-            .ant-tree-switcher-noop{
-              display: none;
-            }
-            .ant-tree-treenode-switcher-close,.ant-tree-treenode-switcher-open{
-              .ant-tree-switcher-noop{
-                display: block;
-              }
-            }
-          }
-        }
-        .friendTree{
-          width:100%;
-          height: 100%;
-          overflow: scroll;
-          .nodeContent{
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding-right: .1rem;
-            img{
-              width:.35rem;
-              height:.35rem;
-              margin-right: .2rem;
-            }
-            span{
-              max-width: 1.2rem;
-              font-size: .15rem;
-              color: #000;
-              overflow: hidden;
-              text-overflow: ellipsis;
-              white-space: nowrap;
-            }
-            .friendStatus{
-              margin-left: auto;
-            }
-          }
-        }
-        .groupChatList{
-          width:100%;
-          height: 4.9rem;
-          display: flex;
-          flex-direction: column;
-          overflow: scroll;
-          .groupChat{
-            display: flex;
-            align-items: center;
-            border-bottom: 0.003rem solid #d3d1d1;
-            cursor: pointer;
-            padding:.1rem;
-            img{
-              width:.4rem;
-              height:.4rem;
-              margin-right: .2rem;
-            }
-            span{
-              max-width: 1.2rem;
-              font-size: .15rem;
-              color: #000;
-              overflow: hidden;
-              text-overflow: ellipsis;
-              white-space: nowrap;
-            }
-          }
-          .curGroupChatInfo{
-            background-color: rgba(0, 0, 0, 0.04);
-          }
-          .groupChat:hover{
-            background-color: rgba(0, 0, 0, 0.04);
-          }
-          .groupChat:nth-child(1){
-            border-top: 0.003rem solid #d3d1d1;
-          }
-        }
-        .friendTree::-webkit-scrollbar,
-        .groupChatList::-webkit-scrollbar {
-          width: 0.01rem;
-        }
-        .friendTree::-webkit-scrollbar-thumb,
-        .groupChatList::-webkit-scrollbar-thumb {
-          border-radius: 0.05rem;
-          background-color:transparent;
-        }
-        .friendTree::-webkit-scrollbar-corner,
-        .groupChatList::-webkit-scrollbar-corner {
-          background-color: #e5e5e5;
-        }
-        .friendTree:hover::-webkit-scrollbar-thumb,
-        .groupChatList:hover::-webkit-scrollbar-thumb{
-          background-color: rgba(106, 184, 106, 0.4);
-        }
-      }
-    }
-  }
-  .rightContainer{
-    flex:12;
-    background-color: #f5f5f5;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    .infoModal{
-      background-color: rgba(229,229,229,0.3);
-      display: flex;
-      flex-direction: column;
-      width:60%;
-      height:70%;
-      padding:0.2rem;
-      .infoContainerHead{
-        flex:2.2;
-        display: flex;
-        .avatar{
-          display: flex;
-          justify-content: center;
-          align-items: flex-start;
-          margin-top: .1rem;
-          img{
-            width:.8rem;
-            height:.8rem;
-          }
-        }
-        .info{
-          padding-left: .2rem;
-          padding-top:.1rem;
-          color:#999;
-          font-size: .12rem;
-          display: flex;
-          flex-direction: column;
-          .username{
-            font-size: .3rem;
-            color:#333
-          }
-          .signature{
-            width:2rem;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-box-orient: vertical;
-            -webkit-line-clamp: 2;
-          }
-        }
-      }
-      .changeContainer{
-        flex:5;
-        display: flex;
-        border-top: 0.01rem solid rgb(229,229,229);
-        justify-content: center;
-        padding:.1rem 0 0 0;
-        form{
-          width:100%;
-          input{
-            border:none;
-            box-shadow: none;
-            border-radius: 0;
-            background-color: transparent;
-            // border-bottom: 0.01rem solid rgb(229,229,229);
-            box-shadow: none;
-          }
-          :global{
-            .ant-form-item{
-              margin-bottom: 0;
-              label{
-                font-size: .12rem;
-                letter-spacing: 0.05rem;
-              }
-              input{
-                line-height:1;
-                padding:none;
-              }
-              .ant-select-selector{
-                background-color: transparent;
-                border:0.01rem solid #d9d9d9;
-                box-shadow: none;
-              }
-            }
-            .ant-form-item:nth-child(3){
-              input{
-                border-bottom: 0.01rem solid rgb(229,229,229);
-              }
-            }
-          }
-        }
-      }
-      .infoContainerBody{
-        flex:5;
-        display: flex;
-        border-top: 0.01rem solid rgb(229,229,229);
-        justify-content: center;
-        padding:.1rem 0 0 0;
-        .homePage{
-          display: flex;
-          flex-direction: column;
-          span{
-            padding:.1rem;
-          }
-        }
-        .memberTable{
-          width: 100%;
-          height: 1.6rem;
-          .tableTitle,.tableItem{
-            display: flex;
-            justify-content: space-between;
-            color: #999;
-            border-bottom: #fff solid .01rem;
-            li{
-              overflow: hidden;
-              text-overflow: ellipsis;
-              white-space: nowrap;
-              text-align: center;
-            }
-            li:nth-child(1){
-              width:.6rem;
-            }
-            li:nth-child(2){
-              width:.6rem;
-            }
-            li:nth-child(3){
-              width:1rem;
-            }
-            li:nth-child(4){
-              width:1rem;
-            }
-          }
-          .tableTitle{
-            color:#666;
-          }
-          .tableContent{
-            width:100%;
-            height: 1.4rem;
-            overflow-y: scroll;
-          }
-          .tableContent::-webkit-scrollbar{
-            width: 0.01rem;
-          }
-          .tableContent::-webkit-scrollbar-thumb{
-            border-radius: 0.05rem;
-            background-color:transparent;
-          }
-          .tableContent::-webkit-scrollbar-corner{
-            background-color: #e5e5e5;
-          }
-          .tableContent:hover::-webkit-scrollbar-thumb{
-            background-color: rgba(106, 184, 106, 0.4);
-          }
-        }
-      }
-      .btns{
-        display: flex;
-        justify-content: space-between;
-        padding:0 .2rem;
-        button{
-          font-size: .12rem;
-        }
-      }
-    }
-  }
+@import '@/assets/styles/variables.less';
+.addressBook {
+	display: flex;
+	.leftContainer {
+		flex: 5;
+		background-color: @primary-border_bg-color;
+		display: flex;
+		flex-direction: column;
+		border-right: @primary-border_bg-color 0.002rem solid;
+		height: 6rem;
+		.search {
+			height: 0.6rem;
+		}
+		.list {
+			height: 5.4rem;
+			.addressBookTabs {
+				width: 100%;
+				height: 100%;
+				:global {
+					.ant-tree {
+						background-color: @primary-border_bg-color;
+						.ant-tree-treenode {
+							width: 100%;
+							padding: 0.03rem 0;
+						}
+						.ant-tree-treenode-selected::before {
+							display: none;
+						}
+						.ant-tree-treenode-selected {
+							background-color: @item-selected-bg-color;
+						}
+						.ant-tree-switcher-noop {
+							display: none;
+						}
+						.ant-tree-treenode-switcher-close,
+						.ant-tree-treenode-switcher-open {
+							.ant-tree-switcher-noop {
+								display: block;
+							}
+						}
+					}
+				}
+				.friendTree {
+					width: 100%;
+					height: 4.93rem;
+					overflow: scroll;
+					.nodeContent {
+						display: flex;
+						align-items: center;
+						justify-content: space-between;
+						padding-right: 0.1rem;
+						img {
+							width: 0.35rem;
+							height: 0.35rem;
+							margin-right: 0.2rem;
+						}
+						span {
+							max-width: 1.2rem;
+							font-size: 0.15rem;
+							color: @font-color;
+							overflow: hidden;
+							text-overflow: ellipsis;
+							white-space: nowrap;
+						}
+						.friendStatus {
+							margin-left: auto;
+						}
+					}
+				}
+				.groupChatList {
+					width: 100%;
+					height: 4.93rem;
+					display: flex;
+					flex-direction: column;
+					overflow: scroll;
+					.groupChat {
+						display: flex;
+						align-items: center;
+						border-bottom: 0.003rem solid @item-border-color;
+						cursor: pointer;
+						padding: 0.1rem;
+						img {
+							width: 0.4rem;
+							height: 0.4rem;
+							margin-right: 0.2rem;
+						}
+						span {
+							max-width: 1.2rem;
+							font-size: 0.15rem;
+							color: @font-color;
+							overflow: hidden;
+							text-overflow: ellipsis;
+							white-space: nowrap;
+						}
+					}
+					.curGroupChatInfo {
+						background-color: @item-selected-bg-color;
+					}
+					.groupChat:hover {
+						background-color: @item-hover-bg-color;
+					}
+					.groupChat:nth-child(1) {
+						border-top: 0.003rem solid @item-border-color;
+					}
+				}
+				.friendTree::-webkit-scrollbar,
+				.groupChatList::-webkit-scrollbar {
+					width: 0.01rem;
+				}
+				.friendTree::-webkit-scrollbar-thumb,
+				.groupChatList::-webkit-scrollbar-thumb {
+					border-radius: 0.05rem;
+					background-color: transparent;
+				}
+				.friendTree:hover::-webkit-scrollbar-thumb,
+				.groupChatList:hover::-webkit-scrollbar-thumb {
+					background-color: @scrollbar-thumb-color;
+				}
+			}
+		}
+	}
+	.rightContainer {
+		flex: 12;
+		background-color: #f5f5f5;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		.infoModal {
+			background-color: rgba(229, 229, 229, 0.3);
+			display: flex;
+			flex-direction: column;
+			width: 60%;
+			height: 70%;
+			padding: 0.2rem;
+			.infoContainerHead {
+				flex: 2.2;
+				display: flex;
+				.avatar {
+					display: flex;
+					justify-content: center;
+					align-items: flex-start;
+					margin-top: 0.1rem;
+					img {
+						width: 0.8rem;
+						height: 0.8rem;
+					}
+				}
+				.info {
+					padding-left: 0.2rem;
+					padding-top: 0.1rem;
+					color: @font-color-lightest;
+					font-size: 0.12rem;
+					display: flex;
+					flex-direction: column;
+					.username {
+						font-size: 0.3rem;
+						color: @font-color-light;
+					}
+					.signature {
+						width: 2rem;
+						overflow: hidden;
+						text-overflow: ellipsis;
+						display: -webkit-box;
+						-webkit-box-orient: vertical;
+						-webkit-line-clamp: 2;
+					}
+				}
+			}
+			.changeContainer {
+				flex: 5;
+				display: flex;
+				border-top: 0.01rem solid @primary-border_bg-color;
+				justify-content: center;
+				padding: 0.1rem 0 0 0;
+				form {
+					width: 100%;
+					input {
+						border: none;
+						box-shadow: none;
+						border-radius: 0;
+						background-color: transparent;
+						box-shadow: none;
+					}
+					:global {
+						.ant-form-item {
+							margin-bottom: 0;
+							label {
+								font-size: 0.12rem;
+								letter-spacing: 0.05rem;
+							}
+							input {
+								line-height: 1;
+								padding: none;
+							}
+							.ant-select-selector {
+								background-color: transparent;
+								box-shadow: none;
+							}
+						}
+						.ant-form-item:nth-child(3) {
+							input {
+								border-bottom: 0.01rem solid @primary-border_bg-color;
+							}
+						}
+					}
+				}
+			}
+			.infoContainerBody {
+				flex: 5;
+				display: flex;
+				border-top: 0.01rem solid @primary-border_bg-color;
+				justify-content: center;
+				padding: 0.1rem 0 0 0;
+				.homePage {
+					display: flex;
+					flex-direction: column;
+					span {
+						padding: 0.1rem;
+					}
+				}
+				.memberTable {
+					width: 100%;
+					height: 1.6rem;
+					.tableTitle,
+					.tableItem {
+						display: flex;
+						justify-content: space-between;
+						color: @font-color-lightest;
+						border-bottom: @primary-color solid 0.01rem;
+						li {
+							overflow: hidden;
+							text-overflow: ellipsis;
+							white-space: nowrap;
+							text-align: center;
+						}
+						li:nth-child(1) {
+							width: 0.6rem;
+						}
+						li:nth-child(2) {
+							width: 0.6rem;
+						}
+						li:nth-child(3) {
+							width: 1rem;
+						}
+						li:nth-child(4) {
+							width: 1rem;
+						}
+					}
+					.tableTitle {
+						color: @font-color-lighter;
+					}
+					.tableContent {
+						width: 100%;
+						height: 1.4rem;
+						overflow-y: scroll;
+					}
+					.tableContent::-webkit-scrollbar {
+						width: 0.01rem;
+					}
+					.tableContent::-webkit-scrollbar-thumb {
+						border-radius: 0.05rem;
+						background-color: transparent;
+					}
+					.tableContent:hover::-webkit-scrollbar-thumb {
+						background-color: @scrollbar-thumb-color;
+					}
+				}
+			}
+			.btns {
+				display: flex;
+				justify-content: space-between;
+				padding: 0 0.2rem;
+				button {
+					font-size: 0.12rem;
+				}
+			}
+		}
+	}
 }
-:global{
-  .anticon-wechat{
-    color:#999;
-    font-size: .8rem;
-  }
-  .ant-select-dropdown{
-    font-size: .12rem;
-  }
-  .ant-tabs{
-    width:100%;
-    height: 100%;
-    .ant-tabs-content{
-      width:100%;
-      height: 100%;
-      .ant-tabs-tabpane{
-        width:100%;
-        height: 100%;
-      }
-    }
-  }
-  .ant-tabs-nav-list{
-    width: 100%;
-    .ant-tabs-tab{
-      flex:1;
-      justify-content: center;
-    }
-  }
-  .ant-tabs-nav-list::before{
-    width:50%;
-  }
-  .ant-tabs-nav-list::after{
-    width:50%;
-  }
+:global {
+	.anticon-wechat {
+		color: @font-color-lightest;
+		font-size: 0.8rem;
+	}
+	.ant-select-dropdown {
+		font-size: 0.12rem;
+	}
+	.ant-tabs {
+		width: 100%;
+		height: 100%;
+		.ant-tabs-content {
+			width: 100%;
+			height: 100%;
+			.ant-tabs-tabpane {
+				width: 100%;
+				height: 100%;
+			}
+		}
+	}
+	.ant-tabs-nav-list {
+		width: 100%;
+		.ant-tabs-tab {
+			flex: 1;
+			justify-content: center;
+		}
+	}
+	.ant-tabs-nav-list::before {
+		width: 50%;
+	}
+	.ant-tabs-nav-list::after {
+		width: 50%;
+	}
 }

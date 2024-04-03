@@ -26,7 +26,7 @@ export class Storage<T> implements ISessionStorage<T> {
 			return value && value !== 'null' && value !== 'undefined'
 				? (JSON.parse(value) as T)
 				: this.defaultValue;
-		} catch (error) {
+		} catch {
 			return value && value !== 'null' && value !== 'undefined'
 				? (value as unknown as T)
 				: this.defaultValue;

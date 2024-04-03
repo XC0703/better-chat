@@ -1,107 +1,108 @@
-.videoModalContent{
-  background-size: cover;
-  height: 100%;
-  width: 100%;
-  .content{
-    position: relative;
-    z-index: 999;
-    height: 100%;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    .avatar{
-      width: .8rem;
-      height: .8rem;
-    }
-    .callWords{
-      margin-top: .1rem;
-      font-size: .15rem;
-      color: #fff;
-    }
-    .callIcons{
-      margin-top: .1rem;
-      display: flex;
-      justify-content: center;
-      width: 1rem;
-      img{
-        width: .35rem;
-        height: .35rem;
-        cursor: pointer;
-        margin: 0 .2rem;
-      }
-    }
-  }
-  .callingStatus{
-    justify-content:end;
-    background-color: transparent;
-    .friendVideo{
-      width:100%;
-      height:100%;
-      position: absolute;
-      z-index:-2;
-      video{
-        width:100%;
-        height:100%;
-        object-fit: cover;
-      }
-    }
-    .selfVideo{
-      width:1.2rem;
-      height:1.2rem;
-      position: absolute;
-      top:0;
-      right:0;
-      z-index:-1;
-      background-color: rgba(0, 0, 0, 0.3);
-      video{
-        width:100%;
-        height:100%;
-        object-fit: cover;
-      }
-    }
-    .bottom{
-      width:100%;
-      bottom:0;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background-color: rgba(0, 0, 0, 0.2);
-      .callIcons{
-        margin-bottom: .1rem;
-      }
-    }
-  }
+@import '@/assets/styles/variables.less';
+.videoModalContent {
+	background-size: cover;
+	height: 100%;
+	width: 100%;
+	.content {
+		position: relative;
+		z-index: 999;
+		height: 100%;
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		.avatar {
+			width: 0.8rem;
+			height: 0.8rem;
+		}
+		.callWords {
+			margin-top: 0.1rem;
+			font-size: 0.15rem;
+			color: @primary-color;
+		}
+		.callIcons {
+			margin-top: 0.1rem;
+			display: flex;
+			justify-content: center;
+			width: 1rem;
+			img {
+				width: 0.35rem;
+				height: 0.35rem;
+				cursor: pointer;
+				margin: 0 0.2rem;
+			}
+		}
+	}
+	.callingStatus {
+		justify-content: end;
+		background-color: transparent;
+		.friendVideo {
+			width: 100%;
+			height: 100%;
+			position: absolute;
+			z-index: -2;
+			video {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+			}
+		}
+		.selfVideo {
+			width: 1.2rem;
+			height: 1.2rem;
+			position: absolute;
+			top: 0;
+			right: 0;
+			z-index: -1;
+			background-color: @call-modal-bg-color;
+			video {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+			}
+		}
+		.bottom {
+			width: 100%;
+			bottom: 0;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			background-color: @call-modal-bg-color;
+			.callIcons {
+				margin-bottom: 0.1rem;
+			}
+		}
+	}
 }
-.videoModalContent::before{
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 3rem;
-  background-color: rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(.01rem);
+.videoModalContent::before {
+	content: '';
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 3rem;
+	background-color: @call-modal-bg-color;
+	backdrop-filter: blur(0.01rem);
 }
 
-:global{
-  .videoModal{
-    .ant-modal-content{
-      padding:0;
-      button{
-        right:0;
-        top:0;
-        margin:.05rem;
-      }
-      .ant-modal-header{
-        margin: .05rem 0 .02rem .05rem;
-      }
-      .ant-modal-body{
-        width:100%;
-        height:3rem;
-      }
-    }
-  }
+:global {
+	.videoModal {
+		.ant-modal-content {
+			padding: 0;
+			button {
+				right: 0;
+				top: 0;
+				margin: 0.05rem;
+			}
+			.ant-modal-header {
+				margin: 0.05rem 0 0.02rem 0.05rem;
+			}
+			.ant-modal-body {
+				width: 100%;
+				height: 3rem;
+			}
+		}
+	}
 }

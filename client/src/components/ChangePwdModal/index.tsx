@@ -1,10 +1,12 @@
-import { App, Input, Modal } from 'antd';
+import { Input, Modal } from 'antd';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { handleChange } from './api';
 import styles from './index.module.less';
 
+import useShowMessage from '@/hooks/useShowMessage';
+import { HttpStatus } from '@/utils/constant';
 import { handleLogout, IUserInfo } from '@/utils/logout';
 import { clearSessionStorage, userStorage } from '@/utils/storage';
 
@@ -15,7 +17,7 @@ interface IChangePwdModal {
 const ChangePwdModal = (props: IChangePwdModal) => {
 	const { openmodal, handleModal } = props;
 
-	const { message } = App.useApp();
+	const showMessage = useShowMessage();
 	const navigate = useNavigate();
 
 	const [loading, setLoading] = useState(false);
@@ -41,24 +43,23 @@ const ChangePwdModal = (props: IChangePwdModal) => {
 	};
 
 	// 退出登录
-	const confirmLogout = () => {
-		handleLogout(JSON.parse(userStorage.getItem() || '{}') as IUserInfo)
-			.then(res => {
-				if (res.code === 200) {
-					clearSessionStorage();
-					message.success('登录已过期，请重新登录', 1.5);
-					navigate('/login');
-				} else {
-					message.error('退出失败, 请重试', 1.5);
-				}
-			})
-			.catch(() => {
-				message.error('退出失败, 请重试', 1.5);
-			});
+	const confirmLogout = async () => {
+		try {
+			const res = await handleLogout(JSON.parse(userStorage.getItem() || '{}') as IUserInfo);
+			if (res.code === HttpStatus.SUCCESS) {
+				clearSessionStorage();
+				showMessage('success', '登录已过期，请重新登录');
+				navigate('/login');
+			} else {
+				showMessage('error', '退出失败, 请重试');
+			}
+		} catch {
+			showMessage('error', '退出失败, 请重试');
+		}
 	};
 
 	// 修改密码
-	const handleSubmit = () => {
+	const handleSubmit = async () => {
 		// 前端数据校验
 		if (!username) {
 			setStatus1('error');
@@ -73,7 +74,7 @@ const ChangePwdModal = (props: IChangePwdModal) => {
 			setStatus4('error');
 		}
 		if (!username || !password || !confirm) {
-			message.error('请输入用户名或密码！', 1.5);
+			showMessage('error', '请输入用户名或密码');
 			setTimeout(() => {
 				setStatus1(undefined);
 				setStatus2(undefined);
@@ -83,7 +84,7 @@ const ChangePwdModal = (props: IChangePwdModal) => {
 			return;
 		}
 		if (!phone) {
-			message.error('请输入手机号！', 1.5);
+			showMessage('error', '请输入手机号');
 			setTimeout(() => {
 				setStatus2(undefined);
 			}, 1500);
@@ -93,7 +94,7 @@ const ChangePwdModal = (props: IChangePwdModal) => {
 		const reg = /^1[3456789]\d{9}$/;
 		if (!reg.test(phone)) {
 			setStatus2('error');
-			message.error('手机号格式不正确！', 1.5);
+			showMessage('error', '手机号格式不正确');
 			setTimeout(() => {
 				setStatus2(undefined);
 			}, 1500);
@@ -101,35 +102,34 @@ const ChangePwdModal = (props: IChangePwdModal) => {
 		}
 		if (password !== confirm) {
 			setStatus4('error');
-			message.error('两次密码不一致！', 1.5);
+			showMessage('error', '两次密码不一致');
 			setTimeout(() => {
 				setStatus4(undefined);
 			}, 1500);
 			return;
 		}
 		setLoading(true);
-		const param = {
-			username,
-			password,
-			confirmPassword: confirm,
-			phone
-		};
-		handleChange(param)
-			.then(res => {
-				if (res.code === 200) {
-					message.success('修改密码成功！', 1.5);
-					setLoading(false);
-					handleModal(false);
-					confirmLogout();
-				} else {
-					message.error(res.message, 1.5);
-					setLoading(false);
-				}
-			})
-			.catch(() => {
-				message.error('修改密码失败，请稍后再试！', 1.5);
+		try {
+			const param = {
+				username,
+				password,
+				confirmPassword: confirm,
+				phone
+			};
+			const res = await handleChange(param);
+			if (res.code === HttpStatus.SUCCESS) {
+				showMessage('success', '修改成功');
 				setLoading(false);
-			});
+				handleModal(false);
+				confirmLogout();
+			} else {
+				showMessage('error', res.message);
+				setLoading(false);
+			}
+		} catch {
+			showMessage('error', '修改失败，请重试');
+			setLoading(false);
+		}
 	};
 
 	return (

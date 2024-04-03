@@ -1,10 +1,12 @@
-import { App, Form, Input, Modal } from 'antd';
+import { Form, Input, Modal } from 'antd';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { handleChange } from './api';
 import styles from './index.module.less';
 
+import useShowMessage from '@/hooks/useShowMessage';
+import { HttpStatus } from '@/utils/constant';
 import { handleLogout, IUserInfo } from '@/utils/logout';
 import { clearSessionStorage, userStorage } from '@/utils/storage';
 
@@ -13,7 +15,7 @@ interface IChangeInfoModal {
 	handleModal: (open: boolean) => void;
 }
 const ChangeInfoModal = (props: IChangeInfoModal) => {
-	const { message } = App.useApp();
+	const showMessage = useShowMessage();
 	const navigate = useNavigate();
 	const { username, name, avatar, phone, signature } = JSON.parse(userStorage.getItem() || '{}');
 	const [infoChangeInstance] = Form.useForm<{
@@ -33,27 +35,26 @@ const ChangeInfoModal = (props: IChangeInfoModal) => {
 	const [status2, setStatus2] = useState<'' | 'error' | 'warning' | undefined>();
 
 	// 退出登录
-	const confirmLogout = () => {
-		handleLogout(JSON.parse(userStorage.getItem() || '{}') as IUserInfo)
-			.then(res => {
-				if (res.code === 200) {
-					clearSessionStorage();
-					message.success('登录已过期，请重新登录', 1.5);
-					navigate('/login');
-				} else {
-					message.error('退出失败, 请重试', 1.5);
-				}
-			})
-			.catch(() => {
-				message.error('退出失败, 请重试', 1.5);
-			});
+	const confirmLogout = async () => {
+		try {
+			const res = await handleLogout(JSON.parse(userStorage.getItem() || '{}') as IUserInfo);
+			if (res.code === HttpStatus.SUCCESS) {
+				clearSessionStorage();
+				showMessage('success', '登录已过期，请重新登录');
+				navigate('/login');
+			} else {
+				showMessage('error', '退出失败, 请重试');
+			}
+		} catch {
+			showMessage('error', '退出失败, 请重试');
+		}
 	};
 
-	const handleSubmit = () => {
+	const handleSubmit = async () => {
 		// 前端数据校验
 		if (!newName) {
 			setStatus1('error');
-			message.error('请输入用户昵称！', 1.5);
+			showMessage('error', '请输入用户昵称');
 			setTimeout(() => {
 				setStatus1(undefined);
 			}, 1500);
@@ -61,7 +62,7 @@ const ChangeInfoModal = (props: IChangeInfoModal) => {
 		}
 		if (!newPhone) {
 			setStatus2('error');
-			message.error('请输入手机号！', 1.5);
+			showMessage('error', '请输入手机号');
 			setTimeout(() => {
 				setStatus2(undefined);
 			}, 1500);
@@ -71,37 +72,35 @@ const ChangeInfoModal = (props: IChangeInfoModal) => {
 		const reg = /^1[3456789]\d{9}$/;
 		if (!reg.test(newPhone)) {
 			setStatus2('error');
-			message.error('手机号格式不正确！', 1.5);
+			showMessage('error', '手机号格式不正确');
 			setTimeout(() => {
 				setStatus2(undefined);
 			}, 1500);
 			return;
 		}
 		setLoading(true);
-		const params = {
-			username,
-			name: newName,
-			avatar: newAvatar,
-			phone: newPhone,
-			signature: newSignature
-		};
-		handleChange(params)
-			.then(res => {
-				if (res.code === 200) {
-					message.success('修改成功！', 1.5);
-					setLoading(true);
-					handleModal(false);
-					confirmLogout();
-				} else {
-					message.error('修改失败，请稍后再试！', 1.5);
-					setLoading(true);
-				}
-				setLoading(false);
-			})
-			.catch(() => {
-				message.error('修改失败，请稍后再试！', 1.5);
-				setLoading(false);
-			});
+		try {
+			const params = {
+				username,
+				name: newName,
+				avatar: newAvatar,
+				phone: newPhone,
+				signature: newSignature
+			};
+			const res = await handleChange(params);
+			if (res.code === HttpStatus.SUCCESS) {
+				showMessage('success', '修改成功');
+				setLoading(true);
+				handleModal(false);
+				confirmLogout();
+			} else {
+				showMessage('error', '修改失败，请重试');
+				setLoading(true);
+			}
+		} catch {
+			showMessage('error', '修改失败，请重试');
+			setLoading(false);
+		}
 	};
 
 	// 表单数据回显

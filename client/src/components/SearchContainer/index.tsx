@@ -21,7 +21,7 @@ const SearchContainer = () => {
 	};
 	const addContent = (
 		<ul>
-			<li onClick={() => handleAddModal(true)}> 加好友 / 加群 </li>
+			<li onClick={() => handleAddModal(true)}> 加好友/加群 </li>
 			<li onClick={() => handleCreateModal(true)}> 创建群聊 </li>
 		</ul>
 	);

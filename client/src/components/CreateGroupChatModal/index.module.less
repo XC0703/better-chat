@@ -1,126 +1,128 @@
-.createModal{
-  .step{
-    transition:opacity ease-in-out 0.5s;
-    .selectContainer{
-      display: flex;
-      width:4.5rem;
-      height:4rem;
-      margin-bottom: .1rem;
-    }
-    .btns{
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      button{
-        height:.32rem;
-        width:.68rem;
-        font-size: .12rem;
-      }
-    }
-  }
-  .step0{
-    display: block;
-    .selectContainer{
-      .friendList{
-        width:2.25rem;
-        border: #e5e5e5 0.002rem solid;
-        border-top: none;
-        .nodeContent{
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding-right: .1rem;
-          img{
-            width:.35rem;
-            height:.35rem;
-            margin-right: .2rem;
-          }
-          span{
-            font-size: .15rem;
-            color: #000;
-            overflow: hidden;
-            white-space: nowrap;
-          }
-        }
-      }
-      .selectList{
-        width:2.25rem;
-        border: #e5e5e5 0.002rem solid;
-        border-top: none;
-        .friendInfo{
-          display: flex;
-          border-bottom: .005rem solid #d3d1d1;
-          .avatar{
-            width:.5rem;
-            height: .5rem;
-            img{
-              width:.4rem;
-              height:.4rem;
-              margin: .05rem;
-            }
-          }
-          .username{
-            display: flex;
-            width:1.5rem;
-            align-items: center;
-            margin-left:.2rem;
-            font-size: .2rem;
-            white-space: nowrap;
-            overflow-x: scroll
-          }
-          .username::-webkit-scrollbar {
-            display: none;
-          }
-        }
-      }
-      .title{
-        width: 100%;
-        height: .4rem;
-        line-height: .4rem;
-        text-align: center;
-        font-size: .14rem;
-        color: #333;
-        background-color: #f3f3f3
-      }
-      .list{
-        width:100%;
-        height: 3.6rem;
-        overflow: scroll;
-      }
-      .list::-webkit-scrollbar {
-        width: 0.01rem;
-        height: 0.01rem;
-      }
-      .list::-webkit-scrollbar-thumb {
-        /*滚动条里面小方块*/
-        border-radius: 0.05rem;
-        background-color: rgba(106, 184, 106, 0.4);
-      }
-    }
-    button{
-      margin-left: auto;
-    }
-  }
-  .step1{
-    display: none;
-    button{
-      margin: auto;
-    }
-    .selectContainer{
-      :global{
-        .ant-form-item{
-          margin-bottom: .5rem;
-          .ant-form-item-label{
-            margin-right: .2rem;
-          }
-          .ant-form-item-control{
-            width:4rem;
-          }
-        }
-        .ant-form-item:nth-child(3){
-          margin-left: .1rem;
-        }
-      }
-    }
-  }
+@import '@/assets/styles/variables.less';
+.createModal {
+	.step {
+		transition: opacity ease-in-out 0.5s;
+		.selectContainer {
+			display: flex;
+			width: 4.5rem;
+			height: 4rem;
+			margin-bottom: 0.1rem;
+		}
+		.btns {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			button {
+				height: 0.32rem;
+				width: 0.68rem;
+				font-size: 0.12rem;
+			}
+		}
+	}
+	.step0 {
+		display: block;
+		.selectContainer {
+			.friendList {
+				width: 2.25rem;
+				border: @primary-border_bg-color 0.002rem solid;
+				border-top: none;
+				.nodeContent {
+					display: flex;
+					align-items: center;
+					justify-content: space-between;
+					padding-right: 0.1rem;
+					img {
+						width: 0.35rem;
+						height: 0.35rem;
+						margin-right: 0.2rem;
+					}
+					span {
+						font-size: 0.15rem;
+						color: @font-color;
+						overflow: hidden;
+						white-space: nowrap;
+					}
+				}
+			}
+			.selectList {
+				width: 2.25rem;
+				border: @primary-border_bg-color 0.002rem solid;
+				border-top: none;
+				.friendInfo {
+					display: flex;
+					border-bottom: 0.005rem solid @primary-border_bg-color;
+					.avatar {
+						width: 0.5rem;
+						height: 0.5rem;
+						img {
+							width: 0.4rem;
+							height: 0.4rem;
+							margin: 0.05rem;
+						}
+					}
+					.username {
+						display: flex;
+						width: 1.5rem;
+						align-items: center;
+						margin-left: 0.2rem;
+						font-size: 0.2rem;
+						white-space: nowrap;
+						overflow-x: scroll;
+					}
+					.username::-webkit-scrollbar {
+						display: none;
+					}
+				}
+			}
+			.title {
+				width: 100%;
+				height: 0.4rem;
+				line-height: 0.4rem;
+				text-align: center;
+				font-size: 0.14rem;
+				color: @font-color-light;
+				background-color: #f3f3f3;
+			}
+			.list {
+				width: 100%;
+				height: 3.6rem;
+				overflow: scroll;
+			}
+			.list::-webkit-scrollbar {
+				width: 0.01rem;
+			}
+			.list::-webkit-scrollbar-thumb {
+				border-radius: 0.05rem;
+				background-color: transparent;
+			}
+			.list:hover::-webkit-scrollbar-thumb {
+				background-color: @scrollbar-thumb-color;
+			}
+		}
+		button {
+			margin-left: auto;
+		}
+	}
+	.step1 {
+		display: none;
+		button {
+			margin: auto;
+		}
+		.selectContainer {
+			:global {
+				.ant-form-item {
+					margin-bottom: 0.5rem;
+					.ant-form-item-label {
+						margin-right: 0.2rem;
+					}
+					.ant-form-item-control {
+						width: 4rem;
+					}
+				}
+				.ant-form-item:nth-child(3) {
+					margin-left: 0.1rem;
+				}
+			}
+		}
+	}
 }

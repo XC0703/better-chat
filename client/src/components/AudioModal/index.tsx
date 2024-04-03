@@ -1,4 +1,4 @@
-import { App, Modal } from 'antd';
+import { Modal } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
 import { CallStatus, callStatusType, ICallModalProps, IConnectParams } from './api/type';
@@ -6,11 +6,12 @@ import styles from './index.module.less';
 
 import { CallIcons, CallBgImage } from '@/assets/images';
 import { wsBaseURL } from '@/config';
-import { toggleTime_call } from '@/utils/formatTime';
+import useShowMessage from '@/hooks/useShowMessage';
 import { userStorage } from '@/utils/storage';
+import { formatCallTime } from '@/utils/time';
 
 const AudioModal = (props: ICallModalProps) => {
-	const { message } = App.useApp();
+	const showMessage = useShowMessage();
 	const { openmodal, handleModal, status, friendInfo } = props;
 	const [callStatus, setCallStatus] = useState<callStatusType>(status);
 	const [duration, setDuration] = useState<number>(0);
@@ -82,8 +83,8 @@ const AudioModal = (props: ICallModalProps) => {
 							receiver_username: friendInfo?.receiver_username
 						})
 					);
-				} catch (error) {
-					message.error('检测到当前设备不支持麦克风, 请设置权限后在重试', 1.5);
+				} catch {
+					showMessage('error', '获取音频流失败，请检查设备是否正常或者权限是否已开启');
 					socket.current!.send(JSON.stringify({ name: 'reject' }));
 					socket.current!.close();
 					socket.current = null;
@@ -110,7 +111,7 @@ const AudioModal = (props: ICallModalProps) => {
 					}
 					setTimeout(() => {
 						handleModal(false);
-						message.info(data.result, 1.5);
+						showMessage('error', data.result);
 					}, 1500);
 					break;
 				/**
@@ -176,7 +177,7 @@ const AudioModal = (props: ICallModalProps) => {
 					}
 					setTimeout(() => {
 						handleModal(false);
-						message.info('对方已挂断', 1.5);
+						showMessage('info', '对方已挂断');
 					}, 1500);
 					break;
 				default:
@@ -184,7 +185,7 @@ const AudioModal = (props: ICallModalProps) => {
 			}
 		};
 		ws.onerror = () => {
-			message.error('websocket 连接错误', 1.5);
+			showMessage('error', 'websocket 连接错误');
 		};
 		socket.current = ws;
 	};
@@ -211,8 +212,8 @@ const AudioModal = (props: ICallModalProps) => {
 					receiver_username: friendInfo?.receiver_username
 				})
 			);
-		} catch (error) {
-			message.error('检测到当前设备不支持麦克风和相机, 请设置权限后在重试', 1.5);
+		} catch {
+			showMessage('error', '获取音频流失败，请检查设备是否正常或者权限是否已开启');
 			socket.current!.send(JSON.stringify({ name: 'reject' }));
 			socket.current?.close();
 			socket.current = null;
@@ -238,7 +239,7 @@ const AudioModal = (props: ICallModalProps) => {
 			if (localStream.current) {
 				localStream.current!.getAudioTracks()[0].stop();
 			}
-			message.info('已挂断通话', 1.5);
+			showMessage('info', '已挂断通话');
 		}, 1500);
 	};
 
@@ -301,7 +302,7 @@ const AudioModal = (props: ICallModalProps) => {
 						)}
 						{callStatus === CallStatus.CALLING && (
 							<>
-								<span className={styles.callWords}>{toggleTime_call(duration)}</span>
+								<span className={styles.callWords}>{formatCallTime(duration)}</span>
 								<video
 									src=""
 									ref={videoRef}

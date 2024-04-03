@@ -1,5 +1,5 @@
 import { WechatOutlined } from '@ant-design/icons';
-import { Tabs, Tree, Tooltip, TabsProps, App, Form, Input, Select, Button, Modal } from 'antd';
+import { Tabs, Tree, Tooltip, TabsProps, Form, Input, Select, Button, Modal } from 'antd';
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 
 import {
@@ -25,6 +25,8 @@ import { StatusIconList } from '@/assets/icons';
 import CreateGroupChatModal from '@/components/CreateGroupChatModal';
 import SearchContainer from '@/components/SearchContainer';
 import { serverURL } from '@/config';
+import useShowMessage from '@/hooks/useShowMessage';
+import { HttpStatus } from '@/utils/constant';
 import { userStorage } from '@/utils/storage';
 
 const { DirectoryTree } = Tree;
@@ -35,7 +37,7 @@ interface IAddressBookProps {
 
 const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 	const { handleChooseChat } = props;
-	const { message } = App.useApp();
+	const showMessage = useShowMessage();
 	const [curTab, setCurTab] = useState<string>('1'); // 当前 tab 是好友还是群聊
 	const [friendList, setFriendList] = useState<IFriendGroup[]>([]); // 好友列表
 	const [groupChatList, setGroupChatList] = useState<IGroupChatItem[]>([]); // 群聊列表
@@ -96,9 +98,10 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 		};
 	});
 	// 根据节点的 key 获取节点的信息
-	const getNodeInfoById = (id: number) => {
-		getFriendInfoById(id).then(res => {
-			if (res.code === 200 && res.data) {
+	const getNodeInfoById = async (id: number) => {
+		try {
+			const res = await getFriendInfoById(id);
+			if (res.code === HttpStatus.SUCCESS && res.data) {
 				setCurFriendInfo(res.data);
 				infoChangeInstance?.setFieldsValue({
 					username: res.data.username,
@@ -107,9 +110,11 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 					newGroup: res.data.group_id
 				});
 			} else {
-				message.error('获取好友信息失败', 1.5);
+				showMessage('error', '获取好友信息失败');
 			}
-		});
+		} catch {
+			showMessage('error', '获取好友信息失败');
+		}
 	};
 	const onSelect: DirectoryTreeProps['onSelect'] = (selectedKeys, info) => {
 		// 获取节点信息
@@ -117,89 +122,108 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 	};
 
 	// 刷新好友列表
-	const refreshFriendList = () => {
-		getFriendList().then(res => {
-			if (res.code === 200 && res.data) {
+	const refreshFriendList = async () => {
+		try {
+			const res = await getFriendList();
+			if (res.code === HttpStatus.SUCCESS && res.data) {
 				setFriendList(res.data);
 			} else {
-				message.error('获取好友数据失败', 1.5);
+				showMessage('error', '获取好友列表失败');
 			}
-		});
+		} catch {
+			showMessage('error', '获取好友列表失败');
+		}
 	};
 
 	// 获取好友分组列表
-	const getFriendGroupList = () => {
-		getFriendGroup().then(res => {
-			if (res.code === 200 && res.data) {
+	const getFriendGroupList = async () => {
+		try {
+			const res = await getFriendGroup();
+			if (res.code === HttpStatus.SUCCESS && res.data) {
 				setGroupList(res.data);
 			} else {
-				message.error('获取好友数据失败', 1.5);
+				showMessage('error', '获取好友分组列表失败');
 			}
-		});
+		} catch {
+			showMessage('error', '获取好友分组列表失败');
+		}
 	};
 
 	// 修改好友信息
 	const updateFriend = () => {
-		infoChangeInstance.validateFields().then(values => {
-			const params = {
-				friend_id: curFriendInfo?.friend_id as number,
-				remark: values.newRemark,
-				group_id: values.newGroup
-			};
-			updateFriendInfo(params).then(res => {
-				if (res.code === 200) {
-					message.success('修改成功', 1.5);
+		infoChangeInstance.validateFields().then(async values => {
+			try {
+				const params = {
+					friend_id: curFriendInfo?.friend_id as number,
+					remark: values.newRemark,
+					group_id: values.newGroup
+				};
+				const res = await updateFriendInfo(params);
+				if (res.code === HttpStatus.SUCCESS) {
+					showMessage('success', '修改成功');
 					refreshFriendList();
 				} else {
-					message.error('修改失败', 1.5);
+					showMessage('error', '修改失败，请重试');
 				}
-			});
+			} catch {
+				showMessage('error', '修改失败，请重试');
+			}
 		});
 	};
 
 	// 新建分组
-	const createGroup = () => {
+	const createGroup = async () => {
 		if (!newGroupName) {
-			message.error('请输入分组名称', 1.5);
+			showMessage('error', '请输入分组名称');
 			return;
 		}
-		const params = {
-			user_id: JSON.parse(userStorage.getItem()).id,
-			username: JSON.parse(userStorage.getItem()).username,
-			name: newGroupName
-		};
-		createFriendGroup(params).then(res => {
-			if (res.code === 200) {
-				message.success('新建成功', 1.5);
+
+		try {
+			const params = {
+				user_id: JSON.parse(userStorage.getItem()).id,
+				username: JSON.parse(userStorage.getItem()).username,
+				name: newGroupName
+			};
+			const res = await createFriendGroup(params);
+			if (res.code === HttpStatus.SUCCESS) {
+				showMessage('success', '新建成功');
 				refreshFriendList();
 				getFriendGroupList();
 				setOpenCreateGroupModal(false);
 			} else {
-				message.error('新建失败', 1.5);
+				showMessage('error', '新建失败，请重试');
 			}
-		});
+		} catch {
+			showMessage('error', '新建失败，请重试');
+		}
 	};
 
 	// 获取群聊列表
-	const refreshGroupChatList = () => {
-		getGroupChatList().then(res => {
-			if (res.code === 200) {
+	const refreshGroupChatList = async () => {
+		try {
+			const res = await getGroupChatList();
+			if (res.code === HttpStatus.SUCCESS) {
 				setGroupChatList(res.data);
 			} else {
-				message.error('获取群聊数据失败', 1.5);
+				showMessage('error', '获取群聊列表失败');
 			}
-		});
+		} catch {
+			showMessage('error', '获取群聊列表失败');
+		}
 	};
 
 	// 选择某一群聊
-	const handleSelectGroupChat = (item: IGroupChatItem) => {
-		getGroupChatInfo(item.id).then(res => {
-			if (res.code === 200) {
+	const handleSelectGroupChat = async (item: IGroupChatItem) => {
+		try {
+			const res = await getGroupChatInfo(item.id);
+			if (res.code === HttpStatus.SUCCESS) {
 				setCurGroupChatInfo(res.data);
 			} else {
-				message.error('获取群聊信息失败', 1.5);
+				showMessage('error', '获取群聊信息失败');
 			}
-		});
+		} catch {
+			showMessage('error', '获取群聊信息失败');
+		}
 	};
 
 	// 群聊具体信息 tabs 标签切换

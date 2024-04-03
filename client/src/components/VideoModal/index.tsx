@@ -1,4 +1,4 @@
-import { App, Modal } from 'antd';
+import { Modal } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
 import styles from './index.module.less';
@@ -11,11 +11,12 @@ import {
 
 import { CallIcons, CallBgImage } from '@/assets/images';
 import { wsBaseURL } from '@/config';
-import { toggleTime_call } from '@/utils/formatTime';
+import useShowMessage from '@/hooks/useShowMessage';
 import { userStorage } from '@/utils/storage';
+import { formatCallTime } from '@/utils/time';
 
 const VideoModal = (props: ICallModalProps) => {
-	const { message } = App.useApp();
+	const showMessage = useShowMessage();
 	const { openmodal, handleModal, status, friendInfo } = props;
 	const [callStatus, setCallStatus] = useState<callStatusType>(status);
 	const [duration, setDuration] = useState<number>(0);
@@ -88,8 +89,8 @@ const VideoModal = (props: ICallModalProps) => {
 							receiver_username: friendInfo?.receiver_username
 						})
 					);
-				} catch (error) {
-					message.error('检测到当前设备不支持麦克风和相机, 请设置权限后在重试', 1.5);
+				} catch {
+					showMessage('error', '获取音频流失败，请检查设备是否正常或者权限是否已开启');
 					socket.current!.send(JSON.stringify({ name: 'reject' }));
 					socket.current!.close();
 					socket.current = null;
@@ -118,7 +119,7 @@ const VideoModal = (props: ICallModalProps) => {
 					}
 					setTimeout(() => {
 						handleModal(false);
-						message.info(data.result, 1.5);
+						showMessage('error', data.result);
 					}, 1500);
 					break;
 				/**
@@ -185,7 +186,7 @@ const VideoModal = (props: ICallModalProps) => {
 					}
 					setTimeout(() => {
 						handleModal(false);
-						message.info('对方已挂断', 1.5);
+						showMessage('info', '对方已挂断');
 					}, 1500);
 					break;
 				default:
@@ -193,7 +194,7 @@ const VideoModal = (props: ICallModalProps) => {
 			}
 		};
 		ws.onerror = () => {
-			message.error('websocket 连接错误', 1.5);
+			showMessage('error', 'websocket 连接错误');
 		};
 		socket.current = ws;
 	};
@@ -221,8 +222,8 @@ const VideoModal = (props: ICallModalProps) => {
 					receiver_username: friendInfo?.receiver_username
 				})
 			);
-		} catch (error) {
-			message.error('检测到当前设备不支持麦克风和相机, 请设置权限后在重试', 1.5);
+		} catch {
+			showMessage('error', '获取音频流失败，请检查设备是否正常或者权限是否已开启');
 			socket.current!.send(JSON.stringify({ name: 'reject' }));
 			socket.current?.close();
 			socket.current = null;
@@ -250,7 +251,7 @@ const VideoModal = (props: ICallModalProps) => {
 				localStream.current!.getAudioTracks()[0].stop();
 				localStream.current!.getVideoTracks()[0].stop();
 			}
-			message.info('已挂断通话', 1.5);
+			showMessage('info', '已挂断通话');
 		}, 1500);
 	};
 
@@ -279,8 +280,8 @@ const VideoModal = (props: ICallModalProps) => {
 			const getUserMediaAsync = async () => {
 				try {
 					selfVideoRef.current!.srcObject = localStream.current;
-				} catch (error) {
-					message.error('检测到当前设备不支持麦克风和相机, 请设置权限后在重试', 1.5);
+				} catch {
+					showMessage('error', '获取音频流失败，请检查设备是否正常或者权限是否已开启');
 					socket.current!.send(JSON.stringify({ name: 'reject' }));
 					socket.current!.close();
 					socket.current = null;
@@ -351,7 +352,7 @@ const VideoModal = (props: ICallModalProps) => {
 								<video src="" ref={selfVideoRef} autoPlay></video>
 							</div>
 							<div className={styles.bottom}>
-								<span className={styles.callWords}>{toggleTime_call(duration)}</span>
+								<span className={styles.callWords}>{formatCallTime(duration)}</span>
 								<div className={styles.callIcons}>
 									<img src={CallIcons.REJECT} alt="" onClick={handleRejectCall} />
 								</div>

@@ -6,7 +6,8 @@
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"start": "nodemon index.js",
-		"eslint": "eslint **/*.js --ignore-pattern node_modules/"
+		"eslint": "eslint --fix **/*.js --ignore-pattern node_modules/",
+		"prettier": "prettier --write **/*.js --ignore-pattern node_modules/"
 	},
 	"keywords": [],
 	"author": "",
@@ -21,6 +22,7 @@
 		"jsonwebtoken": "^9.0.0",
 		"mysql": "^2.18.1",
 		"nodemon": "^2.0.22",
+		"prettier": "^3.2.5",
 		"uuid": "^9.0.0"
 	},
 	"devDependencies": {

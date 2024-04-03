@@ -1,10 +1,11 @@
-import { App, Image, Modal } from 'antd';
+import { Image, Modal } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
 import styles from './index.module.less';
 
 import { ChatImage } from '@/assets/images';
 import { serverURL } from '@/config';
+import useShowMessage from '@/hooks/useShowMessage';
 import { IMessage } from '@/pages/container/ChatList/api/type';
 import {
 	getMediaSize,
@@ -13,8 +14,8 @@ import {
 	getFileIcons,
 	downloadFile
 } from '@/utils/file';
-import { toggleTime_chatContent } from '@/utils/formatTime';
 import { userStorage } from '@/utils/storage';
+import { formatChatContentTime } from '@/utils/time';
 
 // 给聊天框组件传递的参数
 interface IChatContainer {
@@ -34,7 +35,7 @@ interface IMediaInfo {
 }
 
 const ChatContainer = (props: IChatContainer) => {
-	const { message } = App.useApp();
+	const showMessage = useShowMessage();
 	const { historyMsg } = props;
 	const chatRef = useRef<HTMLDivElement>(null);
 	let prevTime: string | null = null;
@@ -54,23 +55,14 @@ const ChatContainer = (props: IChatContainer) => {
 		const [isVideoPlay, setIsVideoPlay] = useState<boolean>(false);
 
 		useEffect(() => {
-			if (messageType === 'image') {
-				const imageUrl = serverURL + messageContent;
-				getMediaSize(imageUrl, 'image')
+			if (messageType === 'image' || messageType === 'video') {
+				const mediaURL = serverURL + messageContent;
+				getMediaSize(mediaURL, messageType)
 					.then(size => {
-						setCurMediaInfo({ type: 'image', url: imageUrl, size });
+						setCurMediaInfo({ type: messageType, url: mediaURL, size });
 					})
 					.catch(() => {
-						message.error('获取图片尺寸失败！', 1.5);
-					});
-			} else if (messageType === 'video') {
-				const videoUrl = serverURL + messageContent;
-				getMediaSize(videoUrl, 'video')
-					.then(size => {
-						setCurMediaInfo({ type: 'video', url: videoUrl, size });
-					})
-					.catch(() => {
-						message.error('获取视频尺寸失败！', 1.5);
+						showMessage('error', `获取${messageType === 'image' ? '图片' : '视频'}尺寸失败`);
 					});
 			}
 		}, [messageType, messageContent]);
@@ -140,14 +132,14 @@ const ChatContainer = (props: IChatContainer) => {
 	return (
 		<div className={styles.chat_container} ref={chatRef}>
 			{historyMsg.map((item, index) => {
-				const showTime = toggleTime_chatContent(item.created_at) !== prevTime;
-				prevTime = toggleTime_chatContent(item.created_at);
+				const showTime = formatChatContentTime(item.created_at) !== prevTime;
+				prevTime = formatChatContentTime(item.created_at);
 
 				return (
 					<div key={index} className={styles.chat_item}>
 						{showTime && item.created_at && (
 							<div className={styles.chat_notice}>
-								<span>{toggleTime_chatContent(item.created_at)}</span>
+								<span>{formatChatContentTime(item.created_at)}</span>
 							</div>
 						)}
 						{item.sender_id === JSON.parse(userStorage.getItem()).id ? (

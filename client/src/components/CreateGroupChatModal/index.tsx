@@ -1,12 +1,14 @@
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
-import { App, Button, Modal, Tree, Upload, Form, Input } from 'antd';
+import { Button, Modal, Tree, Upload, Form, Input } from 'antd';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { getFriendList, createGroup, inviteFriends } from './api';
 import { IFriend, IFriendGroup, IGroupMember, ICreateGroupParams } from './api/type';
 import styles from './index.module.less';
 
+import useShowMessage from '@/hooks/useShowMessage';
 import { IGroupChatInfo } from '@/pages/container/AddressBook/api/type';
+import { HttpStatus } from '@/utils/constant';
 
 interface IChangeInfoModal {
 	type: 'create' | 'invite';
@@ -15,7 +17,7 @@ interface IChangeInfoModal {
 	handleModal: (open: boolean) => void;
 }
 const CreateGroupModal = (props: IChangeInfoModal) => {
-	const { message } = App.useApp();
+	const showMessage = useShowMessage();
 	const { type, groupChatInfo, openmodal, handleModal } = props;
 
 	const [friendList, setFriendList] = useState<IFriendGroup[]>([]); // 好友列表
@@ -47,14 +49,17 @@ const CreateGroupModal = (props: IChangeInfoModal) => {
 	});
 
 	// 刷新好友列表
-	const refreshFriendList = () => {
-		getFriendList().then(res => {
-			if (res.code === 200 && res.data) {
+	const refreshFriendList = async () => {
+		try {
+			const res = await getFriendList();
+			if (res.code === HttpStatus.SUCCESS && res.data) {
 				setFriendList(res.data);
 			} else {
-				message.error('获取好友数据失败', 1.5);
+				showMessage('error', '好友数据获取失败');
 			}
-		});
+		} catch {
+			showMessage('error', '好友数据获取失败');
+		}
 	};
 
 	// 关闭弹窗
@@ -85,7 +90,7 @@ const CreateGroupModal = (props: IChangeInfoModal) => {
 					}
 				}, 500);
 			} else {
-				message.info('请至少选择一位好友加入群聊！', 1.5);
+				showMessage('error', '请至少选择一位好友加入群聊');
 			}
 		}
 	};
@@ -104,7 +109,7 @@ const CreateGroupModal = (props: IChangeInfoModal) => {
 				setImageUrl(base64 as string);
 			};
 		} else {
-			message.error('图片文件不能超过 2M！', 1.5);
+			showMessage('error', '图片文件不能超过 2M');
 		}
 	};
 
@@ -119,7 +124,7 @@ const CreateGroupModal = (props: IChangeInfoModal) => {
 
 	// 创建群聊
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const handleCreateGroup = (values: any) => {
+	const handleCreateGroup = async (values: any) => {
 		setLoading(true);
 		// 将第一步的好友数据筛选并作格式转化
 		const selectedFriends: IGroupMember[] = [];
@@ -133,38 +138,38 @@ const CreateGroupModal = (props: IChangeInfoModal) => {
 						avatar: parsedItem.avatar
 					});
 				}
-			} catch (error) {
+			} catch {
 				/* empty */
 			}
 		});
 
-		// 拼接选中好友数据、群聊头像（base64 编码、文件）、群名、公告（可空）
-		const createGroupParams: ICreateGroupParams = {
-			name: values.groupName,
-			announcement: values.announcement ? values.announcement : null,
-			members: selectedFriends,
-			avatar: imageUrl as string
-		};
-		createGroup(createGroupParams)
-			.then(res => {
-				if (res.code === 200) {
-					message.success('创建群聊成功！', 1.5);
-					setLoading(false);
-					handleCancel();
-				} else {
-					message.error('创建群聊失败！', 1.5);
-					setLoading(false);
-				}
-			})
-			.catch(() => {
-				message.error('创建群聊失败！', 1.5);
+		try {
+			// 拼接选中好友数据、群聊头像（base64 编码、文件）、群名、公告（可空）
+			const createGroupParams: ICreateGroupParams = {
+				name: values.groupName,
+				announcement: values.announcement ? values.announcement : null,
+				members: selectedFriends,
+				avatar: imageUrl as string
+			};
+			const res = await createGroup(createGroupParams);
+			if (res.code === HttpStatus.SUCCESS) {
+				showMessage('success', '创建群聊成功');
 				setLoading(false);
-			});
+				handleCancel();
+			} else {
+				showMessage('error', '创建群聊失败，请重试');
+				setLoading(false);
+			}
+		} catch {
+			showMessage('error', '创建群聊失败，请重试');
+			setLoading(false);
+		}
 	};
 
 	// 群聊弹窗类型是邀请新的好友时
-	const handlInvite = () => {
+	const handlInvite = async () => {
 		if (checkedFriends.length !== 0) {
+			setLoading(true);
 			// 将第一步的好友数据筛选并作格式转化
 			const selectedFriends: IGroupMember[] = [];
 			checkedFriends.map(item => {
@@ -177,26 +182,34 @@ const CreateGroupModal = (props: IChangeInfoModal) => {
 							avatar: parsedItem.avatar
 						});
 					}
-				} catch (error) {
+				} catch {
 					/* empty */
 				}
 			});
-			const inviteFriendsParams = {
-				groupId: groupChatInfo?.id as number,
-				invitationList: selectedFriends
-			};
-			inviteFriends(inviteFriendsParams).then(res => {
-				if (res.code === 200) {
-					message.success('邀请成功！', 1.5);
+
+			try {
+				const inviteFriendsParams = {
+					groupId: groupChatInfo?.id as number,
+					invitationList: selectedFriends
+				};
+				const res = await inviteFriends(inviteFriendsParams);
+				if (res.code === HttpStatus.SUCCESS) {
+					showMessage('success', '邀请成功');
+					setLoading(false);
 					handleCancel();
 				} else if (res.code === 4009) {
-					message.info('你邀请的好友都已经加入群聊！', 1.5);
+					showMessage('error', '你邀请的好友都已经加入群聊');
+					setLoading(false);
 				} else {
-					message.error('邀请失败！', 1.5);
+					showMessage('error', res.message);
+					setLoading(false);
 				}
-			});
+			} catch {
+				showMessage('error', '邀请失败，请重试');
+				setLoading(false);
+			}
 		} else {
-			message.info('请至少选择一位好友加入群聊！', 1.5);
+			showMessage('error', '请至少邀请一位好友');
 		}
 	};
 
@@ -262,7 +275,7 @@ const CreateGroupModal = (props: IChangeInfoModal) => {
 													</div>
 												);
 											}
-										} catch (error) {
+										} catch {
 											/* empty */
 										}
 									})}

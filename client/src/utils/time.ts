@@ -31,9 +31,9 @@ const getDateDiff = (date: Date) => {
 };
 
 // 格式化时间 -- 用于聊天列表
-// toggleTime_chatList 函数与 toggleTime_chatContent 函数相似，也是接收一个日期参数 date，根据该日期与当前时间的关系，返回一个字符串表示的时间。
+// formatChatListTime 函数与 formatChatContentTime 函数相似，也是接收一个日期参数 date，根据该日期与当前时间的关系，返回一个字符串表示的时间。
 // 不同的是，它返回的时间格式有所不同，包括 "刚刚"、"H:mm"、"昨天"、"M 月 D 日" 和 "YYYY 年 M 月 D 日"。
-export const toggleTime_chatList = (date: Date) => {
+export const formatChatListTime = (date: Date) => {
 	let time;
 	const type = getDateDiff(date);
 	switch (type) {
@@ -57,9 +57,9 @@ export const toggleTime_chatList = (date: Date) => {
 };
 
 // 格式化时间 -- 用于聊天内容
-// toggleTime_chatContent 函数接收一个日期参数 date，根据该日期与当前时间的关系，返回一个字符串表示的时间。
+// formatChatContentTime 函数接收一个日期参数 date，根据该日期与当前时间的关系，返回一个字符串表示的时间。
 // 根据不同的情况，返回的时间格式有所不同，包括 "刚刚"、"H:mm"、"昨天 H:mm"、"M 月 D 日 AH:mm" 和 "YYYY 年 M 月 D 日 AH:mm"。
-export const toggleTime_chatContent = (date: Date) => {
+export const formatChatContentTime = (date: Date) => {
 	let time = '';
 	const type = getDateDiff(date);
 	switch (type) {
@@ -86,7 +86,7 @@ export const toggleTime_chatContent = (date: Date) => {
 };
 
 // 格式化时间 -- 用于展示音视频通话时长
-export const toggleTime_call = (duration: number) => {
+export const formatCallTime = (duration: number) => {
 	const hour =
 		duration / 3600 < 10 ? '0' + Math.floor(duration / 3600) : Math.floor(duration / 3600);
 	const minute =

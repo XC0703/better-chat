@@ -41,3 +41,10 @@ export const decrypt = async (str: string) => {
 	);
 	return new TextDecoder().decode(decrypted);
 };
+
+// 随机生成一个字符串进行显示加密
+export const generateRandomString = () => {
+	const randomValues = new Uint32Array(4);
+	crypto.getRandomValues(randomValues);
+	return Array.from(randomValues, decimal => decimal.toString(16)).join('');
+};

@@ -1,126 +1,127 @@
-.chatList{
-  display: flex;
-  .leftContainer{
-    flex:5;
-    background-color: #e5e5e5;
-    display: flex;
-    flex-direction: column;
-    border-right: #e5e5e5 0.002rem solid;
-    height: 6rem;
-    .search{
-      height: 0.6rem;
-    }
-    .list{
-      height: 5.4rem;
-      overflow: auto;
-      overflow-Y: scroll;
-      overflow: overlay;
-      .chat_none{
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: .2rem;
-        color: #999;
-      }
-      .chat_item{
-        height: .7rem;
-        display: flex;
-        border-bottom: .005rem solid #d3d1d1;
-        cursor: pointer;
-        .chat_avatar{
-          flex:1;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          img{
-            width:.5rem;
-            height:.5rem;
-          }
-        }
-        .chat_info{
-          flex:2;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          padding-left: .1rem;
-          padding-right: .1rem;
-          .chat_name{
-            font-size: .15rem;
-          }
-          .chat_message{
-            font-size: .12rem;
-            width:1rem;
-            color: #999;
-            white-space: nowrap; /* 禁止文本换行 */
-            overflow: hidden; /* 隐藏超出部分 */
-            text-overflow: ellipsis; /* 使用省略号表示 */
-          }
-        }
-        .chat_info_time{
-          flex:1;
-          display: flex;
-          flex-direction: column;
-          padding: .12rem .1rem 0 .1rem;
-          .chat_time{
-            font-size: .12rem;
-            color: #999;
-            width:0.5rem;
-            white-space: nowrap; /* 禁止文本换行 */
-            overflow: hidden; /* 隐藏超出部分 */
-            text-overflow: ellipsis; /* 使用省略号表示 */
-          }
-          .chat_unread{
-            font-size: .12rem;
-            color: #999;
-            display: flex;
-            justify-content: center;
-          }
-        }
-      }
-      .chat_item:hover{
-        background-color: rgba(0, 0, 0, 0.04);
-      }
-    }
-    .list::-webkit-scrollbar {
-      width: 0.01rem;
-    }
-    .list::-webkit-scrollbar-thumb {
-      border-radius: 0.05rem;
-      background-color:transparent;
-    }
-    .list:hover::-webkit-scrollbar-thumb {
-      background-color: rgba(106, 184, 106, 0.4);
-    }
-  }
-  .rightContainer{
-    flex:12;
-    background-color: #f5f5f5;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    .chat_window{
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      .chat_receiver{
-        height: .6rem;
-        font-size: .2rem;
-        display: flex;
-        align-items: center;
-        padding-left: .2rem;
-      }
-      .chat_content{
-        height:3.2rem;
-        padding-top: .1rem;
-        border-top: 0.01rem solid #e5e5e5;
-        border-bottom: 0.01rem solid #e5e5e5;
-      }
-      .chat_input{
-        height: 2.2rem;
-      }
-    }
-  }
+@import '@/assets/styles/variables.less';
+.chatList {
+	display: flex;
+	.leftContainer {
+		flex: 5;
+		background-color: @primary-border_bg-color;
+		display: flex;
+		flex-direction: column;
+		border-right: @primary-border_bg-color 0.002rem solid;
+		height: 6rem;
+		.search {
+			height: 0.6rem;
+		}
+		.list {
+			height: 5.4rem;
+			overflow: auto;
+			overflow-y: scroll;
+			overflow: overlay;
+			.chat_none {
+				width: 100%;
+				height: 100%;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				font-size: 0.2rem;
+				color: @font-color-lightest;
+			}
+			.chat_item {
+				height: 0.7rem;
+				display: flex;
+				border-bottom: 0.005rem solid @item-border-color;
+				cursor: pointer;
+				.chat_avatar {
+					flex: 1;
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					img {
+						width: 0.5rem;
+						height: 0.5rem;
+					}
+				}
+				.chat_info {
+					flex: 2;
+					display: flex;
+					flex-direction: column;
+					justify-content: center;
+					padding-left: 0.1rem;
+					padding-right: 0.1rem;
+					.chat_name {
+						font-size: 0.15rem;
+					}
+					.chat_message {
+						font-size: 0.12rem;
+						width: 1rem;
+						color: @font-color-lightest;
+						white-space: nowrap; /* 禁止文本换行 */
+						overflow: hidden; /* 隐藏超出部分 */
+						text-overflow: ellipsis; /* 使用省略号表示 */
+					}
+				}
+				.chat_info_time {
+					flex: 1;
+					display: flex;
+					flex-direction: column;
+					padding: 0.12rem 0.1rem 0 0.1rem;
+					.chat_time {
+						font-size: 0.12rem;
+						color: @font-color-lightest;
+						width: 0.5rem;
+						white-space: nowrap; /* 禁止文本换行 */
+						overflow: hidden; /* 隐藏超出部分 */
+						text-overflow: ellipsis; /* 使用省略号表示 */
+					}
+					.chat_unread {
+						font-size: 0.12rem;
+						color: @font-color-lightest;
+						display: flex;
+						justify-content: center;
+					}
+				}
+			}
+			.chat_item:hover {
+				background-color: @item-hover-bg-color;
+			}
+		}
+		.list::-webkit-scrollbar {
+			width: 0.01rem;
+		}
+		.list::-webkit-scrollbar-thumb {
+			border-radius: 0.05rem;
+			background-color: transparent;
+		}
+		.list:hover::-webkit-scrollbar-thumb {
+			background-color: @scrollbar-thumb-color;
+		}
+	}
+	.rightContainer {
+		flex: 12;
+		background-color: #f5f5f5;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		.chat_window {
+			width: 100%;
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+			.chat_receiver {
+				height: 0.6rem;
+				font-size: 0.2rem;
+				display: flex;
+				align-items: center;
+				padding-left: 0.2rem;
+			}
+			.chat_content {
+				height: 3.2rem;
+				padding-top: 0.1rem;
+				border-top: 0.01rem solid @primary-border_bg-color;
+				border-bottom: 0.01rem solid @primary-border_bg-color;
+			}
+			.chat_input {
+				height: 2.2rem;
+			}
+		}
+	}
 }

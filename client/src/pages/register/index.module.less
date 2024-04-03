@@ -1,81 +1,86 @@
-.bgContainer{
-  background: no-repeat center center fixed;
-  background-size: cover;
-  height: 100%;
-  width: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  form{
-    background-color: rgba(255, 255, 255, 0.2);
-    overflow: hidden;
-    width:4.5rem;
-    position: absolute;
-    top: 40%;
-    left:50%;
-    margin-left: -2.25rem;
-    transform: translateY(-50%);
-    backdrop-filter: blur(0.05rem);
-    .registertext{
-      margin-bottom: 0.2rem;
-      line-height: 0.5rem;
-      text-align: center;
-      font-size: 0.3rem;
-      font-weight: bolder;
-      color: #fff;
-      text-shadow: 0.02rem 0.02rem 0.04rem #000000;
-    }
-    .registeroptions{
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap:0.2rem;
-      input{
-        height: 0.3rem;
-        width: 80%;
-        padding:0.04rem 0.1rem;
-        border-radius: 0.02rem;
-        font-size: 0.14rem;
-        &:focus{
-            border:0.01rem solid #28a770;
-        }
-      }
-      input:hover{
-        border:0.01rem solid #28a770;
-      }
-      .register_button{
-        background: #17b98d;
-        box-shadow: 0 .04rem .84rem 0 rgba(27, 198, 161, 0.32);
-        border-radius: .04rem;
-        width:1.5rem;
-        height: .3rem;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        letter-spacing:.15rem;
-        text-indent: .15rem;
-        transition: all .3s ease-in-out;
-        &:hover{
-          background: #28a770;
-        }
-        span{
-          color: #fff;
-          font-size: .16rem;
-        }
-      }
-      .register_link{
-        text-align: center;
-        cursor: pointer;
-        margin-bottom: 0.1rem;
-        a{
-          color: #e3e2e2;
-          font-size: .14rem;
-        }
-        a:hover {
-          border-bottom: 0.01rem solid #e3e2e2;
-        }
-      }
-    }
-  }
+@import '@/assets/styles/variables.less';
+.bgContainer {
+	background: no-repeat center center fixed;
+	background-size: cover;
+	height: 100%;
+	width: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	.registerContainer {
+		background-color: @bg-filter-color;
+		overflow: hidden;
+		z-index: 10;
+		width: 4.5rem;
+		position: absolute;
+		top: 40%;
+		left: 50%;
+		margin-left: -2.25rem;
+		transform: translateY(-50%);
+		backdrop-filter: blur(0.05rem);
+		.text {
+			margin-bottom: 0.2rem;
+			line-height: 0.5rem;
+			text-align: center;
+			font-size: 0.3rem;
+			font-weight: bolder;
+			color: @primary-color;
+			text-shadow: 0.02rem 0.02rem 0.04rem @font-color;
+		}
+		form {
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			:global {
+				.ant-form-item {
+					width: 80%;
+					.ant-form-item-control-input-content {
+						display: flex;
+						justify-content: center;
+					}
+				}
+			}
+			input {
+				height: 0.3rem;
+				width: 100%;
+				padding: 0.04rem 0.1rem;
+				border-radius: 0.02rem;
+				font-size: 0.14rem;
+			}
+			.register_button {
+				background: #17b98d;
+				box-shadow: 0 0.04rem 0.08rem 0 @btn-shadow-color;
+				border-radius: 0.04rem;
+				width: 1.5rem;
+				height: 0.3rem;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				letter-spacing: 0.15rem;
+				text-indent: 0.15rem;
+				transition: all 0.3s ease-in-out;
+				&:hover {
+					background: @primary-antd-color;
+				}
+				span {
+					color: @primary-color;
+					font-size: 0.16rem;
+				}
+			}
+		}
+		.link {
+			text-align: center;
+			cursor: pointer;
+			margin-bottom: 0.1rem;
+			a {
+				color: @a-link-color;
+				font-size: 0.14rem;
+			}
+			a:hover {
+				border-bottom: 0.01rem solid @a-link-color;
+			}
+		}
+	}
 }

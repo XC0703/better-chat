@@ -1,4 +1,4 @@
-import { App, Button, Spin, Tooltip } from 'antd';
+import { Button, Spin, Tooltip } from 'antd';
 import { ChangeEvent, useRef, useState } from 'react';
 
 import { IMessageList, ISendMessage } from './api/type';
@@ -8,6 +8,7 @@ import { EmojiList } from '@/assets/emoji';
 import { ChatIconList } from '@/assets/icons';
 import AudioModal from '@/components/AudioModal';
 import VideoModal from '@/components/VideoModal';
+import useShowMessage from '@/hooks/useShowMessage';
 import { getFileSuffixByName } from '@/utils/file';
 import { userStorage } from '@/utils/storage';
 
@@ -21,7 +22,7 @@ interface IChatToolProps {
 
 const ChatTool = (props: IChatToolProps) => {
 	const { curChatInfo, sendMessage } = props;
-	const { message } = App.useApp();
+	const showMessage = useShowMessage();
 	const [inputValue, setInputValue] = useState<string>('');
 	const [loading, setLoading] = useState(false);
 	const [openAudioModal, setAudioModal] = useState(false);
@@ -42,19 +43,18 @@ const ChatTool = (props: IChatToolProps) => {
 	// 发送编辑的文本消息
 	const handleSendTextMessage = () => {
 		if (inputValue === '') return;
-		const newmessage: ISendMessage = {
-			sender_id: JSON.parse(userStorage.getItem()).id,
-			receiver_id: curChatInfo?.receiver_id,
-			type: 'text',
-			content: inputValue,
-			avatar: JSON.parse(userStorage.getItem()).avatar
-		};
-
 		try {
+			const newmessage: ISendMessage = {
+				sender_id: JSON.parse(userStorage.getItem()).id,
+				receiver_id: curChatInfo?.receiver_id,
+				type: 'text',
+				content: inputValue,
+				avatar: JSON.parse(userStorage.getItem()).avatar
+			};
 			sendMessage(newmessage);
 			setInputValue(''); // 在发送消息成功后清空输入框内容
-		} catch (error) {
-			message.error('发送消息失败，请重试！', 1.5);
+		} catch {
+			showMessage('error', '消息发送失败，请重试');
 		}
 	};
 
@@ -66,24 +66,24 @@ const ChatTool = (props: IChatToolProps) => {
 			const reader = new FileReader();
 			// 文件读取完成之后执行的回调
 			reader.onload = event => {
-				const fileContent = event.target!.result;
-				const content = new Uint8Array(fileContent as ArrayBuffer);
-				const filename = file.name;
-				const newmessage: ISendMessage = {
-					filename: filename,
-					sender_id: JSON.parse(userStorage.getItem()).id,
-					receiver_id: curChatInfo?.receiver_id,
-					type: getFileSuffixByName(filename),
-					content: Array.from(content),
-					avatar: JSON.parse(userStorage.getItem()).avatar
-				};
 				try {
+					const fileContent = event.target!.result;
+					const content = new Uint8Array(fileContent as ArrayBuffer);
+					const filename = file.name;
+					const newmessage: ISendMessage = {
+						filename: filename,
+						sender_id: JSON.parse(userStorage.getItem()).id,
+						receiver_id: curChatInfo?.receiver_id,
+						type: getFileSuffixByName(filename),
+						content: Array.from(content),
+						avatar: JSON.parse(userStorage.getItem()).avatar
+					};
 					sendMessage(newmessage);
 					setLoading(false);
 					// 清空文件输入字段的值，否则再次选择相同文件时无法触发 onchange
 					imageRef.current!.value = '';
-				} catch (error) {
-					message.error('发送消息失败，请重试！', 1.5);
+				} catch {
+					showMessage('error', '消息发送失败，请重试');
 					setLoading(false);
 					// 清空文件输入字段的值，否则再次选择相同文件时无法触发 onchange
 					imageRef.current!.value = '';
@@ -102,49 +102,49 @@ const ChatTool = (props: IChatToolProps) => {
 			if (getFileSuffixByName(file.name) !== 'file') {
 				const reader = new FileReader();
 				reader.onload = event => {
-					const fileContent = event.target!.result;
-					const content = new Uint8Array(fileContent as ArrayBuffer);
-					const filename = file.name;
-					const newmessage: ISendMessage = {
-						filename: filename,
-						sender_id: JSON.parse(userStorage.getItem()).id,
-						receiver_id: curChatInfo?.receiver_id,
-						type: getFileSuffixByName(filename),
-						content: Array.from(content),
-						avatar: JSON.parse(userStorage.getItem()).avatar
-					};
 					try {
+						const fileContent = event.target!.result;
+						const content = new Uint8Array(fileContent as ArrayBuffer);
+						const filename = file.name;
+						const newmessage: ISendMessage = {
+							filename: filename,
+							sender_id: JSON.parse(userStorage.getItem()).id,
+							receiver_id: curChatInfo?.receiver_id,
+							type: getFileSuffixByName(filename),
+							content: Array.from(content),
+							avatar: JSON.parse(userStorage.getItem()).avatar
+						};
 						sendMessage(newmessage);
 						setLoading(false);
 						fileRef.current!.value = '';
-					} catch (error) {
-						message.error('发送消息失败，请重试！', 1.5);
+					} catch {
+						showMessage('error', '消息发送失败，请重试');
 						setLoading(false);
 						fileRef.current!.value = '';
 					}
 					reader.readAsArrayBuffer(file);
 				};
 			} else {
-				// 发送文件信息
-				const fileInfo = {
-					fileName: file.name,
-					fileSize: file.size
-				};
-				// 发送文件下载指令
-				const newmessage: ISendMessage = {
-					filename: file.name,
-					sender_id: JSON.parse(userStorage.getItem()).id,
-					receiver_id: curChatInfo?.receiver_id,
-					type: 'file',
-					content: '',
-					avatar: JSON.parse(userStorage.getItem()).avatar,
-					fileType: 'start',
-					fileInfo: JSON.stringify(fileInfo)
-				};
 				try {
+					// 发送文件信息
+					const fileInfo = {
+						fileName: file.name,
+						fileSize: file.size
+					};
+					// 发送文件下载指令
+					const newmessage: ISendMessage = {
+						filename: file.name,
+						sender_id: JSON.parse(userStorage.getItem()).id,
+						receiver_id: curChatInfo?.receiver_id,
+						type: 'file',
+						content: '',
+						avatar: JSON.parse(userStorage.getItem()).avatar,
+						fileType: 'start',
+						fileInfo: JSON.stringify(fileInfo)
+					};
 					sendMessage(newmessage);
-				} catch (error) {
-					message.error('发送消息失败，请重试！', 1.5);
+				} catch {
+					showMessage('error', '消息发送失败，请重试');
 					setLoading(false);
 					fileRef.current!.value = '';
 				}

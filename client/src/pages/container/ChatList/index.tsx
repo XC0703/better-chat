@@ -1,5 +1,5 @@
 import { WechatOutlined } from '@ant-design/icons';
-import { App, Tooltip } from 'antd';
+import { Tooltip } from 'antd';
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 
 import { getChatList } from './api';
@@ -14,8 +14,10 @@ import { ISendMessage, IMessageList } from '@/components/ChatTool/api/type';
 import SearchContainer from '@/components/SearchContainer';
 import { wsBaseURL } from '@/config';
 import { serverURL } from '@/config';
-import { toggleTime_chatList } from '@/utils/formatTime';
+import useShowMessage from '@/hooks/useShowMessage';
+import { HttpStatus } from '@/utils/constant';
 import { userStorage } from '@/utils/storage';
+import { formatChatListTime } from '@/utils/time';
 
 interface IChatListProps {
 	initSelectedChat: IFriendInfo | IGroupChatInfo | null;
@@ -28,7 +30,7 @@ const isFriendInfo = (chatInfo: IFriendInfo | IGroupChatInfo): chatInfo is IFrie
 
 const ChatList = forwardRef((props: IChatListProps, ref) => {
 	const { initSelectedChat } = props;
-	const { message } = App.useApp();
+	const showMessage = useShowMessage();
 	const [chatList, setChatList] = useState<IMessageList[]>([]); // 消息列表
 	const [curChatInfo, setCurChatInfo] = useState<IMessageList>(); // 当前选中的对话信息
 	const socket = useRef<WebSocket | null>(null); // websocket 实例
@@ -58,7 +60,7 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
 			}
 		};
 		newSocket.onerror = () => {
-			message.error('websocket 连接失败，请重试！', 1.5);
+			showMessage('error', 'websocket 连接失败');
 		};
 		// 建立连接
 		socket.current = newSocket;
@@ -85,16 +87,15 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
 
 	// 刷新消息列表
 	const refreshChatList = async () => {
-		// 获取消息列表
 		try {
 			const res = await getChatList();
-			if (res.code === 200) {
+			if (res.code === HttpStatus.SUCCESS) {
 				setChatList(res.data);
 			} else {
-				message.error('获取消息列表失败！', 1.5);
+				showMessage('error', '获取消息列表失败');
 			}
-		} catch (error) {
-			message.error('获取消息列表失败！', 1.5);
+		} catch {
+			showMessage('error', '获取消息列表失败');
 		}
 	};
 
@@ -178,8 +179,7 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
 									id={`chatList_${item.room}`}
 									onClick={() => chooseRoom(item)}
 									style={{
-										backgroundColor:
-											curChatInfo?.room === item.room ? 'rgba(106, 184, 106, 0.4)' : ''
+										backgroundColor: curChatInfo?.room === item.room ? 'rgba(0, 0, 0, 0.08)' : ''
 									}}
 								>
 									<div className={styles.chat_avatar}>
@@ -194,21 +194,21 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
 											{item.type === 'text'
 												? item.lastMessage
 												: item.type === 'image'
-												? '[图片]'
-												: item.type === 'video'
-												? '[视频]'
-												: item.type === 'file'
-												? '[文件]'
-												: null}
+													? '[图片]'
+													: item.type === 'video'
+														? '[视频]'
+														: item.type === 'file'
+															? '[文件]'
+															: null}
 										</div>
 									</div>
 									<div className={styles.chat_info_time}>
 										<Tooltip
 											placement="bottomLeft"
-											title={toggleTime_chatList(item.updated_at)}
+											title={formatChatListTime(item.updated_at)}
 											arrow={false}
 										>
-											<div className={styles.chat_time}>{toggleTime_chatList(item.updated_at)}</div>
+											<div className={styles.chat_time}>{formatChatListTime(item.updated_at)}</div>
 										</Tooltip>
 										{item.unreadCount !== 0 && (
 											<Tooltip
