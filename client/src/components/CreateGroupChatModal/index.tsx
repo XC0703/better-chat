@@ -1,22 +1,28 @@
-import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Modal, Tree, Upload, Form, Input } from 'antd';
+import { Button, Modal, Tree, Form, Input } from 'antd';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { getFriendList, createGroup, inviteFriends } from './api';
 import { IFriend, IFriendGroup, IGroupMember, ICreateGroupParams } from './api/type';
 import styles from './index.module.less';
+import { ImageUpload } from '../ImageUpload';
 
 import useShowMessage from '@/hooks/useShowMessage';
 import { IGroupChatInfo } from '@/pages/container/AddressBook/api/type';
 import { HttpStatus } from '@/utils/constant';
 
-interface IChangeInfoModal {
+interface ICreateGroupModal {
 	type: 'create' | 'invite';
 	groupChatInfo?: IGroupChatInfo;
 	openmodal: boolean;
 	handleModal: (open: boolean) => void;
 }
-const CreateGroupModal = (props: IChangeInfoModal) => {
+// 创建群聊表单类型
+type CreateGroupFormType = {
+	groupAvatar: string;
+	groupName: string;
+	announcement: string | null;
+};
+const CreateGroupModal = (props: ICreateGroupModal) => {
 	const showMessage = useShowMessage();
 	const { type, groupChatInfo, openmodal, handleModal } = props;
 
@@ -24,7 +30,7 @@ const CreateGroupModal = (props: IChangeInfoModal) => {
 	const [open, setOpen] = useState(openmodal);
 	const [checkedFriends, setCheckedFriends] = useState<[]>([]); // 勾选的好友列表数组
 	const [loading, setLoading] = useState(false);
-	const [imageUrl, setImageUrl] = useState<string | null>(null);
+	const [createGroupFormInstance] = Form.useForm<CreateGroupFormType>();
 	const step0Ref = useRef<HTMLDivElement | null>(null);
 	const step1Ref = useRef<HTMLDivElement | null>(null);
 
@@ -34,6 +40,7 @@ const CreateGroupModal = (props: IChangeInfoModal) => {
 			title: <span>{group.name}</span>,
 			key: group.name,
 			selectable: false,
+			disabled: group.friend.length ? false : true,
 			children: group.friend.map(friend => ({
 				title: (
 					<div className={styles.nodeContent}>
@@ -95,33 +102,6 @@ const CreateGroupModal = (props: IChangeInfoModal) => {
 		}
 	};
 
-	// 上传图片 (这里的处理是将图片的 base64 编码和群聊信息一并传给后端，后端将文件存在服务器后再将文件 URL 存在数据库表中)
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const handleUpload = (options: any) => {
-		const file = options.file;
-		const reader = new FileReader();
-		if (file.size <= 2 * 1024 * 1024) {
-			// 判断文件大小是否超过 2m
-			reader.readAsDataURL(file);
-			reader.onload = event => {
-				// 当读取操作成功完成时调用
-				const base64 = event.target!.result; // 获取文件的 Base64 编码
-				setImageUrl(base64 as string);
-			};
-		} else {
-			showMessage('error', '图片文件不能超过 2M');
-		}
-	};
-
-	// upload 组件写在表单里必须这样操作传值
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const normFile = (e: any) => {
-		if (Array.isArray(e)) {
-			return e;
-		}
-		return e && e.fileList;
-	};
-
 	// 创建群聊
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const handleCreateGroup = async (values: any) => {
@@ -142,14 +122,19 @@ const CreateGroupModal = (props: IChangeInfoModal) => {
 				/* empty */
 			}
 		});
+		if (selectedFriends.length === 0) {
+			showMessage('error', '请至少选择一位好友加入群聊');
+			setLoading(false);
+			return;
+		}
 
 		try {
-			// 拼接选中好友数据、群聊头像（base64 编码、文件）、群名、公告（可空）
+			// 拼接选中好友数据、群聊头像、群名、公告（可空）
 			const createGroupParams: ICreateGroupParams = {
 				name: values.groupName,
 				announcement: values.announcement ? values.announcement : null,
 				members: selectedFriends,
-				avatar: imageUrl as string
+				avatar: values.groupAvatar
 			};
 			const res = await createGroup(createGroupParams);
 			if (res.code === HttpStatus.SUCCESS) {
@@ -168,25 +153,24 @@ const CreateGroupModal = (props: IChangeInfoModal) => {
 
 	// 群聊弹窗类型是邀请新的好友时
 	const handlInvite = async () => {
-		if (checkedFriends.length !== 0) {
-			setLoading(true);
-			// 将第一步的好友数据筛选并作格式转化
-			const selectedFriends: IGroupMember[] = [];
-			checkedFriends.map(item => {
-				try {
-					const parsedItem = JSON.parse(item);
-					if (parsedItem.username) {
-						selectedFriends.push({
-							user_id: parsedItem.user_id,
-							username: parsedItem.username,
-							avatar: parsedItem.avatar
-						});
-					}
-				} catch {
-					/* empty */
+		setLoading(true);
+		// 将第一步的好友数据筛选并作格式转化
+		const selectedFriends: IGroupMember[] = [];
+		checkedFriends.map(item => {
+			try {
+				const parsedItem = JSON.parse(item);
+				if (parsedItem.username) {
+					selectedFriends.push({
+						user_id: parsedItem.user_id,
+						username: parsedItem.username,
+						avatar: parsedItem.avatar
+					});
 				}
-			});
-
+			} catch {
+				/* empty */
+			}
+		});
+		if (selectedFriends.length !== 0) {
 			try {
 				const inviteFriendsParams = {
 					groupId: groupChatInfo?.id as number,
@@ -210,6 +194,7 @@ const CreateGroupModal = (props: IChangeInfoModal) => {
 			}
 		} else {
 			showMessage('error', '请至少邀请一位好友');
+			setLoading(false);
 		}
 	};
 
@@ -232,14 +217,6 @@ const CreateGroupModal = (props: IChangeInfoModal) => {
 			</div>
 		);
 	}, [friendList]);
-
-	// 上传按钮
-	const uploadButton = (
-		<div>
-			{loading ? <LoadingOutlined /> : <PlusOutlined />}
-			<div style={{ marginTop: 8 }}>Upload</div>
-		</div>
-	);
 
 	return (
 		<>
@@ -284,7 +261,9 @@ const CreateGroupModal = (props: IChangeInfoModal) => {
 						</div>
 						<div className={styles.btns}>
 							{type === 'invite' ? (
-								<Button onClick={handlInvite}> 邀请 </Button>
+								<Button onClick={handlInvite} loading={loading}>
+									邀请
+								</Button>
 							) : (
 								<Button onClick={() => handleSwitch(1)}> 下一步 </Button>
 							)}
@@ -292,28 +271,21 @@ const CreateGroupModal = (props: IChangeInfoModal) => {
 					</div>
 					<div className={`${styles.step} ${styles.step1}`} ref={step1Ref}>
 						<div className={styles.selectContainer}>
-							<Form onFinish={handleCreateGroup}>
+							<Form
+								form={createGroupFormInstance}
+								name="createGroupChatForm"
+								onFinish={handleCreateGroup}
+							>
 								<Form.Item
 									label="头像"
 									rules={[{ required: true, message: '请上传头像' }]}
-									name="avatar"
-									valuePropName="fileList"
-									getValueFromEvent={normFile}
+									name="groupAvatar"
 								>
-									<Upload
-										name="avatar"
-										listType="picture-card"
-										showUploadList={false}
-										customRequest={handleUpload}
-										accept="image/*"
-										maxCount={1}
-									>
-										{imageUrl ? (
-											<img src={imageUrl} alt="avatar" style={{ width: '100%' }} />
-										) : (
-											uploadButton
-										)}
-									</Upload>
+									<ImageUpload
+										onUploadSuccess={filePath => {
+											createGroupFormInstance?.setFieldsValue({ groupAvatar: filePath });
+										}}
+									/>
 								</Form.Item>
 								<Form.Item
 									label="群名"

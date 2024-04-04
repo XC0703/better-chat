@@ -11,10 +11,10 @@ import styles from './index.module.less';
 import { MenuIconList } from '@/assets/icons';
 import AudioModal from '@/components/AudioModal';
 import { ICallFriendInfo } from '@/components/AudioModal/api/type';
-import ChangeInfoModal from '@/components/ChangeInfoModal';
+import ChangePerInfoModal from '@/components/ChangePerInfoModal';
 import ChangePwdModal from '@/components/ChangePwdModal';
 import VideoModal from '@/components/VideoModal';
-import { wsBaseURL } from '@/config';
+import { serverURL, wsBaseURL } from '@/config';
 import useShowMessage from '@/hooks/useShowMessage';
 import { HttpStatus } from '@/utils/constant';
 import { handleLogout, IUserInfo } from '@/utils/logout';
@@ -91,7 +91,10 @@ const Container = () => {
 		<div className={styles.infoContent}>
 			<div className={styles.infoContainer}>
 				<div className={styles.avatar}>
-					<img src={avatar} alt="" />
+					<img
+						src={avatar.startsWith('http' || 'https') ? avatar : `${serverURL}${avatar}`}
+						alt=""
+					/>
 				</div>
 				<div className={styles.info}>
 					<div className={styles.name}>{name}</div>
@@ -187,7 +190,10 @@ const Container = () => {
 				<div className={styles.leftContainer}>
 					<div className={styles.avatar}>
 						<Popover content={infoContent} placement="rightTop">
-							<img src={avatar} alt="" />
+							<img
+								src={avatar.startsWith('http' || 'https') ? avatar : `${serverURL}${avatar}`}
+								alt=""
+							/>
 						</Popover>
 					</div>
 					<div className={styles.iconList}>
@@ -251,7 +257,9 @@ const Container = () => {
 			}
 			{
 				// 修改信息弹窗
-				openInfoModal && <ChangeInfoModal openmodal={openInfoModal} handleModal={handleInfoModal} />
+				openInfoModal && (
+					<ChangePerInfoModal openmodal={openInfoModal} handleModal={handleInfoModal} />
+				)
 			}
 			{
 				// 音频通话弹窗

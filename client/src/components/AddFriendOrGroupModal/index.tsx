@@ -1,5 +1,5 @@
 import { SearchOutlined } from '@ant-design/icons';
-import { Button, Input, Modal, Tabs, TabsProps } from 'antd';
+import { Button, Empty, Input, Modal, Tabs, TabsProps } from 'antd';
 import { useState } from 'react';
 
 import { getFriendList, addFriend, getGroupList, addGroupChat } from './api';
@@ -11,11 +11,11 @@ import useShowMessage from '@/hooks/useShowMessage';
 import { HttpStatus } from '@/utils/constant';
 import { userStorage } from '@/utils/storage';
 
-interface IChangeInfoModal {
+interface IChangePerInfoModal {
 	openmodal: boolean;
 	handleModal: (open: boolean) => void;
 }
-const AddFriendOrGroupModal = (props: IChangeInfoModal) => {
+const AddFriendOrGroupModal = (props: IChangePerInfoModal) => {
 	const { openmodal, handleModal } = props;
 
 	const showMessage = useShowMessage();
@@ -139,7 +139,9 @@ const AddFriendOrGroupModal = (props: IChangeInfoModal) => {
 							查找
 						</Button>
 					</div>
-					{friendList.length !== 0 && (
+					{friendList.length === 0 ? (
+						<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+					) : (
 						<div className={styles.searchResult}>
 							{friendList.map(item => (
 								<div className={styles.list_item} key={item.username}>
@@ -191,7 +193,9 @@ const AddFriendOrGroupModal = (props: IChangeInfoModal) => {
 							查找
 						</Button>
 					</div>
-					{groupList.length !== 0 && (
+					{groupList.length === 0 ? (
+						<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+					) : (
 						<div className={styles.searchResult}>
 							{groupList.map(item => (
 								<div className={styles.list_item} key={item.group_id}>

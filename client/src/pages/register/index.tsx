@@ -63,8 +63,8 @@ const Register = () => {
 						<Form.Item
 							name="username"
 							rules={[
-								{ required: true, message: '请输入用户名!' },
-								{ max: 255, message: '用户名最多输入255个字符!' }
+								{ required: true, message: '请输入用户名' },
+								{ max: 255, message: '用户名最多输入255个字符' }
 							]}
 						>
 							<Input type="text" placeholder="请输入用户名"></Input>
@@ -72,7 +72,7 @@ const Register = () => {
 						<Form.Item
 							name="phone"
 							rules={[
-								{ required: true, message: '请输入手机号!' },
+								{ required: true, message: '请输入手机号' },
 								{ pattern: /^1[3456789]\d{9}$/, message: '请输入有效的手机号码' }
 							]}
 						>
@@ -81,13 +81,13 @@ const Register = () => {
 						<Form.Item
 							name="password"
 							rules={[
-								{ required: true, message: '请输入密码!' },
+								{ required: true, message: '请输入密码' },
 								{ max: 255, message: '密码最多输入255个字符' }
 							]}
 						>
 							<Input type="password" placeholder="请输入密码"></Input>
 						</Form.Item>
-						<Form.Item name="confirm" rules={[{ required: true, message: '请确认密码!' }]}>
+						<Form.Item name="confirm" rules={[{ required: true, message: '请确认密码' }]}>
 							<Input type="password" placeholder="确认密码"></Input>
 						</Form.Item>
 						<Form.Item>

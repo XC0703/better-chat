@@ -33,7 +33,7 @@ function base64ToImage(base64String) {
 	// 创建目录
 	const mimeType = base64String.match(/^data:(image\/\w+);base64,/)[1];
 	const mimeParts = mimeType.split('/')[1];
-	const outputPath = `/uploads/group`;
+	const outputPath = `/uploads/image`;
 	notExitCreate(path.join(process.cwd(), outputPath));
 	// 使用  fs.writeFileSync 方法将 Buffer 对象写入到指定的文件路径
 	const filePath = `${outputPath}/${generateRandomString(32)}.${mimeParts}`;

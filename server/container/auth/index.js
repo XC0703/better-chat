@@ -251,10 +251,6 @@ function getUserInfo(username, callback) {
  * 修改用户信息
  */
 async function updateInfo(req, res) {
-	let fileName;
-	if (req.file) {
-		fileName = req.file.filename;
-	}
 	const { username, avatar, name, phone, signature } = req.body;
 	const info = {
 		avatar,
@@ -262,9 +258,6 @@ async function updateInfo(req, res) {
 		phone,
 		signature
 	};
-	if (fileName) {
-		info.avatar = `/uploads/avatar/${fileName}`;
-	}
 	const sql = 'update user set ? where username=?';
 	const { err, results } = await Query(sql, [info, username]);
 	// 执行 SQL 语句失败了

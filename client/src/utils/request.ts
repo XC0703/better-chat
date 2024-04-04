@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// index.ts
 import axios from 'axios';
 
 import type {

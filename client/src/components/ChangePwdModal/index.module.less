@@ -1,15 +1,19 @@
-.forgetContainer {
+form {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-	gap: 0.2rem;
-	input {
-		height: 0.3rem;
-		width: 80%;
-		padding: 0.04rem 0.1rem;
-		border-radius: 0.02rem;
-		font-size: 0.14rem;
+	:global {
+		.ant-form-item {
+			width: 80%;
+		}
+		.ant-form-item:nth-child(5) {
+			.ant-form-item-control-input-content {
+				display: flex;
+				padding: 0 0.4rem;
+				justify-content: space-between;
+			}
+		}
 	}
 }
 :global {
@@ -18,7 +22,7 @@
 			display: flex;
 			justify-content: center;
 			.ant-modal-content {
-				width: 5rem;
+				width: 4.5rem;
 			}
 		}
 	}

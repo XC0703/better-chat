@@ -1,5 +1,5 @@
 import { WechatOutlined } from '@ant-design/icons';
-import { Tabs, Tree, Tooltip, TabsProps, Form, Input, Select, Button, Modal } from 'antd';
+import { Tabs, Tree, Tooltip, TabsProps, Form, Input, Select, Button, Modal, Empty } from 'antd';
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 
 import {
@@ -34,27 +34,34 @@ const { DirectoryTree } = Tree;
 interface IAddressBookProps {
 	handleChooseChat: (chatInfo: IFriendInfo | IGroupChatInfo) => void;
 }
-
+// 当前 tab 是好友还是群聊
+enum TabType {
+	FRIEND = '1',
+	GROUP_CHAT = '2'
+}
+// 好友信息表单类型
+type FriendInfoFormType = {
+	username: string;
+	name: string;
+	remark: string;
+	group: number;
+};
 const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 	const { handleChooseChat } = props;
 	const showMessage = useShowMessage();
-	const [curTab, setCurTab] = useState<string>('1'); // 当前 tab 是好友还是群聊
-	const [friendList, setFriendList] = useState<IFriendGroup[]>([]); // 好友列表
-	const [groupChatList, setGroupChatList] = useState<IGroupChatItem[]>([]); // 群聊列表
-	const [infoChangeInstance] = Form.useForm<{
-		username: string;
-		name: string;
-		newRemark: string;
-		newGroup: number;
-	}>(); // 好友表单实例
-	const [curFriendInfo, setCurFriendInfo] = useState<IFriendInfo>(); // 当前选中的好友信息
-	const [curGroupChatInfo, setCurGroupChatInfo] = useState<IGroupChatInfo>(); // 当前选中的群聊信息
-	const [groupList, setGroupList] = useState<IFriendGroupList[]>([]); // 好友分组列表
-	const [newGroupName, setNewGroupName] = useState(''); // 新建分组
-	const [openCreateModal, setCreateModal] = useState(false); // 是否打开邀请新的好友进群聊
 
-	// 控制新建分组弹窗的显隐
-	const [openCreateGroupModal, setOpenCreateGroupModal] = useState(false);
+	const [curTab, setCurTab] = useState<string>(TabType.FRIEND); // 当前 tab 是好友还是群聊
+	// 好友相关状态
+	const [friendList, setFriendList] = useState<IFriendGroup[]>([]); // 好友列表
+	const [curFriendInfo, setCurFriendInfo] = useState<IFriendInfo>(); // 当前选中的好友信息
+	const [groupList, setGroupList] = useState<IFriendGroupList[]>([]); // 好友分组列表
+	const [friendInfoFormInstance] = Form.useForm<FriendInfoFormType>(); // 好友信息表单实例
+	const [openCreateGroupModal, setOpenCreateGroupModal] = useState(false); // 是否打开新建分组的 modal
+	const [newGroupName, setNewGroupName] = useState(''); // 新建分组的名称
+	// 群聊相关状态
+	const [groupChatList, setGroupChatList] = useState<IGroupChatItem[]>([]); // 群聊列表
+	const [curGroupChatInfo, setCurGroupChatInfo] = useState<IGroupChatInfo>(); // 当前选中的群聊信息
+	const [openCreateModal, setCreateModal] = useState(false); // 是否打开创建群聊的 modal
 
 	// 难点: 如何将后端返回的数据转换成 Tree 组件需要的数据格式
 	const treeData = friendList.map(group => {
@@ -103,11 +110,11 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 			const res = await getFriendInfoById(id);
 			if (res.code === HttpStatus.SUCCESS && res.data) {
 				setCurFriendInfo(res.data);
-				infoChangeInstance?.setFieldsValue({
+				friendInfoFormInstance?.setFieldsValue({
 					username: res.data.username,
 					name: res.data.name,
-					newRemark: res.data.remark,
-					newGroup: res.data.group_id
+					remark: res.data.remark,
+					group: res.data.group_id
 				});
 			} else {
 				showMessage('error', '获取好友信息失败');
@@ -151,12 +158,12 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 
 	// 修改好友信息
 	const updateFriend = () => {
-		infoChangeInstance.validateFields().then(async values => {
+		friendInfoFormInstance.validateFields().then(async values => {
 			try {
 				const params = {
 					friend_id: curFriendInfo?.friend_id as number,
-					remark: values.newRemark,
-					group_id: values.newGroup
+					remark: values.remark,
+					group_id: values.group
 				};
 				const res = await updateFriendInfo(params);
 				if (res.code === HttpStatus.SUCCESS) {
@@ -229,7 +236,7 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 	// 群聊具体信息 tabs 标签切换
 	const infoItems: TabsProps['items'] = [
 		{
-			key: '1',
+			key: TabType.FRIEND,
 			label: '首页',
 			children: (
 				<div className={styles.homePage}>
@@ -249,7 +256,7 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 			)
 		},
 		{
-			key: '2',
+			key: TabType.GROUP_CHAT,
 			label: '成员',
 			children: (
 				<div className={styles.memberTable}>
@@ -328,35 +335,41 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 	};
 	const items: TabsProps['items'] = [
 		{
-			key: '1',
+			key: TabType.FRIEND,
 			label: titleLabel(1),
-			children: (
-				<div className={styles.friendTree}>
-					<DirectoryTree onSelect={onSelect} treeData={treeData} icon={null} showIcon={false} />
-				</div>
-			)
+			children:
+				treeData.length === 0 ? (
+					<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+				) : (
+					<div className={styles.friendTree}>
+						<DirectoryTree onSelect={onSelect} treeData={treeData} icon={null} showIcon={false} />
+					</div>
+				)
 		},
 		{
-			key: '2',
+			key: TabType.GROUP_CHAT,
 			label: titleLabel(2),
-			children: (
-				<div className={styles.groupChatList}>
-					{groupChatList.map(item => {
-						return (
-							<div
-								className={`${styles.groupChat} ${
-									curGroupChatInfo?.id === item.id ? styles.curGroupChatInfo : ''
-								}`}
-								key={item.id}
-								onClick={() => handleSelectGroupChat(item)}
-							>
-								<img src={serverURL + item.avatar} />
-								<span>{item.name}</span>
-							</div>
-						);
-					})}
-				</div>
-			)
+			children:
+				groupChatList.length === 0 ? (
+					<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+				) : (
+					<div className={styles.groupChatList}>
+						{groupChatList.map(item => {
+							return (
+								<div
+									className={`${styles.groupChat} ${
+										curGroupChatInfo?.id === item.id ? styles.curGroupChatInfo : ''
+									}`}
+									key={item.id}
+									onClick={() => handleSelectGroupChat(item)}
+								>
+									<img src={serverURL + item.avatar} />
+									<span>{item.name}</span>
+								</div>
+							);
+						})}
+					</div>
+				)
 		}
 	];
 	const onChange = (key: string) => {
@@ -389,7 +402,7 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 			<div className={styles.addressBook}>
 				{LeftContainer}
 				<div className={styles.rightContainer}>
-					{curTab === '1' && curFriendInfo !== undefined && (
+					{curTab === TabType.FRIEND && curFriendInfo !== undefined && (
 						<div className={styles.infoModal}>
 							<div className={styles.infoContainerHead}>
 								<div className={styles.avatar}>
@@ -403,31 +416,21 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 								</div>
 							</div>
 							<div className={styles.changeContainer}>
-								<Form form={infoChangeInstance}>
+								<Form name="friendInfoForm" form={friendInfoFormInstance}>
 									<Form.Item label="账号" name="username">
 										<Input readOnly />
 									</Form.Item>
 									<Form.Item label="昵称" name="name">
 										<Input readOnly />
 									</Form.Item>
-									<Form.Item label="备注" name="newRemark">
-										<Input
-											placeholder="请输入好友备注"
-											onChange={e =>
-												infoChangeInstance.setFieldsValue({
-													newRemark: e.target.value
-												})
-											}
-										/>
+									<Form.Item label="备注" name="remark">
+										<Input placeholder="请输入好友备注" />
 									</Form.Item>
-									<Form.Item label="分组" name="newGroup">
+									<Form.Item label="分组" name="group">
 										<Select
 											size="small"
 											notFoundContent="暂无分组"
 											placeholder="请选择分组"
-											onChange={value => {
-												infoChangeInstance.setFieldsValue({ newGroup: value });
-											}}
 											options={groupList.map(item => {
 												return {
 													label: item.name,
@@ -457,7 +460,7 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 							</div>
 						</div>
 					)}
-					{curTab === '2' && curGroupChatInfo !== undefined && (
+					{curTab === TabType.GROUP_CHAT && curGroupChatInfo !== undefined && (
 						<div className={styles.infoModal}>
 							<div className={styles.infoContainerHead}>
 								<div className={styles.avatar}>
@@ -486,8 +489,8 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 							</div>
 						</div>
 					)}
-					{curTab === '1' && curFriendInfo === undefined && <WechatOutlined />}
-					{curTab === '2' && curGroupChatInfo === undefined && <WechatOutlined />}
+					{curTab === TabType.FRIEND && curFriendInfo === undefined && <WechatOutlined />}
+					{curTab === TabType.GROUP_CHAT && curGroupChatInfo === undefined && <WechatOutlined />}
 				</div>
 				{openCreateGroupModal && (
 					<Modal
@@ -499,7 +502,7 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 						okText="确定"
 						width="4rem"
 					>
-						<Form>
+						<Form name="createGroupForm">
 							<Form.Item name="groupName">
 								<Input
 									placeholder="请输入分组名称"
@@ -511,17 +514,14 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 						</Form>
 					</Modal>
 				)}
-				{
-					// 创建群聊弹窗
-					openCreateModal && (
-						<CreateGroupChatModal
-							openmodal={openCreateModal}
-							groupChatInfo={curGroupChatInfo}
-							handleModal={handleCreateModal}
-							type={'invite'}
-						/>
-					)
-				}
+				{openCreateModal && (
+					<CreateGroupChatModal
+						openmodal={openCreateModal}
+						groupChatInfo={curGroupChatInfo}
+						handleModal={handleCreateModal}
+						type={'invite'}
+					/>
+				)}
 			</div>
 		</>
 	);

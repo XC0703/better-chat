@@ -9,7 +9,7 @@ const { RespServerErr } = require('../../model/error');
 const { RespError, RespData } = require('../../model/resp');
 const { Query } = require('../../db/query');
 const fs = require('fs');
-const { generateRandomString, notExitCreate } = require('../../utils/createFile');
+const { generateRandomString, notExitCreate } = require('../../utils/file');
 const { formatBytes } = require('../../utils/format');
 const rooms = {};
 
@@ -209,7 +209,7 @@ async function connectChat(ws, req) {
 						process.cwd(),
 						`uploads/message/${room.replace(/-/g, '_')}/file`
 					);
-					// 判断文件是否已经有过传输，如果有则断点续传（todo：由于不准确，待完善）
+					// 判断文件是否已经有过传输，如果有则断点续传（TODO：由于不准确，待完善）
 					// if (fs.existsSync(path.join(filePath, message.filename))) {
 					// 	// 这个是已经传输的文件大小，应该传回给客户端，让客户端从这个大小开始传输
 					// 	const transmittedSize = fs.statSync(path.join(filePath, message.filename)).size;

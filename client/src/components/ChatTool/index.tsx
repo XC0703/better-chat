@@ -58,7 +58,7 @@ const ChatTool = (props: IChatToolProps) => {
 		}
 	};
 
-	// 发送图片 / 视频消息
+	// 发送图片/视频消息
 	const handleSendImageMessage = (e: ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files!.length > 0) {
 			setLoading(true);
@@ -98,7 +98,7 @@ const ChatTool = (props: IChatToolProps) => {
 		if (e.target.files!.length > 0) {
 			setLoading(true);
 			const file = e.target.files![0];
-			// 其它文件类型，按照图片 / 视频文件处理
+			// 其它文件类型，按照图片/视频文件处理
 			if (getFileSuffixByName(file.name) !== 'file') {
 				const reader = new FileReader();
 				reader.onload = event => {

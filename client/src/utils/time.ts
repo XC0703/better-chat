@@ -32,7 +32,7 @@ const getDateDiff = (date: Date) => {
 
 // 格式化时间 -- 用于聊天列表
 // formatChatListTime 函数与 formatChatContentTime 函数相似，也是接收一个日期参数 date，根据该日期与当前时间的关系，返回一个字符串表示的时间。
-// 不同的是，它返回的时间格式有所不同，包括 "刚刚"、"H:mm"、"昨天"、"M 月 D 日" 和 "YYYY 年 M 月 D 日"。
+// 不同的是，它返回的时间格式有所不同，包括 "刚刚"、"H:mm"、"昨天"、"M月D日" 和 "YYYY年M月D日"。
 export const formatChatListTime = (date: Date) => {
 	let time;
 	const type = getDateDiff(date);
@@ -47,10 +47,10 @@ export const formatChatListTime = (date: Date) => {
 			time = '昨天'; // 昨天消息，显示：昨天
 			break;
 		case MessageType.THIS_YEAR_MESSAGE:
-			time = dayjs(date).format('M 月 D 日'); // 今年消息，显示：3 月 17 日
+			time = dayjs(date).format('M月D日'); // 今年消息，显示：3月17日
 			break;
 		case MessageType.OTHER_MESSAGE:
-			time = dayjs(date).format('YYYY 年 M 月 D 日'); // 其他消息，显示：2020 年 11 月 2 日
+			time = dayjs(date).format('YYYY年M月D日'); // 其他消息，显示：2020年11月2日
 			break;
 	}
 	return time;
@@ -58,7 +58,7 @@ export const formatChatListTime = (date: Date) => {
 
 // 格式化时间 -- 用于聊天内容
 // formatChatContentTime 函数接收一个日期参数 date，根据该日期与当前时间的关系，返回一个字符串表示的时间。
-// 根据不同的情况，返回的时间格式有所不同，包括 "刚刚"、"H:mm"、"昨天 H:mm"、"M 月 D 日 AH:mm" 和 "YYYY 年 M 月 D 日 AH:mm"。
+// 根据不同的情况，返回的时间格式有所不同，包括 "刚刚"、"H:mm"、"昨天 H:mm"、"M月D日 AH:mm" 和 "YYYY年M月D日 AH:mm"。
 export const formatChatContentTime = (date: Date) => {
 	let time = '';
 	const type = getDateDiff(date);
@@ -73,13 +73,10 @@ export const formatChatContentTime = (date: Date) => {
 			time = dayjs(date).format('昨天 H:mm'); // 昨天消息，显示：昨天 20:41
 			break;
 		case MessageType.THIS_YEAR_MESSAGE:
-			time = dayjs(date).format('M 月 D 日 AH:mm').replace('AM', '上午').replace('PM', '下午'); // 今年消息，上午下午，显示：3 月 17 日 下午 16:45
+			time = dayjs(date).format('M月D日 AH:mm').replace('AM', '上午').replace('PM', '下午'); // 今年消息，上午下午，显示：3月17日 下午16:45
 			break;
 		case MessageType.OTHER_MESSAGE:
-			time = dayjs(date)
-				.format('YYYY 年 M 月 D 日 AH:mm')
-				.replace('AM', '上午')
-				.replace('PM', '下午'); // 其他消息，上午下午，显示：2020 年 11 月 2 日 下午 15:17
+			time = dayjs(date).format('YYYY年M月D日 AH:mm').replace('AM', '上午').replace('PM', '下午'); // 其他消息，上午下午，显示：2020年11月2日 下午15:17
 			break;
 	}
 	return time;

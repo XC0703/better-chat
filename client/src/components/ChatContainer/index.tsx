@@ -27,7 +27,7 @@ interface IChatContent {
 	messageContent: string;
 	fileSize?: string | null;
 }
-// 图片 / 视频的信息（类型，URL，尺寸）
+// 图片/视频的信息（类型，URL，尺寸）
 interface IMediaInfo {
 	type: 'image' | 'video';
 	url: string;

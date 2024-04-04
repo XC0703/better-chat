@@ -10,7 +10,7 @@ import ChangePwdModal from '@/components/ChangePwdModal';
 import useShowMessage from '@/hooks/useShowMessage';
 import { HttpStatus } from '@/utils/constant';
 import { generateRandomString, encrypt, decrypt } from '@/utils/encryption';
-import { IUserInfo } from '@/utils/generalType';
+import { IUserInfo } from '@/utils/logout';
 import { tokenStorage, userStorage } from '@/utils/storage';
 
 // 记住密码 -- 主要就是将用户信息和 token 加密存储到本地
@@ -123,10 +123,10 @@ const Login = () => {
 						<h2>Welcome</h2>
 					</div>
 					<Form name="loginForm" onFinish={handleSubmit} form={loginFormInstance}>
-						<Form.Item name="username" rules={[{ required: true, message: '请输入用户名!' }]}>
+						<Form.Item name="username" rules={[{ required: true, message: '请输入用户名' }]}>
 							<Input placeholder="请输入用户名" maxLength={255} />
 						</Form.Item>
-						<Form.Item name="password" rules={[{ required: true, message: '请输入密码!' }]}>
+						<Form.Item name="password" rules={[{ required: true, message: '请输入密码' }]}>
 							<Input type="password" placeholder="请输入密码" maxLength={255} />
 						</Form.Item>
 						<Form.Item>

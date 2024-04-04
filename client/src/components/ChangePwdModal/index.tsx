@@ -1,4 +1,4 @@
-import { Input, Modal } from 'antd';
+import { Button, Form, Input, Modal } from 'antd';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -14,6 +14,13 @@ interface IChangePwdModal {
 	openmodal: boolean;
 	handleModal: (open: boolean) => void;
 }
+// 修改密码表单类型
+type ChangePwdForm = {
+	username: string;
+	phone: string;
+	password: string;
+	confirm: string;
+};
 const ChangePwdModal = (props: IChangePwdModal) => {
 	const { openmodal, handleModal } = props;
 
@@ -21,26 +28,6 @@ const ChangePwdModal = (props: IChangePwdModal) => {
 	const navigate = useNavigate();
 
 	const [loading, setLoading] = useState(false);
-	const [username, setUsername] = useState('');
-	const [phone, setPhone] = useState('');
-	const [password, setPassword] = useState('');
-	const [confirm, setConfirm] = useState('');
-	const [status1, setStatus1] = useState<'' | 'error' | 'warning' | undefined>();
-	const [status2, setStatus2] = useState<'' | 'error' | 'warning' | undefined>();
-	const [status3, setStatus3] = useState<'' | 'error' | 'warning' | undefined>();
-	const [status4, setStatus4] = useState<'' | 'error' | 'warning' | undefined>();
-	const handleUserNameChange = (e: { target: { value: string } }) => {
-		setUsername(e.target.value);
-	};
-	const handlePasswordChange = (e: { target: { value: string } }) => {
-		setPassword(e.target.value);
-	};
-	const handleConfirmChange = (e: { target: { value: string } }) => {
-		setConfirm(e.target.value);
-	};
-	const handlePhoneChange = (e: { target: { value: string } }) => {
-		setPhone(e.target.value);
-	};
 
 	// 退出登录
 	const confirmLogout = async () => {
@@ -59,53 +46,10 @@ const ChangePwdModal = (props: IChangePwdModal) => {
 	};
 
 	// 修改密码
-	const handleSubmit = async () => {
-		// 前端数据校验
-		if (!username) {
-			setStatus1('error');
-		}
-		if (!phone) {
-			setStatus2('error');
-		}
-		if (!password) {
-			setStatus3('error');
-		}
-		if (!confirm) {
-			setStatus4('error');
-		}
-		if (!username || !password || !confirm) {
-			showMessage('error', '请输入用户名或密码');
-			setTimeout(() => {
-				setStatus1(undefined);
-				setStatus2(undefined);
-				setStatus3(undefined);
-				setStatus4(undefined);
-			}, 1500);
-			return;
-		}
-		if (!phone) {
-			showMessage('error', '请输入手机号');
-			setTimeout(() => {
-				setStatus2(undefined);
-			}, 1500);
-			return;
-		}
-		// 验证手机号格式
-		const reg = /^1[3456789]\d{9}$/;
-		if (!reg.test(phone)) {
-			setStatus2('error');
-			showMessage('error', '手机号格式不正确');
-			setTimeout(() => {
-				setStatus2(undefined);
-			}, 1500);
-			return;
-		}
+	const handleSubmit = async (values: ChangePwdForm) => {
+		const { username, phone, password, confirm } = values;
 		if (password !== confirm) {
-			setStatus4('error');
 			showMessage('error', '两次密码不一致');
-			setTimeout(() => {
-				setStatus4(undefined);
-			}, 1500);
 			return;
 		}
 		setLoading(true);
@@ -137,49 +81,58 @@ const ChangePwdModal = (props: IChangePwdModal) => {
 			<Modal
 				title="更改密码"
 				open={openmodal}
-				onOk={handleSubmit}
 				confirmLoading={loading}
 				onCancel={() => {
 					handleModal(false);
 				}}
-				okText="确认"
-				cancelText="取消"
+				footer={null}
 				wrapClassName="changePwdModal"
 			>
-				<div className={styles.forgetContainer}>
-					<Input
-						type="text"
-						placeholder="请输入用户名"
+				<Form name="changePwdForm" onFinish={handleSubmit} className={styles.changePwdForm}>
+					<Form.Item
 						name="username"
-						onChange={handleUserNameChange}
-						maxLength={255}
-						status={status1}
-					></Input>
-					<Input
-						type="phone"
-						placeholder="请输入绑定的手机号"
+						rules={[
+							{ required: true, message: '请输入用户名' },
+							{ max: 255, message: '用户名最多输入255个字符' }
+						]}
+					>
+						<Input type="text" placeholder="请输入用户名"></Input>
+					</Form.Item>
+					<Form.Item
 						name="phone"
-						onChange={handlePhoneChange}
-						maxLength={50}
-						status={status2}
-					></Input>
-					<Input
-						type="password"
-						placeholder="请输入新的密码"
+						rules={[
+							{ required: true, message: '请输入手机号' },
+							{ pattern: /^1[3456789]\d{9}$/, message: '请输入有效的手机号码' }
+						]}
+					>
+						<Input type="phone" placeholder="请输入绑定的手机号"></Input>
+					</Form.Item>
+					<Form.Item
 						name="password"
-						onChange={handlePasswordChange}
-						maxLength={255}
-						status={status3}
-					></Input>
-					<Input
-						type="password"
-						placeholder="确认新的密码"
-						name="password"
-						onChange={handleConfirmChange}
-						maxLength={255}
-						status={status4}
-					></Input>
-				</div>
+						rules={[
+							{ required: true, message: '请输入密码' },
+							{ max: 255, message: '密码最多输入255个字符' }
+						]}
+					>
+						<Input type="password" placeholder="请输入新的密码"></Input>
+					</Form.Item>
+					<Form.Item name="confirm" rules={[{ required: true, message: '请确认密码' }]}>
+						<Input type="password" placeholder="确认新的密码"></Input>
+					</Form.Item>
+					<Form.Item>
+						<Button
+							type="default"
+							onClick={() => {
+								handleModal(false);
+							}}
+						>
+							取消
+						</Button>
+						<Button type="primary" htmlType="submit">
+							确认
+						</Button>
+					</Form.Item>
+				</Form>
 			</Modal>
 		</>
 	);

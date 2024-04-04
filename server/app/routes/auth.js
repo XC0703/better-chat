@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../../container/auth/index');
+const upload = require('../../utils/upload');
 const jwt = require('jsonwebtoken');
 const secretKey = 'xWbiNA3FqnK77MnVCj5CAcfA-VlXj7xoQLd1QaAme6l_t0Yp1TdHbSw';
 const { RespTokenErr } = require('../../model/error');
@@ -32,6 +33,7 @@ module.exports = function () {
 	router.post('/register', auth.Register);
 	router.post('/forget_password', auth.forgetPassword);
 	router.post('/update_info', authenticateToken, auth.updateInfo);
+	router.post('/upload_image', authenticateToken, upload.UploadImage);
 	router.ws('/user_channel', auth.initUserNotification);
 	return router;
 };

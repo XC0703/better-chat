@@ -7,7 +7,6 @@ module.exports = {
 	InviteFriendsToGroupChat,
 	JoinGroupChat
 };
-const { base64ToImage } = require('../../utils/createFile');
 const {
 	RespServerErr,
 	RespCreateErr,
@@ -20,20 +19,17 @@ const { v4: uuidv4 } = require('uuid');
 
 /**
  * 创建群聊
- * 1. 将前端传过来的群聊头像 base64 码转成图片文件并保存在本地服务器
- * 2. 服务端拿到创建群聊所需要的信息后在群聊表 (group_chat) 新建一个群聊
- * 3. 在群聊成员表 (group_numbers) 中循环插入所有群聊成员记录
+ * 1. 服务端拿到创建群聊所需要的信息后在群聊表 (group_chat) 新建一个群聊
+ * 2. 在群聊成员表 (group_numbers) 中循环插入所有群聊成员记录
  */
 async function CreateGroupChat(req, res) {
 	const groupInfo = req.body;
 	const uuid = uuidv4();
-	// 转化图片文件并保存
-	const filePath = base64ToImage(groupInfo.avatar);
 
 	const group_chat = {
 		name: groupInfo.name,
 		creator_id: req.user.id,
-		avatar: filePath,
+		avatar: groupInfo.avatar,
 		announcement: groupInfo.announcement,
 		room: uuid
 	};
@@ -51,7 +47,7 @@ async function CreateGroupChat(req, res) {
 			type: 'group',
 			media_type: 'text',
 			status: 0,
-			content: '大家可以一起聊天了!!',
+			content: '大家可以一起聊天了!',
 			room: uuid
 		};
 		sql = 'insert into message set ?';

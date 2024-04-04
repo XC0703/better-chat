@@ -88,7 +88,7 @@ export const getFileName = (path: string) => {
 	const fileName = path.split('/').pop();
 	return fileName;
 };
-// 根据图片 / 视频链接获得图片 / 视频宽高
+// 根据图片/视频链接获得图片/视频宽高
 export const getMediaSize = (
 	mediaUrl: string,
 	mediaType: string
