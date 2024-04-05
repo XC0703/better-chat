@@ -1,3 +1,4 @@
 export enum HttpStatus {
-	SUCCESS = 200
+	SUCCESS = 200,
+	NOT_FOUND = 404
 }

@@ -1,4 +1,5 @@
 import { ChatImage } from '@/assets/images';
+import { HttpStatus } from '@/utils/constant';
 
 // 根据文件路径获取文件类型（用于消息记录）
 export const getFileSuffixByPath = (path: string) => {
@@ -101,12 +102,12 @@ export const getMediaSize = (
 				resolve({ width: mediaElement.width, height: mediaElement.height });
 			};
 			mediaElement.onerror = () => {
-				reject(new Error(` 图片加载失败 `));
+				reject(new Error(`图片加载失败`));
 			};
 		} else if (mediaType === 'video') {
 			const mediaElement = document.createElement('video');
 			mediaElement.src = mediaUrl;
-			mediaElement.addEventListener('canplay', function () {
+			mediaElement.addEventListener('canplay', () => {
 				resolve({ width: mediaElement.videoWidth, height: mediaElement.videoHeight });
 			});
 		}
@@ -144,4 +145,11 @@ export const downloadFile = (url: string) => {
 	document.body.appendChild(link);
 	link.click();
 	document.body.removeChild(link);
+};
+// 判断某个文件是否存在
+export const urlExists = (url: string) => {
+	const http = new XMLHttpRequest();
+	http.open('HEAD', url, false);
+	http.send();
+	return http.status !== HttpStatus.NOT_FOUND;
 };

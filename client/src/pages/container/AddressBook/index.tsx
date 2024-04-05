@@ -23,8 +23,8 @@ import type { DirectoryTreeProps } from 'antd/es/tree';
 
 import { StatusIconList } from '@/assets/icons';
 import CreateGroupChatModal from '@/components/CreateGroupChatModal';
+import ImageLoad from '@/components/ImageLoad';
 import SearchContainer from '@/components/SearchContainer';
-import { serverURL } from '@/config';
 import useShowMessage from '@/hooks/useShowMessage';
 import { HttpStatus } from '@/utils/constant';
 import { userStorage } from '@/utils/storage';
@@ -76,7 +76,7 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 			children: group.friend.map(friend => ({
 				title: (
 					<div className={styles.nodeContent}>
-						<img src={friend.avatar} alt="头像" />
+						<ImageLoad src={friend.avatar} />
 						<span>{friend.remark}</span>
 						<span className={styles.friendStatus}>
 							<Tooltip
@@ -363,7 +363,7 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 									key={item.id}
 									onClick={() => handleSelectGroupChat(item)}
 								>
-									<img src={serverURL + item.avatar} />
+									<ImageLoad src={item.avatar} />
 									<span>{item.name}</span>
 								</div>
 							);
@@ -406,7 +406,7 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 						<div className={styles.infoModal}>
 							<div className={styles.infoContainerHead}>
 								<div className={styles.avatar}>
-									<img src={curFriendInfo?.avatar} alt="" />
+									<ImageLoad src={curFriendInfo?.avatar} />
 								</div>
 								<div className={styles.info}>
 									<div className={styles.username}>{curFriendInfo?.username}</div>
@@ -464,7 +464,7 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 						<div className={styles.infoModal}>
 							<div className={styles.infoContainerHead}>
 								<div className={styles.avatar}>
-									<img src={serverURL + curGroupChatInfo?.avatar} alt="" />
+									<ImageLoad src={curGroupChatInfo?.avatar} />
 								</div>
 								<div className={styles.info}>
 									<div className={styles.username}>{curGroupChatInfo?.name}</div>

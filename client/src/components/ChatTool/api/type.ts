@@ -1,5 +1,5 @@
 // 消息类型目前分为 text(文本),image(图片),video(视频),file(文件)
-type MessageType = 'text' | 'image' | 'video' | 'file';
+export type MessageType = 'text' | 'image' | 'video' | 'file';
 // 发送消息的类型
 export interface ISendMessage {
 	filename?: string;

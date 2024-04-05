@@ -54,9 +54,9 @@
 						font-size: 0.12rem;
 						width: 1rem;
 						color: @font-color-lightest;
-						white-space: nowrap; /* 禁止文本换行 */
-						overflow: hidden; /* 隐藏超出部分 */
-						text-overflow: ellipsis; /* 使用省略号表示 */
+						white-space: nowrap;
+						overflow: hidden;
+						text-overflow: ellipsis;
 					}
 				}
 				.chat_info_time {
@@ -68,9 +68,9 @@
 						font-size: 0.12rem;
 						color: @font-color-lightest;
 						width: 0.5rem;
-						white-space: nowrap; /* 禁止文本换行 */
-						overflow: hidden; /* 隐藏超出部分 */
-						text-overflow: ellipsis; /* 使用省略号表示 */
+						white-space: nowrap;
+						overflow: hidden;
+						text-overflow: ellipsis;
 					}
 					.chat_unread {
 						font-size: 0.12rem;
@@ -97,7 +97,7 @@
 	}
 	.rightContainer {
 		flex: 12;
-		background-color: #f5f5f5;
+		background-color: @deeply-border_bg-color;
 		display: flex;
 		justify-content: center;
 		align-items: center;

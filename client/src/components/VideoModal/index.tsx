@@ -2,14 +2,15 @@ import { Modal } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
 import styles from './index.module.less';
+
+import { CallIcons, CallBgImage } from '@/assets/images';
 import {
 	CallStatus,
 	callStatusType,
 	ICallModalProps,
 	IConnectParams
-} from '../AudioModal/api/type';
-
-import { CallIcons, CallBgImage } from '@/assets/images';
+} from '@/components/AudioModal/api/type';
+import ImageLoad from '@/components/ImageLoad';
 import { wsBaseURL } from '@/config';
 import useShowMessage from '@/hooks/useShowMessage';
 import { userStorage } from '@/utils/storage';
@@ -316,11 +317,11 @@ const VideoModal = (props: ICallModalProps) => {
 					>
 						<div className={styles.content}>
 							<div className={styles.avatar}>
-								<img src={friendInfo?.avatar} alt="" />
+								<ImageLoad src={friendInfo?.avatar} />
 							</div>
 							<span className={styles.callWords}>{` 对 ${friendInfo?.remark} 发起视频通话 `}</span>
 							<div className={styles.callIcons}>
-								<img src={CallIcons.REJECT} alt="" onClick={handleRejectCall} />
+								<img src={CallIcons.REJECT} alt="" onClick={handleRejectCall} draggable="false" />
 							</div>
 						</div>
 					</div>
@@ -332,12 +333,12 @@ const VideoModal = (props: ICallModalProps) => {
 					>
 						<div className={styles.content}>
 							<div className={styles.avatar}>
-								<img src={friendInfo?.avatar} alt="" />
+								<ImageLoad src={friendInfo?.avatar} />
 							</div>
 							<span className={styles.callWords}>{`${friendInfo?.remark} 发起视频通话 `}</span>
 							<div className={styles.callIcons}>
-								<img src={CallIcons.ACCEPT} alt="" onClick={handleAcceptCall} />
-								<img src={CallIcons.REJECT} alt="" onClick={handleRejectCall} />
+								<img src={CallIcons.ACCEPT} alt="" onClick={handleAcceptCall} draggable="false" />
+								<img src={CallIcons.REJECT} alt="" onClick={handleRejectCall} draggable="false" />
 							</div>
 						</div>
 					</div>
@@ -354,7 +355,7 @@ const VideoModal = (props: ICallModalProps) => {
 							<div className={styles.bottom}>
 								<span className={styles.callWords}>{formatCallTime(duration)}</span>
 								<div className={styles.callIcons}>
-									<img src={CallIcons.REJECT} alt="" onClick={handleRejectCall} />
+									<img src={CallIcons.REJECT} alt="" onClick={handleRejectCall} draggable="false" />
 								</div>
 							</div>
 						</div>

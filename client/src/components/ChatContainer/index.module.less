@@ -116,6 +116,19 @@
 			background-color: @shadow-border_bg-color;
 			cursor: pointer;
 		}
+		.content_delete {
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			color: @font-color-lightest;
+			img {
+				width: 0.4rem;
+			}
+		}
+		.content_delete:hover {
+			background-color: @primary-color;
+			cursor: default;
+		}
 	}
 	.other {
 		justify-content: flex-start;

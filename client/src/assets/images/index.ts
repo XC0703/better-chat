@@ -17,3 +17,11 @@ export enum CallIcons {
 	ACCEPT = 'https://p1.meituan.net/travelcube/afbf83c4b1c06ceb2e20d46df81ad69f12824.png',
 	REJECT = 'https://p1.meituan.net/travelcube/91080d4a2adc2834094892d98b129b2510890.png'
 }
+
+export enum LoadErrorImage {
+	AVATAR = 'https://img.qovv.cn/2024/04/05/660f7fbd1f33f.png',
+	FILE_DELETE = 'https://img.qovv.cn/2024/04/05/660f98edbc2d6.png'
+}
+
+// 生成默认头像的API
+export const generateAvatarAPI = 'https://ui-avatars.com/api/?name=';

@@ -5,6 +5,7 @@ import { CallStatus, callStatusType, ICallModalProps, IConnectParams } from './a
 import styles from './index.module.less';
 
 import { CallIcons, CallBgImage } from '@/assets/images';
+import ImageLoad from '@/components/ImageLoad';
 import { wsBaseURL } from '@/config';
 import useShowMessage from '@/hooks/useShowMessage';
 import { userStorage } from '@/utils/storage';
@@ -279,7 +280,7 @@ const AudioModal = (props: ICallModalProps) => {
 				>
 					<div className={styles.content}>
 						<div className={styles.avatar}>
-							<img src={friendInfo?.avatar} alt="" />
+							<ImageLoad src={friendInfo?.avatar} />
 						</div>
 						{callStatus === CallStatus.INITIATE && (
 							<>
@@ -287,7 +288,7 @@ const AudioModal = (props: ICallModalProps) => {
 									className={styles.callWords}
 								>{` 对 ${friendInfo?.remark} 发起语音通话 `}</span>
 								<div className={styles.callIcons}>
-									<img src={CallIcons.REJECT} alt="" onClick={handleRejectCall} />
+									<img src={CallIcons.REJECT} alt="" onClick={handleRejectCall} draggable="false" />
 								</div>
 							</>
 						)}
@@ -295,8 +296,8 @@ const AudioModal = (props: ICallModalProps) => {
 							<>
 								<span className={styles.callWords}>{`${friendInfo?.remark} 发起语音通话 `}</span>
 								<div className={styles.callIcons}>
-									<img src={CallIcons.ACCEPT} alt="" onClick={handleAcceptCall} />
-									<img src={CallIcons.REJECT} alt="" onClick={handleRejectCall} />
+									<img src={CallIcons.ACCEPT} alt="" onClick={handleAcceptCall} draggable="false" />
+									<img src={CallIcons.REJECT} alt="" onClick={handleRejectCall} draggable="false" />
 								</div>
 							</>
 						)}
@@ -311,7 +312,7 @@ const AudioModal = (props: ICallModalProps) => {
 									onTimeUpdate={handleDuration}
 								></video>
 								<div className={styles.callIcons}>
-									<img src={CallIcons.REJECT} alt="" onClick={handleRejectCall} />
+									<img src={CallIcons.REJECT} alt="" onClick={handleRejectCall} draggable="false" />
 								</div>
 							</>
 						)}

@@ -1,6 +1,8 @@
+@import '@/assets/styles/variables.less';
+@cur-primary-color: #b8b5b5;
 .searchContainer {
 	height: 100%;
-	background-color: #f5f5f5;
+	background-color: @deeply-border_bg-color;
 	padding: 0.1rem;
 	display: flex;
 	justify-content: center;
@@ -16,7 +18,7 @@
 		cursor: pointer;
 	}
 	.addBox:hover {
-		color: #b8b5b5;
+		color: @cur-primary-color;
 	}
 }
 
@@ -26,7 +28,7 @@
 			border-radius: 0.02rem !important;
 			li:hover {
 				cursor: pointer;
-				color: #b8b5b5;
+				color: @cur-primary-color;
 			}
 		}
 	}

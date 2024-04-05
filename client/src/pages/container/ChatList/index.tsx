@@ -11,9 +11,9 @@ import { StatusIconList } from '@/assets/icons';
 import ChatContainer from '@/components/ChatContainer';
 import ChatTool from '@/components/ChatTool';
 import { ISendMessage, IMessageList } from '@/components/ChatTool/api/type';
+import ImageLoad from '@/components/ImageLoad';
 import SearchContainer from '@/components/SearchContainer';
 import { wsBaseURL } from '@/config';
-import { serverURL } from '@/config';
 import useShowMessage from '@/hooks/useShowMessage';
 import { HttpStatus } from '@/utils/constant';
 import { userStorage } from '@/utils/storage';
@@ -183,10 +183,7 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
 									}}
 								>
 									<div className={styles.chat_avatar}>
-										<img
-											src={item.receiver_username ? item.avatar : serverURL + item.avatar}
-											alt=""
-										/>
+										<ImageLoad src={item.avatar} />
 									</div>
 									<div className={styles.chat_info}>
 										<div className={styles.chat_name}>{item.name}</div>

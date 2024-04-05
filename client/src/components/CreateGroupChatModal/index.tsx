@@ -4,8 +4,9 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { getFriendList, createGroup, inviteFriends } from './api';
 import { IFriend, IFriendGroup, IGroupMember, ICreateGroupParams } from './api/type';
 import styles from './index.module.less';
-import { ImageUpload } from '../ImageUpload';
 
+import ImageLoad from '@/components/ImageLoad';
+import { ImageUpload } from '@/components/ImageUpload';
 import useShowMessage from '@/hooks/useShowMessage';
 import { IGroupChatInfo } from '@/pages/container/AddressBook/api/type';
 import { HttpStatus } from '@/utils/constant';
@@ -44,7 +45,7 @@ const CreateGroupModal = (props: ICreateGroupModal) => {
 			children: group.friend.map(friend => ({
 				title: (
 					<div className={styles.nodeContent}>
-						<img src={friend.avatar} alt="头像" />
+						<ImageLoad src={friend.avatar} />
 						<span>{friend.remark}</span>
 					</div>
 				),
@@ -246,7 +247,7 @@ const CreateGroupModal = (props: ICreateGroupModal) => {
 												return (
 													<div key={selectedFriend.username} className={styles.friendInfo}>
 														<div className={styles.avatar}>
-															<img src={selectedFriend.avatar} alt="" />
+															<ImageLoad src={selectedFriend.avatar} />
 														</div>
 														<span className={styles.username}>{selectedFriend.username}</span>
 													</div>

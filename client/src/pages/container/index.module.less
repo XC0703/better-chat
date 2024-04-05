@@ -20,11 +20,13 @@
 		align-items: center;
 		flex-direction: column;
 		.avatar {
+			width: 0.4rem;
+			height: 0.4rem;
+			margin-top: 0.3rem;
+			margin-bottom: 0.2rem;
 			img {
-				width: 0.4rem;
-				height: 0.4rem;
-				margin-top: 0.3rem;
-				margin-bottom: 0.1rem;
+				width: 100%;
+				height: 100%;
 				cursor: pointer;
 			}
 		}
@@ -42,9 +44,6 @@
 					margin: 0.1rem 0;
 					font-size: 0.2rem;
 					cursor: pointer;
-				}
-				li:hover {
-					color: #b8b5b5;
 				}
 			}
 		}
@@ -115,11 +114,6 @@
 				min-width: 0;
 				min-height: 0;
 			}
-		}
-	}
-	.infoTooltip {
-		.ant-tooltip-inner {
-			padding: 0.08rem 0.06rem !important;
 		}
 	}
 }

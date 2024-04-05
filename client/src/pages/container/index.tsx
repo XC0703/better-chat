@@ -13,8 +13,9 @@ import AudioModal from '@/components/AudioModal';
 import { ICallFriendInfo } from '@/components/AudioModal/api/type';
 import ChangePerInfoModal from '@/components/ChangePerInfoModal';
 import ChangePwdModal from '@/components/ChangePwdModal';
+import ImageLoad from '@/components/ImageLoad';
 import VideoModal from '@/components/VideoModal';
-import { serverURL, wsBaseURL } from '@/config';
+import { wsBaseURL } from '@/config';
 import useShowMessage from '@/hooks/useShowMessage';
 import { HttpStatus } from '@/utils/constant';
 import { handleLogout, IUserInfo } from '@/utils/logout';
@@ -91,10 +92,7 @@ const Container = () => {
 		<div className={styles.infoContent}>
 			<div className={styles.infoContainer}>
 				<div className={styles.avatar}>
-					<img
-						src={avatar.startsWith('http' || 'https') ? avatar : `${serverURL}${avatar}`}
-						alt=""
-					/>
+					<ImageLoad src={avatar} />
 				</div>
 				<div className={styles.info}>
 					<div className={styles.name}>{name}</div>
@@ -145,11 +143,11 @@ const Container = () => {
 				case 'createRoom':
 					if (data.sender_username) {
 						try {
-							const param = {
+							const params = {
 								friend_username: data.sender_username,
 								self_username: username
 							};
-							const res = await getFriendInfoByUsername(param);
+							const res = await getFriendInfoByUsername(params);
 							if (res.code === HttpStatus.SUCCESS) {
 								setCallFriendInfo({
 									receiver_username: res.data.username,
@@ -188,14 +186,11 @@ const Container = () => {
 		<div className={styles.parentContainer}>
 			<div className={styles.container}>
 				<div className={styles.leftContainer}>
-					<div className={styles.avatar}>
-						<Popover content={infoContent} placement="rightTop">
-							<img
-								src={avatar.startsWith('http' || 'https') ? avatar : `${serverURL}${avatar}`}
-								alt=""
-							/>
-						</Popover>
-					</div>
+					<Popover content={infoContent} placement="rightTop">
+						<div className={styles.avatar}>
+							<ImageLoad src={avatar} />
+						</div>
+					</Popover>
 					<div className={styles.iconList}>
 						<ul className={styles.topIcons}>
 							{MenuIconList.slice(0, 5).map(item => {

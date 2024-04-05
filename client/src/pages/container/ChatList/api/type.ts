@@ -1,3 +1,5 @@
+import { MessageType } from '@/components/ChatTool/api/type';
+
 // 建立 websocket 连接所需要传递的参数类型
 export interface IConnectParams {
 	room: string;
@@ -11,7 +13,7 @@ export interface IMessage {
 	content: string;
 	room: string;
 	avatar: string;
-	type: string;
+	type: MessageType;
 	file_size: string | null;
 	created_at: Date;
 }

@@ -54,13 +54,13 @@ const ChangePwdModal = (props: IChangePwdModal) => {
 		}
 		setLoading(true);
 		try {
-			const param = {
+			const params = {
 				username,
 				password,
 				confirmPassword: confirm,
 				phone
 			};
-			const res = await handleChange(param);
+			const res = await handleChange(params);
 			if (res.code === HttpStatus.SUCCESS) {
 				showMessage('success', '修改成功');
 				setLoading(false);

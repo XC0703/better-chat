@@ -3,16 +3,18 @@ import { useEffect, useRef, useState } from 'react';
 
 import styles from './index.module.less';
 
-import { ChatImage } from '@/assets/images';
+import { ChatImage, LoadErrorImage } from '@/assets/images';
+import { MessageType } from '@/components/ChatTool/api/type';
+import ImageLoad from '@/components/ImageLoad';
 import { serverURL } from '@/config';
-import useShowMessage from '@/hooks/useShowMessage';
 import { IMessage } from '@/pages/container/ChatList/api/type';
 import {
 	getMediaSize,
 	getMediaShowSize,
 	getFileName,
 	getFileIcons,
-	downloadFile
+	downloadFile,
+	urlExists
 } from '@/utils/file';
 import { userStorage } from '@/utils/storage';
 import { formatChatContentTime } from '@/utils/time';
@@ -23,7 +25,7 @@ interface IChatContainer {
 }
 // 给消息展示组件传递的参数
 interface IChatContent {
-	messageType: string;
+	messageType: MessageType;
 	messageContent: string;
 	fileSize?: string | null;
 }
@@ -35,7 +37,6 @@ interface IMediaInfo {
 }
 
 const ChatContainer = (props: IChatContainer) => {
-	const showMessage = useShowMessage();
 	const { historyMsg } = props;
 	const chatRef = useRef<HTMLDivElement>(null);
 	let prevTime: string | null = null;
@@ -48,6 +49,14 @@ const ChatContainer = (props: IChatContainer) => {
 		chatRef.current!.scrollTop = chatRef.current!.scrollHeight;
 	};
 
+	// 图片/视频和文件被清理时的兜底显示
+	const ChatContentPocket = () => (
+		<div className={`${styles.content_delete} ${styles.content_file}`}>
+			<img src={LoadErrorImage.FILE_DELETE} draggable="false"></img>
+			<span>文件已过期或被清理</span>
+		</div>
+	);
+
 	// 消息内容 (分为文本、图片、视频和文件)
 	const ChatContent = (props: IChatContent): JSX.Element | null => {
 		const { messageType, messageContent, fileSize } = props;
@@ -57,12 +66,15 @@ const ChatContainer = (props: IChatContainer) => {
 		useEffect(() => {
 			if (messageType === 'image' || messageType === 'video') {
 				const mediaURL = serverURL + messageContent;
+				if (!urlExists(mediaURL)) {
+					return;
+				}
 				getMediaSize(mediaURL, messageType)
 					.then(size => {
 						setCurMediaInfo({ type: messageType, url: mediaURL, size });
 					})
 					.catch(() => {
-						showMessage('error', `获取${messageType === 'image' ? '图片' : '视频'}尺寸失败`);
+						/* empty */
 					});
 			}
 		}, [messageType, messageContent]);
@@ -83,7 +95,9 @@ const ChatContainer = (props: IChatContainer) => {
 						src={curMediaInfo.url}
 						rootClassName="content_image"
 					/>
-				) : null;
+				) : (
+					<ChatContentPocket />
+				);
 			case 'video':
 				return curMediaInfo && curMediaInfo ? (
 					<div className={styles.content_video}>
@@ -94,7 +108,7 @@ const ChatContainer = (props: IChatContainer) => {
 								width: getMediaShowSize(curMediaInfo.size, 'video').width
 							}}
 						/>
-						<img src={ChatImage.PLAY} alt="" onClick={handleOpenVideo} />
+						<img src={ChatImage.PLAY} alt="" onClick={handleOpenVideo} draggable="false" />
 						<Modal
 							open={isVideoPlay}
 							footer={null}
@@ -106,9 +120,11 @@ const ChatContainer = (props: IChatContainer) => {
 							<video src={serverURL + messageContent} muted controls autoPlay width={750} />
 						</Modal>
 					</div>
-				) : null;
+				) : (
+					<ChatContentPocket />
+				);
 			case 'file':
-				return (
+				return urlExists(`${serverURL}${messageContent}`) ? (
 					<div
 						className={styles.content_file}
 						onClick={() => {
@@ -120,9 +136,11 @@ const ChatContainer = (props: IChatContainer) => {
 							{fileSize && <span>{fileSize}</span>}
 						</div>
 						<div className={styles.content_file_img}>
-							<img src={getFileIcons(messageContent)}></img>
+							<img src={getFileIcons(messageContent)} draggable="false"></img>
 						</div>
 					</div>
+				) : (
+					<ChatContentPocket />
 				);
 			default:
 				return null;
@@ -150,13 +168,13 @@ const ChatContainer = (props: IChatContainer) => {
 									fileSize={item.file_size}
 								/>
 								<div className={styles.avatar}>
-									<img src={item.avatar} alt="" />
+									<ImageLoad src={item.avatar} />
 								</div>
 							</div>
 						) : (
 							<div className={`${styles.other} ${styles.chat_item_content}`}>
 								<div className={styles.avatar}>
-									<img src={item.avatar} alt="" />
+									<ImageLoad src={item.avatar} />
 								</div>
 								<ChatContent
 									messageType={item.type}

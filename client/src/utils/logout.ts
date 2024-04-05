@@ -1,6 +1,6 @@
 import Request from '@/utils/request';
 
-// 用户信息接口
+// 用户信息接口 —— 登录成功之后用户信息会存储在localStorage中，很多地方都会用到用户信息，所以这里独立定义一个接口类型
 export interface IUserInfo {
 	id: number;
 	avatar: string;

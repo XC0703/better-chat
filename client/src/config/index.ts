@@ -6,6 +6,3 @@ export const wsBaseURL = 'ws://127.0.0.1:3000/api/chat/v1';
 
 // 服务器的地址 URL
 export const serverURL = 'http://127.0.0.1:3000';
-
-// 生成默认头像的API
-export const generateAvatarAPI = 'https://ui-avatars.com/api/?name=';

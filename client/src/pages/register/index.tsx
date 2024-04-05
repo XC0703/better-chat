@@ -6,7 +6,7 @@ import { handleRegister } from './api';
 import styles from './index.module.less';
 
 import { BgImage } from '@/assets/images';
-import { generateAvatarAPI } from '@/config';
+import { generateAvatarAPI } from '@/assets/images';
 import useShowMessage from '@/hooks/useShowMessage';
 import { HttpStatus } from '@/utils/constant';
 
@@ -31,14 +31,14 @@ const Register = () => {
 
 		setLoading(true);
 		try {
-			const param = {
+			const params = {
 				username,
 				password,
 				confirmPassword: confirm,
 				phone,
 				avatar: `${generateAvatarAPI}${username}`
 			};
-			const res = await handleRegister(param);
+			const res = await handleRegister(params);
 			if (res.code === HttpStatus.SUCCESS) {
 				showMessage('success', '注册成功');
 				setLoading(false);

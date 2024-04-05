@@ -6,7 +6,7 @@ import { getFriendList, addFriend, getGroupList, addGroupChat } from './api';
 import { IFriend, IGroupChat } from './api/type';
 import styles from './index.module.less';
 
-import { serverURL } from '@/config';
+import ImageLoad from '@/components/ImageLoad';
 import useShowMessage from '@/hooks/useShowMessage';
 import { HttpStatus } from '@/utils/constant';
 import { userStorage } from '@/utils/storage';
@@ -118,7 +118,7 @@ const AddFriendOrGroupModal = (props: IChangePerInfoModal) => {
 	const items: TabsProps['items'] = [
 		{
 			key: '1',
-			label: ` 加好友 `,
+			label: `加好友`,
 			children: (
 				<>
 					<div className={styles.searchBox}>
@@ -145,7 +145,7 @@ const AddFriendOrGroupModal = (props: IChangePerInfoModal) => {
 						<div className={styles.searchResult}>
 							{friendList.map(item => (
 								<div className={styles.list_item} key={item.username}>
-									<img src={item.avatar} alt="" />
+									<ImageLoad src={item.avatar} />
 									<div className={styles.list_item_desc}>
 										<span className={styles.list_item_username}>
 											{item.username} ({item.username})
@@ -172,7 +172,7 @@ const AddFriendOrGroupModal = (props: IChangePerInfoModal) => {
 		},
 		{
 			key: '2',
-			label: ` 加群 `,
+			label: `加群`,
 			children: (
 				<>
 					<div className={styles.searchBox}>
@@ -199,10 +199,10 @@ const AddFriendOrGroupModal = (props: IChangePerInfoModal) => {
 						<div className={styles.searchResult}>
 							{groupList.map(item => (
 								<div className={styles.list_item} key={item.group_id}>
-									<img src={serverURL + item.avatar} alt="" />
+									<ImageLoad src={item.avatar} />
 									<div className={styles.list_item_desc}>
 										<span className={styles.list_item_username}>
-											{item.name} ({item.number} 人)
+											{item.name} ({item.number}人)
 										</span>
 										{!item.status ? (
 											<button onClick={() => joinGroup(item.group_id)}> 加入群聊 </button>

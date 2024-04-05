@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { uploadImage } from './api';
 import styles from './index.module.less';
 
-import { serverURL } from '@/config';
+import ImageLoad from '@/components/ImageLoad';
 import useShowMessage from '@/hooks/useShowMessage';
 import { HttpStatus } from '@/utils/constant';
 
@@ -78,15 +78,7 @@ export const ImageUpload = (props: ImageUploadProps) => {
 				maxCount={1}
 				className={styles.avatarUploader}
 			>
-				{imageUrl ? (
-					<img
-						src={imageUrl.startsWith('http' || 'https') ? imageUrl : `${serverURL}${imageUrl}`}
-						alt="avatar"
-						className={styles.avatar}
-					/>
-				) : (
-					uploadButton
-				)}
+				{imageUrl ? <ImageLoad src={imageUrl} /> : uploadButton}
 			</Upload>
 		</>
 	);

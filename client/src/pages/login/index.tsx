@@ -61,11 +61,11 @@ const Login = () => {
 		} else {
 			setLoading(true);
 			try {
-				const param = {
+				const params = {
 					username,
 					password
 				};
-				const res = await handleLogin(param);
+				const res = await handleLogin(params);
 				if (res.code === HttpStatus.SUCCESS && res.data) {
 					showMessage('success', '登录成功');
 					setLoading(false);
