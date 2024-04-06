@@ -4,17 +4,13 @@ import { useEffect, useState } from 'react';
 
 import { uploadImage } from './api';
 import styles from './index.module.less';
+import { IImageUploadProps } from './type';
 
 import ImageLoad from '@/components/ImageLoad';
 import useShowMessage from '@/hooks/useShowMessage';
 import { HttpStatus } from '@/utils/constant';
 
-// 图片上传组件 —— 用于个人/群聊头像上传
-interface ImageUploadProps {
-	onUploadSuccess: (filePath: string) => void; // 图片上传成功后的回调
-	initialImageUrl?: string | null; // 初始回显的图片 URL
-}
-export const ImageUpload = (props: ImageUploadProps) => {
+export const ImageUpload = (props: IImageUploadProps) => {
 	const { onUploadSuccess, initialImageUrl } = props;
 	const showMessage = useShowMessage();
 	const [imageUrl, setImageUrl] = useState<string | null>(null);

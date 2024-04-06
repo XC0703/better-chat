@@ -1,3 +1,6 @@
+/**
+ * 接口参数类型定义
+ */
 // 注册接口参数类型
 export interface IRegisterParams {
 	username: string;
@@ -17,4 +20,15 @@ export interface IRegisterResponseData {
 		created_at: string;
 		signature: string;
 	};
+}
+
+/**
+ * 组件中用到的其它类型定义
+ */
+// 注册表单类型
+export interface IRegisterForm {
+	username: string;
+	phone: string;
+	password: string;
+	confirm: string;
 }

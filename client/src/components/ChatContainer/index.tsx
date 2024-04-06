@@ -2,12 +2,11 @@ import { Image, Modal } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
 import styles from './index.module.less';
+import { IChatContainerProps, IChatContentProps, IMediaInfo } from './type';
 
 import { ChatImage, LoadErrorImage } from '@/assets/images';
-import { MessageType } from '@/components/ChatTool/api/type';
 import ImageLoad from '@/components/ImageLoad';
 import { serverURL } from '@/config';
-import { IMessage } from '@/pages/container/ChatList/api/type';
 import {
 	getMediaSize,
 	getMediaShowSize,
@@ -19,24 +18,7 @@ import {
 import { userStorage } from '@/utils/storage';
 import { formatChatContentTime } from '@/utils/time';
 
-// 给聊天框组件传递的参数
-interface IChatContainer {
-	historyMsg: IMessage[];
-}
-// 给消息展示组件传递的参数
-interface IChatContent {
-	messageType: MessageType;
-	messageContent: string;
-	fileSize?: string | null;
-}
-// 图片/视频的信息（类型，URL，尺寸）
-interface IMediaInfo {
-	type: 'image' | 'video';
-	url: string;
-	size: { width: number; height: number };
-}
-
-const ChatContainer = (props: IChatContainer) => {
+const ChatContainer = (props: IChatContainerProps) => {
 	const { historyMsg } = props;
 	const chatRef = useRef<HTMLDivElement>(null);
 	let prevTime: string | null = null;
@@ -58,7 +40,7 @@ const ChatContainer = (props: IChatContainer) => {
 	);
 
 	// 消息内容 (分为文本、图片、视频和文件)
-	const ChatContent = (props: IChatContent): JSX.Element | null => {
+	const ChatContent = (props: IChatContentProps): JSX.Element | null => {
 		const { messageType, messageContent, fileSize } = props;
 		const [curMediaInfo, setCurMediaInfo] = useState<IMediaInfo | null>(null);
 		const [isVideoPlay, setIsVideoPlay] = useState<boolean>(false);

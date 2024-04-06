@@ -4,24 +4,14 @@ import { useNavigate } from 'react-router-dom';
 
 import { handleChange } from './api';
 import styles from './index.module.less';
+import { IChangePwdForm, IChangePwdModalProps } from './type';
 
 import useShowMessage from '@/hooks/useShowMessage';
 import { HttpStatus } from '@/utils/constant';
 import { handleLogout, IUserInfo } from '@/utils/logout';
 import { clearSessionStorage, userStorage } from '@/utils/storage';
 
-interface IChangePwdModal {
-	openmodal: boolean;
-	handleModal: (open: boolean) => void;
-}
-// 修改密码表单类型
-type ChangePwdForm = {
-	username: string;
-	phone: string;
-	password: string;
-	confirm: string;
-};
-const ChangePwdModal = (props: IChangePwdModal) => {
+const ChangePwdModal = (props: IChangePwdModalProps) => {
 	const { openmodal, handleModal } = props;
 
 	const showMessage = useShowMessage();
@@ -46,7 +36,7 @@ const ChangePwdModal = (props: IChangePwdModal) => {
 	};
 
 	// 修改密码
-	const handleSubmit = async (values: ChangePwdForm) => {
+	const handleSubmit = async (values: IChangePwdForm) => {
 		const { username, phone, password, confirm } = values;
 		if (password !== confirm) {
 			showMessage('error', '两次密码不一致');

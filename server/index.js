@@ -17,7 +17,7 @@ app.listen(port, () => {
 });
 
 /**
- * 设置最大传输文件大小
+ * 设置最大传输文件大小 5G
  */
 const http = require('http');
 const server = http.createServer(app);

@@ -3,11 +3,12 @@ import React from 'react';
 import Login from '@/pages/login';
 import { tokenStorage } from '@/utils/storage';
 
-interface Props {
+interface IPrivateRouteProps {
 	element: React.ReactNode;
 }
 
-const PrivateRoute = ({ element }: Props) => {
+const PrivateRoute = (props: IPrivateRouteProps) => {
+	const { element } = props;
 	const authToken = tokenStorage.getItem();
 	if (authToken) {
 		return <>{element}</>;

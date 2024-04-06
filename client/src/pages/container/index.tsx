@@ -4,13 +4,13 @@ import { useNavigate } from 'react-router-dom';
 
 import AddressBook from './AddressBook';
 import { getFriendInfoByUsername } from './AddressBook/api';
-import { IFriendInfo, IGroupChatInfo } from './AddressBook/api/type';
+import { IFriendInfo, IGroupChatInfo } from './AddressBook/type';
 import ChatList from './ChatList';
 import styles from './index.module.less';
 
 import { MenuIconList } from '@/assets/icons';
 import AudioModal from '@/components/AudioModal';
-import { ICallFriendInfo } from '@/components/AudioModal/api/type';
+import { ICallFriendInfo } from '@/components/AudioModal/type';
 import ChangePerInfoModal from '@/components/ChangePerInfoModal';
 import ChangePwdModal from '@/components/ChangePwdModal';
 import ImageLoad from '@/components/ImageLoad';
@@ -21,13 +21,13 @@ import { HttpStatus } from '@/utils/constant';
 import { handleLogout, IUserInfo } from '@/utils/logout';
 import { clearSessionStorage, userStorage } from '@/utils/storage';
 
-type AddressBookRefType = {
+interface IAddressBookRef {
 	refreshFriendList: () => void;
 	refreshGroupChatList: () => void;
-};
-type ChatListRefType = {
+}
+interface IChatListRef {
 	refreshChatList: () => void;
-};
+}
 
 const Container = () => {
 	const showMessage = useShowMessage();
@@ -39,8 +39,8 @@ const Container = () => {
 	const [openAudioModal, setAudioModal] = useState(false);
 	const [openVideoModal, setVideoModal] = useState(false);
 	const socket = useRef<WebSocket | null>(null); // websocket 实例
-	const addressBookRef = useRef<AddressBookRefType>(null); // 通讯录组件实例
-	const chatListRef = useRef<ChatListRefType>(null); // 聊天列表组件实例
+	const addressBookRef = useRef<IAddressBookRef>(null); // 通讯录组件实例
+	const chatListRef = useRef<IChatListRef>(null); // 聊天列表组件实例
 	const [initSelectedChat, setInitSelectedChat] = useState<IFriendInfo | IGroupChatInfo | null>(
 		null
 	); // 初始化选中的聊天对象 (只有从通讯录页面进入聊天页面时才会有值)

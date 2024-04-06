@@ -11,18 +11,21 @@ import {
 	getGroupChatList,
 	getGroupChatInfo
 } from './api';
-import {
-	IFriendGroup,
-	IFriendInfo,
-	IFriendGroupList,
-	IGroupChatItem,
-	IGroupChatInfo
-} from './api/type';
 import styles from './index.module.less';
+import {
+	IFriendInfo,
+	IFriendGroupListItem,
+	IGroupChatItem,
+	IGroupChatInfo,
+	IAddressBookProps,
+	TabType,
+	IFriendInfoForm
+} from './type';
 import type { DirectoryTreeProps } from 'antd/es/tree';
 
 import { StatusIconList } from '@/assets/icons';
 import CreateGroupChatModal from '@/components/CreateGroupChatModal';
+import { IFriendGroupItem } from '@/components/CreateGroupChatModal/type';
 import ImageLoad from '@/components/ImageLoad';
 import SearchContainer from '@/components/SearchContainer';
 import useShowMessage from '@/hooks/useShowMessage';
@@ -31,31 +34,16 @@ import { userStorage } from '@/utils/storage';
 
 const { DirectoryTree } = Tree;
 
-interface IAddressBookProps {
-	handleChooseChat: (chatInfo: IFriendInfo | IGroupChatInfo) => void;
-}
-// 当前 tab 是好友还是群聊
-enum TabType {
-	FRIEND = '1',
-	GROUP_CHAT = '2'
-}
-// 好友信息表单类型
-type FriendInfoFormType = {
-	username: string;
-	name: string;
-	remark: string;
-	group: number;
-};
 const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 	const { handleChooseChat } = props;
 	const showMessage = useShowMessage();
 
 	const [curTab, setCurTab] = useState<string>(TabType.FRIEND); // 当前 tab 是好友还是群聊
 	// 好友相关状态
-	const [friendList, setFriendList] = useState<IFriendGroup[]>([]); // 好友列表
+	const [friendList, setFriendList] = useState<IFriendGroupItem[]>([]); // 好友列表
 	const [curFriendInfo, setCurFriendInfo] = useState<IFriendInfo>(); // 当前选中的好友信息
-	const [groupList, setGroupList] = useState<IFriendGroupList[]>([]); // 好友分组列表
-	const [friendInfoFormInstance] = Form.useForm<FriendInfoFormType>(); // 好友信息表单实例
+	const [groupList, setGroupList] = useState<IFriendGroupListItem[]>([]); // 好友分组列表
+	const [friendInfoFormInstance] = Form.useForm<IFriendInfoForm>(); // 好友信息表单实例
 	const [openCreateGroupModal, setOpenCreateGroupModal] = useState(false); // 是否打开新建分组的 modal
 	const [newGroupName, setNewGroupName] = useState(''); // 新建分组的名称
 	// 群聊相关状态
@@ -526,6 +514,7 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 		</>
 	);
 });
+
 // 指定显示名称
 AddressBook.displayName = 'AddressBook';
 export default AddressBook;

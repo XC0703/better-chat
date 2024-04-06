@@ -9,6 +9,7 @@ const formatBytes = (bytes, decimals = 2) => {
 
 	return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + sizes[i];
 };
+
 // 时间转换
 const formatDate = timestamp => {
 	const utcDate = new Date(timestamp);
@@ -19,6 +20,7 @@ const formatDate = timestamp => {
 		hourCycle: 'h24'
 	});
 };
+
 module.exports = {
 	formatBytes,
 	formatDate

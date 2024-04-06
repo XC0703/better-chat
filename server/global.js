@@ -1,4 +1,4 @@
-function initGlobal() {
+const initGlobal = () => {
 	/**
 	 * 初始化数据库
 	 */
@@ -25,5 +25,6 @@ function initGlobal() {
 	 */
 	const { NotificationUser } = require('./utils/notification.js');
 	global.NotificationUser = NotificationUser;
-}
+};
+
 module.exports = initGlobal;

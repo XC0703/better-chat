@@ -2,25 +2,21 @@ import { SearchOutlined } from '@ant-design/icons';
 import { Button, Empty, Input, Modal, Tabs, TabsProps } from 'antd';
 import { useState } from 'react';
 
-import { getFriendList, addFriend, getGroupList, addGroupChat } from './api';
-import { IFriend, IGroupChat } from './api/type';
+import { getFriendList, addFriend, getGroupList, addGroup } from './api';
 import styles from './index.module.less';
+import { IAddFriendOrGroupModalProps, IFriendItem, IGroupItem } from './type';
 
 import ImageLoad from '@/components/ImageLoad';
 import useShowMessage from '@/hooks/useShowMessage';
 import { HttpStatus } from '@/utils/constant';
 import { userStorage } from '@/utils/storage';
 
-interface IChangePerInfoModal {
-	openmodal: boolean;
-	handleModal: (open: boolean) => void;
-}
-const AddFriendOrGroupModal = (props: IChangePerInfoModal) => {
+const AddFriendOrGroupModal = (props: IAddFriendOrGroupModalProps) => {
 	const { openmodal, handleModal } = props;
 
 	const showMessage = useShowMessage();
-	const [friendList, setFriendList] = useState<IFriend[]>([]);
-	const [groupList, setGroupList] = useState<IGroupChat[]>([]);
+	const [friendList, setFriendList] = useState<IFriendItem[]>([]);
+	const [groupList, setGroupList] = useState<IGroupItem[]>([]);
 	const [friendName, setFriendName] = useState('');
 	const [groupName, setGroupName] = useState('');
 	const [loading, setLoading] = useState(false);
@@ -82,9 +78,9 @@ const AddFriendOrGroupModal = (props: IChangePerInfoModal) => {
 		}
 	};
 	// 获取模糊查询的群列表
-	const getGroupListData = async (name: string) => {
+	const getGroupChatListData = async (group_name: string) => {
 		try {
-			const res = await getGroupList(name);
+			const res = await getGroupList(group_name);
 			if (res.code === HttpStatus.SUCCESS && res.data) {
 				setGroupList(res.data);
 			} else {
@@ -100,7 +96,10 @@ const AddFriendOrGroupModal = (props: IChangePerInfoModal) => {
 	const joinGroup = async (group_id: number) => {
 		setLoading(true);
 		try {
-			const res = await addGroupChat({ group_id: group_id });
+			const params = {
+				group_id
+			};
+			const res = await addGroup(params);
 			if (res.code === HttpStatus.SUCCESS) {
 				showMessage('success', '成功加入该群聊');
 				setLoading(false);
@@ -187,7 +186,7 @@ const AddFriendOrGroupModal = (props: IChangePerInfoModal) => {
 						<Button
 							type="primary"
 							onClick={() => {
-								getGroupListData(groupName);
+								getGroupChatListData(groupName);
 							}}
 						>
 							查找

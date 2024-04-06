@@ -3,14 +3,15 @@ import { Tooltip } from 'antd';
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 
 import { getChatList } from './api';
-import { IConnectParams, IMessage } from './api/type';
 import styles from './index.module.less';
-import { IFriendInfo, IGroupChatInfo } from '../AddressBook/api/type';
+import { IConnectParams, IChatListProps } from './type';
+import { IFriendInfo, IGroupChatInfo } from '../AddressBook/type';
 
 import { StatusIconList } from '@/assets/icons';
 import ChatContainer from '@/components/ChatContainer';
+import { IHistoryMessageItem } from '@/components/ChatContainer/type';
 import ChatTool from '@/components/ChatTool';
-import { ISendMessage, IMessageList } from '@/components/ChatTool/api/type';
+import { ISendMessage, IMessageListItem } from '@/components/ChatTool/type';
 import ImageLoad from '@/components/ImageLoad';
 import SearchContainer from '@/components/SearchContainer';
 import { wsBaseURL } from '@/config';
@@ -18,10 +19,6 @@ import useShowMessage from '@/hooks/useShowMessage';
 import { HttpStatus } from '@/utils/constant';
 import { userStorage } from '@/utils/storage';
 import { formatChatListTime } from '@/utils/time';
-
-interface IChatListProps {
-	initSelectedChat: IFriendInfo | IGroupChatInfo | null;
-}
 
 // 自定义的类型保护，用于判断是否为 IFriendInfo 类型 / IGroupChatInfo 类型
 const isFriendInfo = (chatInfo: IFriendInfo | IGroupChatInfo): chatInfo is IFriendInfo => {
@@ -31,10 +28,10 @@ const isFriendInfo = (chatInfo: IFriendInfo | IGroupChatInfo): chatInfo is IFrie
 const ChatList = forwardRef((props: IChatListProps, ref) => {
 	const { initSelectedChat } = props;
 	const showMessage = useShowMessage();
-	const [chatList, setChatList] = useState<IMessageList[]>([]); // 消息列表
-	const [curChatInfo, setCurChatInfo] = useState<IMessageList>(); // 当前选中的对话信息
+	const [chatList, setChatList] = useState<IMessageListItem[]>([]); // 消息列表
+	const [curChatInfo, setCurChatInfo] = useState<IMessageListItem>(); // 当前选中的对话信息
 	const socket = useRef<WebSocket | null>(null); // websocket 实例
-	const [historyMsg, setHistoryMsg] = useState<IMessage[]>([]);
+	const [historyMsg, setHistoryMsg] = useState<IHistoryMessageItem[]>([]);
 
 	// 进入聊天房间时建立 websocket 连接
 	const initSocket = (connectParams: IConnectParams) => {
@@ -67,7 +64,7 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
 	};
 
 	// 选择聊天室
-	const chooseRoom = (item: IMessageList) => {
+	const chooseRoom = (item: IMessageListItem) => {
 		setHistoryMsg([]);
 		setCurChatInfo(item);
 		const params: IConnectParams = {
@@ -243,6 +240,7 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
 		</>
 	);
 });
+
 // 指定显示名称
 ChatList.displayName = 'ChatList';
 export default ChatList;

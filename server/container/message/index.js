@@ -1,11 +1,6 @@
 /* global Buffer process NotificationUser */
-module.exports = {
-	getChatList,
-	connectChat
-};
-
 const path = require('path');
-const { RespServerErr } = require('../../model/error');
+const { CommonErrStatus } = require('../../model/error');
 const { RespError, RespData } = require('../../model/resp');
 const { Query } = require('../../db/query');
 const fs = require('fs');
@@ -14,24 +9,25 @@ const { formatBytes } = require('../../utils/format');
 const rooms = {};
 
 /**
- * 获取消息列表 -- 私聊类型
+ * 获取聊天记录列表的逻辑：
+ * 私聊类型
  * 1. 先获取好友聊天列表
  * 2. 先根据好友分组表中获取当前用户的所有好友分组 id, 然后根据分组 id 获取指定房间的用户的所有聊天记录, 在根据消息统计表获取最后一次发送消息的时间
  * 3. 如何根据对方 id 和房间号获取未读消息的数量
  * 4. 根据房间号和创建时间获取最后一次消息内容
- * 获取消息列表 -- 群聊类型
+ * 群聊类型
  * 1. 根据用户 id 去查询加入的所有群聊 id（gm 查询子表）
  * 2. 再根据群聊 id 去查询群聊的信息，群聊 room（联合查询，gc 查询子表）
  * 3. 再根据群聊 room 去查询群聊的最后一条消息（联合查询，msg_sta 查询子表）
  */
-async function getChatList(req, res) {
+const getChatList = async (req, res) => {
 	const data = [];
 	const id = req.user.id;
 	// 获取所有好友聊天列表
 	const sqlFriend = `SELECT user_id as receiver_id,remark as name,username as receiver_username,f.room,msg_sta.updated_at from friend as f,(SELECT id FROM friend_group WHERE user_id=?) as fp,message_statistics as msg_sta WHERE fp.id=f.group_id and f.room=msg_sta.room  ORDER BY msg_sta.updated_at DESC;`;
 	const sqlfriendRes = await Query(sqlFriend, [id]);
 	// 查询数据失败
-	if (sqlfriendRes.err) return RespError(res, RespServerErr);
+	if (sqlfriendRes.err) return RespError(res, CommonErrStatus.SERVER_ERR);
 	let results = sqlfriendRes.results;
 	for (const index in results) {
 		const item = results[index];
@@ -59,7 +55,7 @@ async function getChatList(req, res) {
 		'SELECT gc.id as receiver_id,avatar,name,gc.room,msg_sta.updated_at FROM group_chat as gc,(SELECT * FROM group_members WHERE user_id=?) as gm,message_statistics as msg_sta  WHERE gc.id=gm.group_id and gc.room=msg_sta.room  ORDER BY msg_sta.updated_at DESC;';
 	const sqlGroupChatRes = await Query(sqlGroupChat, [id]);
 	// 查询数据失败
-	if (sqlGroupChatRes.err) return RespError(res, RespServerErr);
+	if (sqlGroupChatRes.err) return RespError(res, CommonErrStatus.SERVER_ERR);
 
 	results = sqlGroupChatRes.results;
 	for (const index in results) {
@@ -92,23 +88,23 @@ async function getChatList(req, res) {
 	});
 
 	return RespData(res, data);
-}
+};
 
 /**
- * 建立聊天
+ * 建立聊天的基本逻辑：
  * 需要获取信息: 发送人 ID, 接收人 ID, 聊天内容, 房间号, 头像, 内容的类型, 文件大小, 创建时间
  * 1. 获取房间号和对方 id / 群聊 id
  * 2. 根据房间号获取所有聊天记录
  * 3. 将当前用户的所有未读变成已读
  * 4. 监听 message
  * 5. 消息类型目前分为 text(文本),image(图片),video(视频),file(文件)
- * 6.text 文本不做任何处理
+ * 6. text 文本不做任何处理
  * 7. image(图片),video(视频),file(文件) 先获取文件名, 在判断存储的目录是否存在, 不存在则创建, 然后将其进行保存, 并发送相关存储路径给前端
  * 8. 插入数据到 message 表中
  * 9. 并修改当前房间的最早一次的聊天时间
  *
  */
-async function connectChat(ws, req) {
+const connectChat = async (ws, req) => {
 	// 获取 name 和 room（聊天类型默认传入为 private，group 只是为了方便后续群聊功能的扩展）
 	const url = req.url.split('?')[1];
 	const params = new URLSearchParams(url);
@@ -293,12 +289,12 @@ async function connectChat(ws, req) {
 			NotificationUser({ receiver_id: message.receiver_id, name: 'chatList' });
 		}
 	});
-	ws.on('close', function () {
+	ws.on('close', () => {
 		if (rooms[room][id]) {
 			delete rooms[room][id];
 		}
 	});
-}
+};
 
 // 检查 message_statistics 是否存在某条记录，如果不存在则创建后才修改，如果存在则直接修改
 const checkAndModifyStatistics = async room => {
@@ -310,4 +306,9 @@ const checkAndModifyStatistics = async room => {
 	}
 	sql = 'update message_statistics set total = total + 1 where room = ?';
 	await Query(sql, [room]);
+};
+
+module.exports = {
+	getChatList,
+	connectChat
 };

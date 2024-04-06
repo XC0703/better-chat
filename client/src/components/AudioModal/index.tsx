@@ -1,8 +1,8 @@
 import { Modal } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
-import { CallStatus, callStatusType, ICallModalProps, IConnectParams } from './api/type';
 import styles from './index.module.less';
+import { CallStatus, callStatusType, ICallModalProps, IConnectParams } from './type';
 
 import { CallIcons, CallBgImage } from '@/assets/images';
 import ImageLoad from '@/components/ImageLoad';

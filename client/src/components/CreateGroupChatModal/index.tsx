@@ -1,37 +1,30 @@
 import { Button, Modal, Tree, Form, Input } from 'antd';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { getFriendList, createGroup, inviteFriends } from './api';
-import { IFriend, IFriendGroup, IGroupMember, ICreateGroupParams } from './api/type';
+import { getFriendList, createGroup, inviteFriend } from './api';
 import styles from './index.module.less';
+import {
+	ICreateGroupModal,
+	ICreateGroupForm,
+	IFriendItem,
+	IFriendGroupItem,
+	IGroupMemberItem,
+	ICreateGroupParams
+} from './type';
 
 import ImageLoad from '@/components/ImageLoad';
 import { ImageUpload } from '@/components/ImageUpload';
 import useShowMessage from '@/hooks/useShowMessage';
-import { IGroupChatInfo } from '@/pages/container/AddressBook/api/type';
 import { HttpStatus } from '@/utils/constant';
 
-interface ICreateGroupModal {
-	type: 'create' | 'invite';
-	groupChatInfo?: IGroupChatInfo;
-	openmodal: boolean;
-	handleModal: (open: boolean) => void;
-}
-// 创建群聊表单类型
-type CreateGroupFormType = {
-	groupAvatar: string;
-	groupName: string;
-	announcement: string | null;
-};
 const CreateGroupModal = (props: ICreateGroupModal) => {
 	const showMessage = useShowMessage();
-	const { type, groupChatInfo, openmodal, handleModal } = props;
+	const { openmodal, handleModal, type, groupChatInfo } = props;
 
-	const [friendList, setFriendList] = useState<IFriendGroup[]>([]); // 好友列表
-	const [open, setOpen] = useState(openmodal);
+	const [friendList, setFriendList] = useState<IFriendGroupItem[]>([]); // 好友列表
 	const [checkedFriends, setCheckedFriends] = useState<[]>([]); // 勾选的好友列表数组
 	const [loading, setLoading] = useState(false);
-	const [createGroupFormInstance] = Form.useForm<CreateGroupFormType>();
+	const [createGroupFormInstance] = Form.useForm<ICreateGroupForm>();
 	const step0Ref = useRef<HTMLDivElement | null>(null);
 	const step1Ref = useRef<HTMLDivElement | null>(null);
 
@@ -72,7 +65,6 @@ const CreateGroupModal = (props: ICreateGroupModal) => {
 
 	// 关闭弹窗
 	const handleCancel = () => {
-		setOpen(false);
 		handleModal(false);
 	};
 
@@ -108,7 +100,7 @@ const CreateGroupModal = (props: ICreateGroupModal) => {
 	const handleCreateGroup = async (values: any) => {
 		setLoading(true);
 		// 将第一步的好友数据筛选并作格式转化
-		const selectedFriends: IGroupMember[] = [];
+		const selectedFriends: IGroupMemberItem[] = [];
 		checkedFriends.map(item => {
 			try {
 				const parsedItem = JSON.parse(item);
@@ -156,7 +148,7 @@ const CreateGroupModal = (props: ICreateGroupModal) => {
 	const handlInvite = async () => {
 		setLoading(true);
 		// 将第一步的好友数据筛选并作格式转化
-		const selectedFriends: IGroupMember[] = [];
+		const selectedFriends: IGroupMemberItem[] = [];
 		checkedFriends.map(item => {
 			try {
 				const parsedItem = JSON.parse(item);
@@ -173,16 +165,16 @@ const CreateGroupModal = (props: ICreateGroupModal) => {
 		});
 		if (selectedFriends.length !== 0) {
 			try {
-				const inviteFriendsParams = {
+				const inviteFriendParams = {
 					groupId: groupChatInfo?.id as number,
 					invitationList: selectedFriends
 				};
-				const res = await inviteFriends(inviteFriendsParams);
+				const res = await inviteFriend(inviteFriendParams);
 				if (res.code === HttpStatus.SUCCESS) {
 					showMessage('success', '邀请成功');
 					setLoading(false);
 					handleCancel();
-				} else if (res.code === 4009) {
+				} else if (res.code === HttpStatus.ALL_EXIT_ERR) {
 					showMessage('error', '你邀请的好友都已经加入群聊');
 					setLoading(false);
 				} else {
@@ -223,7 +215,7 @@ const CreateGroupModal = (props: ICreateGroupModal) => {
 		<>
 			<Modal
 				title={type === 'invite' ? '邀请新的好友进群聊' : '创建群聊'}
-				open={open}
+				open={openmodal}
 				footer={null}
 				onCancel={handleCancel}
 				width="5rem"
@@ -239,7 +231,7 @@ const CreateGroupModal = (props: ICreateGroupModal) => {
 								<div className={styles.title}> 已选择 </div>
 								<div className={styles.list}>
 									{checkedFriends.map(item => {
-										let selectedFriend = {} as IFriend;
+										let selectedFriend = {} as IFriendItem;
 										try {
 											const parsedItem = JSON.parse(item);
 											if (parsedItem.username) {

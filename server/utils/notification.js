@@ -1,6 +1,7 @@
 /* global Query LoginRooms */
-// 通知对方
-async function NotificationUser(data) {
+
+// 通知对方（传入receiver_username或者receiver_id）
+const NotificationUser = async data => {
 	// 接收者
 	let receiver_username = data.receiver_username;
 	if (!receiver_username) {
@@ -13,7 +14,8 @@ async function NotificationUser(data) {
 	if (LoginRooms[receiver_username]) {
 		LoginRooms[receiver_username].ws.send(JSON.stringify(data));
 	}
-}
+};
+
 module.exports = {
 	NotificationUser
 };

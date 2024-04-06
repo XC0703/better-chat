@@ -4,25 +4,19 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import { handleRegister } from './api';
 import styles from './index.module.less';
+import { IRegisterForm } from './type';
 
 import { BgImage } from '@/assets/images';
 import { generateAvatarAPI } from '@/assets/images';
 import useShowMessage from '@/hooks/useShowMessage';
 import { HttpStatus } from '@/utils/constant';
 
-// 注册表单类型
-type RegisterFormType = {
-	username: string;
-	phone: string;
-	password: string;
-	confirm: string;
-};
 const Register = () => {
 	const showMessage = useShowMessage();
 	const navigate = useNavigate();
 	const [loading, setLoading] = useState(false);
 
-	const handleSubmit = async (values: RegisterFormType) => {
+	const handleSubmit = async (values: IRegisterForm) => {
 		const { username, phone, password, confirm } = values;
 		if (password !== confirm) {
 			showMessage('error', '两次密码不一致');

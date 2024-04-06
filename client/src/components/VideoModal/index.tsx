@@ -9,7 +9,7 @@ import {
 	callStatusType,
 	ICallModalProps,
 	IConnectParams
-} from '@/components/AudioModal/api/type';
+} from '@/components/AudioModal/type';
 import ImageLoad from '@/components/ImageLoad';
 import { wsBaseURL } from '@/config';
 import useShowMessage from '@/hooks/useShowMessage';

@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import { handleLogin } from './api';
 import styles from './index.module.less';
+import { ILoginForm } from './type';
 
 import { BgImage } from '@/assets/images';
 import ChangePwdModal from '@/components/ChangePwdModal';
@@ -34,22 +35,17 @@ const getUserInfo = async () => {
 	return null;
 };
 
-// 登录表单类型
-type LoginFormType = {
-	username: string;
-	password: string;
-};
 const Login = () => {
 	const showMessage = useShowMessage();
 	const navigate = useNavigate();
 	const [loading, setLoading] = useState(false);
-	const [loginFormInstance] = Form.useForm<LoginFormType>();
+	const [loginFormInstance] = Form.useForm<ILoginForm>();
 	const [isRemember, setIsRemember] = useState(false);
 	const [openForgetModal, setForgetModal] = useState(false);
 
 	// 判断本地是否有用户信息，有且是相同的用户名则无需向后台发起请求，直接登录
 	// 无则向后台发起请求，同时判断是否勾选了记住密码，勾选了则将用户信息存储到本地
-	const handleSubmit = async (values: LoginFormType) => {
+	const handleSubmit = async (values: ILoginForm) => {
 		const { username, password } = values;
 		const res = await getUserInfo();
 		if (res && res.info.username === username) {

@@ -1,12 +1,21 @@
 /* global LoginRooms */
-module.exports = {
-	singleRTCConnect
+const ChatRooms = {}; // 全局变量存储聊天室房间，每个房间是一个对象，对象的键是roomId，值是 WebSocket 实例
+
+// 发送给其他人
+const broadcastSocket = (username, room, data) => {
+	for (const key in ChatRooms[room]) {
+		if (key === username) {
+			continue;
+		}
+		if (ChatRooms[room][key]) {
+			const ws = ChatRooms[room][key];
+			ws.send(JSON.stringify(data));
+		}
+	}
 };
 
-const rooms = {};
-
 /**
- * 建立音视频聊天逻辑：
+ * 建立音视频聊天的基本逻辑：
  * 1、邀请人点击音视频按钮，建立 ws 连接并建立创建自己的 RTCPeerConnection 连接实例，并向对方发送 createRoom 指令，判断能不能进行通话，能则通知好友打开音视频通话界面，不能则返回 notConnect 及原因
  * 2、被邀请人收到 createRoom 指令后，打开音视频通话界面并建立创建自己的 RTCPeerConnection 连接实例，向邀请人发送 new_peer 指令
  * 3、邀请人收到 new_peer 指令后，向被邀请人发送视频流和 offer 指令，offer 信息是邀请人发给被邀请人的 SDP（媒体信息）
@@ -15,15 +24,15 @@ const rooms = {};
  * 6、被邀请人收到 ice_candidate 指令后，设置邀请人的 SDP，并向邀请人发送 ice_candidate 指令和自己的 ICE（网络信息）
  * 7、双方都收到 ice_candidate 指令后，双方的 ICE 设置完毕，可以进行音视频通话
  */
-async function singleRTCConnect(ws, req) {
+const singleRTCConnect = async (ws, req) => {
 	const url = req.url.split('?')[1];
 	const params = new URLSearchParams(url);
 	const room = params.get('room');
 	const username = params.get('username');
-	if (!rooms[room]) {
-		rooms[room] = {};
+	if (!ChatRooms[room]) {
+		ChatRooms[room] = {};
 	}
-	rooms[room][username] = ws;
+	ChatRooms[room][username] = ws;
 	ws.on('message', async Resp_data => {
 		const message = JSON.parse(Resp_data);
 		let msg;
@@ -74,7 +83,7 @@ async function singleRTCConnect(ws, req) {
 					sender_username: username,
 					data: message.data
 				};
-				receiverWs = rooms[room][message.receiver];
+				receiverWs = ChatRooms[room][message.receiver];
 				receiverWs.send(JSON.stringify(msg));
 				break;
 			// answer：邀请人收到被邀请人的 answer 指令，设置被邀请人的 SDP ———— 由被邀请人向邀请人通知
@@ -84,7 +93,7 @@ async function singleRTCConnect(ws, req) {
 					sender_username: username,
 					data: message.data
 				};
-				receiverWs = rooms[room][message.receiver];
+				receiverWs = ChatRooms[room][message.receiver];
 				receiverWs.send(JSON.stringify(msg));
 				break;
 			// ice_candidate：设置对方的 candidate ———— 双方都可能收到，此时双方的 ICE 设置完毕，可以进行音视频通话
@@ -95,7 +104,7 @@ async function singleRTCConnect(ws, req) {
 					sender_username: username,
 					data: message.data
 				};
-				receiverWs = rooms[room][message.receiver];
+				receiverWs = ChatRooms[room][message.receiver];
 				receiverWs.send(JSON.stringify(msg));
 				break;
 			// 被邀请方拒绝 ———— 两方都会收到
@@ -110,18 +119,10 @@ async function singleRTCConnect(ws, req) {
 		}
 	});
 	ws.on('close', () => {
-		rooms[room][username] = '';
+		ChatRooms[room][username] = '';
 	});
-}
-// 发送给其他人
-const broadcastSocket = (username, room, data) => {
-	for (const key in rooms[room]) {
-		if (key === username) {
-			continue;
-		}
-		if (rooms[room][key]) {
-			const ws = rooms[room][key];
-			ws.send(JSON.stringify(data));
-		}
-	}
+};
+
+module.exports = {
+	singleRTCConnect
 };

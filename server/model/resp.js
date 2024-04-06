@@ -1,5 +1,6 @@
-const { RespMap } = require('./error');
-function respHttp(res, respCode, data) {
+const { ErrStatusMap } = require('./error');
+
+const respHttp = (res, respCode, data) => {
 	const resp = {
 		code: 200,
 		data: '',
@@ -7,24 +8,24 @@ function respHttp(res, respCode, data) {
 	};
 	if (respCode !== 200) {
 		resp.code = respCode;
-		resp.message = RespMap[respCode];
+		resp.message = ErrStatusMap[respCode];
 	} else {
 		resp.data = data;
 	}
 	res.json(resp);
-}
-
-function RespSuccess(res) {
+};
+// 请求成功
+const RespSuccess = res => {
 	respHttp(res, 200);
-}
-
-function RespError(res, respCode) {
+};
+// 请求失败
+const RespError = (res, respCode) => {
 	respHttp(res, respCode);
-}
-
-function RespData(res, data) {
+};
+// 请求成功且返回数据
+const RespData = (res, data) => {
 	respHttp(res, 200, data);
-}
+};
 module.exports = {
 	RespSuccess,
 	RespError,

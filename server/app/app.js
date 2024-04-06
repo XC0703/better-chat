@@ -5,6 +5,7 @@ const express = require('express');
 const expressWs = require('express-ws');
 const app = express();
 expressWs(app);
+
 /**
  * 解决跨域
  */
@@ -24,9 +25,8 @@ const cors = (req, res, next) => {
 };
 
 /**
- * 静态文件相关
+ * 静态文件访问的中间件，利用 Express 托管静态文件，它使得从指定的目录（这里是uploads）中提供文件。
  */
-// 将静态文件都设为直接下载
 const staticDownload = (req, res, next) => {
 	// 设置允许跨域的域名，* 代表允许任意域名跨域
 	res.header('Access-Control-Allow-Origin', '*');
@@ -42,22 +42,24 @@ const staticDownload = (req, res, next) => {
 };
 app.use('/uploads', staticDownload, express.static('uploads'));
 
-// 处理 HTTP 请求体中的参数，将请求体解析成 JSON 对象或者 URL-encoded 格式，并限制请求体大小为 100mb
+/**
+ * 处理 HTTP 请求体中的参数，将请求体解析成 JSON 对象或者 URL-encoded 格式，并限制请求体大小为 100mb
+ */
 const bodyParser = require('body-parser');
 app.use(bodyParser.json({ limit: '100mb' })); //parse application/json
 app.use(bodyParser.urlencoded({ limit: '100mb', extended: true })); //parse application/json
 
-// 注册路由
+/**
+ * 注册路由
+ */
 const indexRouter = require('./routes/auth')();
 const friendRouter = require('./routes/friend')();
 const messageRouter = require('./routes/message')();
 const groupRouter = require('./routes/group')();
 const rtcRouter = require('./routes/rtc')();
-
 app.use('/api/chat/v1/auth', cors, indexRouter);
 app.use('/api/chat/v1/friend', cors, friendRouter);
 app.use('/api/chat/v1/message', cors, messageRouter);
 app.use('/api/chat/v1/group', cors, groupRouter);
 app.use('/api/chat/v1/rtc', cors, rtcRouter);
-
 module.exports = app;

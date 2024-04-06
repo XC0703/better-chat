@@ -1,28 +1,15 @@
 /* global NotificationUser RespData RespSuccess */
-module.exports = {
-	CreateGroupChat,
-	GetGroupChatList,
-	SearchGroupChat,
-	GroupInfo,
-	InviteFriendsToGroupChat,
-	JoinGroupChat
-};
-const {
-	RespServerErr,
-	RespCreateErr,
-	RespGroupInsertError,
-	RespExitGroupErr
-} = require('../../model/error');
+const { GroupErrStatus, CommonErrStatus } = require('../../model/error');
 const { RespError } = require('../../model/resp');
 const { Query } = require('../../db/query');
 const { v4: uuidv4 } = require('uuid');
 
 /**
- * 创建群聊
+ * 创建群聊的基本逻辑：
  * 1. 服务端拿到创建群聊所需要的信息后在群聊表 (group_chat) 新建一个群聊
  * 2. 在群聊成员表 (group_numbers) 中循环插入所有群聊成员记录
  */
-async function CreateGroupChat(req, res) {
+const createGroupChat = async (req, res) => {
 	const groupInfo = req.body;
 	const uuid = uuidv4();
 
@@ -38,7 +25,7 @@ async function CreateGroupChat(req, res) {
 	let sql = 'insert into group_chat set ?';
 	const { err, results } = await Query(sql, group_chat);
 	// 查询数据失败
-	if (err) return RespError(res, RespServerErr);
+	if (err) return RespError(res, CommonErrStatus.SERVER_ERR);
 	if (results.affectedRows === 1) {
 		// 发送消息
 		const message = {
@@ -85,33 +72,33 @@ async function CreateGroupChat(req, res) {
 		return RespSuccess(res);
 	}
 
-	return RespError(res, RespCreateErr);
-}
+	return RespError(res, CommonErrStatus.CREATE_ERR);
+};
 /**
- * 获取当前用户加入的所有群聊
+ * 获取当前用户加入的所有群聊的基本逻辑：
  * 1. 获取当前用户 id
  * 2. 根据 group_members 获取所有 group_id, 在根据 left join 获取 group_chat 对应的 id 下的群聊信息
  */
-async function GetGroupChatList(req, res) {
+const getGroupChatList = async (req, res) => {
 	// 根据 id 获取所有分组下的所有好友
 	const id = req.user.id;
 	const sql =
 		'SELECT gct.*  from ((select group_id from group_members where user_id=?) as gmb LEFT JOIN group_chat as gct on gmb.group_id=gct.id)';
 	const { err, results } = await Query(sql, [id]);
-	if (err) return RespError(res, RespServerErr);
+	if (err) return RespError(res, CommonErrStatus.SERVER_ERR);
 	return RespData(res, results);
-}
+};
 /**
- * 模糊查询群聊
+ * 模糊查询群聊的基本逻辑：
  * 1. 根据 name 查询 group_chat 获取相似的所有群聊
  * 2. 根据 user_id 和 id 查询 group_members 判断当前用户是否加入群聊
  */
-async function SearchGroupChat(req, res) {
+const searchGroupChat = async (req, res) => {
 	const { name } = req.query;
 	let sql = 'select * from group_chat where name like ?';
 	const { err, results } = await Query(sql, [`%${name}%`]);
 	// 查询数据失败
-	if (err) return RespError(res, RespServerErr);
+	if (err) return RespError(res, CommonErrStatus.SERVER_ERR);
 	const searchList = [];
 	if (results.length !== 0) {
 		const { id } = req.user;
@@ -135,21 +122,21 @@ async function SearchGroupChat(req, res) {
 		}
 	}
 	RespData(res, searchList);
-}
+};
 /**
- * 获取群聊信息
+ * 获取群聊信息的基本逻辑：
  * 1. 需要获取群介绍, 群主, 所有群成员 (头像, 群昵称, name, 加入群聊时间, 最后发言时间)
  * 2. 根据 group_id 查询 group_chat 表获取群主的 id, 房间 room, 群介绍, 群头像
  * 3. 根据 group_id 查询 group_numbers 表获取群成员的 user_id,nickname,created_at, 并查询 user 表获取成员 username 和头像
  * 4. 使用 left join 根据 user_id 和 room 查询 message 表获取用户的最后一次发消息时间
  */
-async function GroupInfo(req, res) {
+const getGroupChatInfo = async (req, res) => {
 	const group_id = req.query.group_id;
 	let sql =
 		'SELECT gc.id, gc.name, gc.creator_id, u.username AS creator_username, gc.avatar, gc.announcement, gc.room, gc.created_at FROM group_chat gc JOIN user u ON gc.creator_id = u.id WHERE gc.id = ?';
 	const { err: err1, results: results1 } = await Query(sql, [group_id]);
 	// 查询数据失败
-	if (err1) return RespError(res, RespServerErr);
+	if (err1) return RespError(res, CommonErrStatus.SERVER_ERR);
 	const info = {
 		id: results1[0].id,
 		name: results1[0].name,
@@ -165,25 +152,25 @@ async function GroupInfo(req, res) {
 		'SELECT s.*,m.lastMessageTime FROM (SELECT user_id,user.avatar,user.name,nickname,group_members.created_at FROM group_members,user WHERE group_id=?  and user_id=user.id) as s left JOIN (SELECT sender_id,Max(created_at) as lastMessageTime FROM message as msg WHERE msg.room=? GROUP BY sender_id) as m on m.sender_id=s.user_id';
 	const { err: err2, results: results2 } = await Query(sql, [group_id, info.room]);
 	// 查询数据失败
-	if (err2) return RespError(res, RespServerErr);
+	if (err2) return RespError(res, CommonErrStatus.SERVER_ERR);
 	for (const item of results2) {
 		info.members.push({ ...item });
 	}
 	return RespData(res, info);
-}
+};
 /**
- * 邀请新的好友进入群聊
+ * 邀请新的好友进入群聊的基本逻辑：
  * 1. 获取邀请名单和 group_id
  * 2. 根据 group_id 查询 group_numbers 表去筛选邀请名单, 过滤掉已经存在群里的用户
  * 3. 在 group_members 表插入新的数据（包含 group_id、user_id、nickname 三个字段，其中 nickname 直接为 name 即可）
  */
-async function InviteFriendsToGroupChat(req, res) {
+const inviteFriendToGroupChat = async (req, res) => {
 	const { groupId, invitationList } = req.body;
 	const userIdArr = invitationList.map(item => item.user_id);
 	let sql = 'SELECT user_id FROM group_members WHERE group_id = ? AND FIND_IN_SET(user_id, ?)';
 	const { err: err1, results: results2 } = await Query(sql, [groupId, userIdArr.join(',')]);
 	// 查询数据失败
-	if (err1) return RespError(res, RespServerErr);
+	if (err1) return RespError(res, CommonErrStatus.SERVER_ERR);
 
 	const invitationInfoList = [];
 	const hasInvitedUserIdArr = results2.map(item => item.user_id);
@@ -197,13 +184,13 @@ async function InviteFriendsToGroupChat(req, res) {
 		}
 	}
 	if (invitationInfoList.length === 0) {
-		return RespError(res, RespGroupInsertError);
+		return RespError(res, GroupErrStatus.ALL_EXIT_ERR);
 	}
 	// 插入成员
 	sql = 'insert into group_members set ?';
 	const { err: err2 } = await Query(sql, invitationInfoList);
 	// 查询数据失败
-	if (err2) return RespError(res, RespServerErr);
+	if (err2) return RespError(res, CommonErrStatus.SERVER_ERR);
 	// 通知对方, 让其群聊列表进行更新
 	for (const item of invitationInfoList) {
 		NotificationUser({
@@ -212,22 +199,22 @@ async function InviteFriendsToGroupChat(req, res) {
 		});
 	}
 	return RespSuccess(res);
-}
+};
 /**
- * 加入新的群聊
+ * 加入新的群聊的基本逻辑：
  * 1. 获取邀请名单和 group_id
  * 2. 根据 group_id 查询 group_numbers 表去筛选邀请名单, 过滤掉已经存在群里的用户
  * 3. 在 group_members 表插入新的数据（包含 group_id、user_id、nickname 三个字段，其中 nickname 直接为 name 即可）
  */
-async function JoinGroupChat(req, res) {
+const joinGroupChat = async (req, res) => {
 	const group_id = req.body.group_id;
 	const { id, name } = req.user;
 	let sql = 'select id from group_members where group_id=? and user_id=?';
 	const { err: err1, results: results1 } = await Query(sql, [group_id, id]);
 	// 查询数据失败
-	if (err1) return RespError(res, RespServerErr);
+	if (err1) return RespError(res, CommonErrStatus.SERVER_ERR);
 	if (results1.length !== 0) {
-		return RespError(res, RespExitGroupErr);
+		return RespError(res, GroupErrStatus.EXIT_GROUP_ERR);
 	}
 	const info = {
 		group_id: group_id,
@@ -237,10 +224,10 @@ async function JoinGroupChat(req, res) {
 	// 插入成员
 	sql = 'insert into group_members set ?';
 	const { err: err2 } = await Query(sql, info);
-	if (err2) return RespError(res, RespServerErr);
+	if (err2) return RespError(res, CommonErrStatus.SERVER_ERR);
 	sql = 'select name,room from group_chat where id=?';
 	const { err: err3, results: results3 } = await Query(sql, [group_id]);
-	if (err3) return RespError(res, RespServerErr);
+	if (err3) return RespError(res, CommonErrStatus.SERVER_ERR);
 	const options = {
 		room: results3[0].room,
 		name: results3[0].name,
@@ -252,4 +239,13 @@ async function JoinGroupChat(req, res) {
 		name: 'groupChatList'
 	});
 	return RespData(res, options);
-}
+};
+
+module.exports = {
+	createGroupChat,
+	getGroupChatList,
+	searchGroupChat,
+	getGroupChatInfo,
+	inviteFriendToGroupChat,
+	joinGroupChat
+};

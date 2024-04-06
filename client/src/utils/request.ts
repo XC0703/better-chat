@@ -53,10 +53,10 @@ export class Request {
 		return this.instance.request(config);
 	}
 
-	public get<T = any>(
+	public get<TResponse = any>(
 		url: string,
 		config?: AxiosRequestConfig
-	): Promise<AxiosResponse<ApiResponse<T>>> {
+	): Promise<AxiosResponse<ApiResponse<TResponse>>> {
 		return this.instance.get(url, config);
 	}
 
@@ -76,10 +76,10 @@ export class Request {
 		return this.instance.put(url, data, config);
 	}
 
-	public delete<T = any>(
+	public delete<TResponse = any>(
 		url: string,
 		config?: AxiosRequestConfig
-	): Promise<AxiosResponse<ApiResponse<T>>> {
+	): Promise<AxiosResponse<ApiResponse<TResponse>>> {
 		return this.instance.delete(url, config);
 	}
 

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { handleChange } from './api';
 import styles from './index.module.less';
+import { IChangePerInfoModalProps, IChangePerInfoForm } from './type';
 
 import { ImageUpload } from '@/components/ImageUpload';
 import useShowMessage from '@/hooks/useShowMessage';
@@ -11,22 +12,11 @@ import { HttpStatus } from '@/utils/constant';
 import { handleLogout, IUserInfo } from '@/utils/logout';
 import { clearSessionStorage, userStorage } from '@/utils/storage';
 
-interface IChangePerInfoModal {
-	openmodal: boolean;
-	handleModal: (open: boolean) => void;
-}
-// 修改用户信息表单类型
-type ChangePerInfoFormType = {
-	avatar: string;
-	name: string;
-	phone: string;
-	signature: string;
-};
-const ChangePerInfoModal = (props: IChangePerInfoModal) => {
+const ChangePerInfoModal = (props: IChangePerInfoModalProps) => {
 	const showMessage = useShowMessage();
 	const navigate = useNavigate();
 	const { username, name, avatar, phone, signature } = JSON.parse(userStorage.getItem() || '{}');
-	const [changePerInfoFormInstance] = Form.useForm<ChangePerInfoFormType>();
+	const [changePerInfoFormInstance] = Form.useForm<IChangePerInfoForm>();
 	const { openmodal, handleModal } = props;
 	const [loading, setLoading] = useState(false);
 

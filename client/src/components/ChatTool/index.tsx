@@ -1,8 +1,8 @@
 import { Button, Spin, Tooltip } from 'antd';
 import { ChangeEvent, useRef, useState } from 'react';
 
-import { IMessageList, ISendMessage } from './api/type';
 import styles from './index.module.less';
+import { IChatToolProps, ISendMessage } from './type';
 
 import { EmojiList } from '@/assets/emoji';
 import { ChatIconList } from '@/assets/icons';
@@ -11,14 +11,6 @@ import VideoModal from '@/components/VideoModal';
 import useShowMessage from '@/hooks/useShowMessage';
 import { getFileSuffixByName } from '@/utils/file';
 import { userStorage } from '@/utils/storage';
-
-// 聊天输入工具组件传递的参数类型
-interface IChatToolProps {
-	// 当前选中的对话信息
-	curChatInfo: IMessageList;
-	// 发送消息的回调函数
-	sendMessage: (message: ISendMessage) => void;
-}
 
 const ChatTool = (props: IChatToolProps) => {
 	const { curChatInfo, sendMessage } = props;
