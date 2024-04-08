@@ -9,7 +9,6 @@ import { IAddFriendOrGroupModalProps, IFriendItem, IGroupItem } from './type';
 import ImageLoad from '@/components/ImageLoad';
 import useShowMessage from '@/hooks/useShowMessage';
 import { HttpStatus } from '@/utils/constant';
-import { userStorage } from '@/utils/storage';
 
 const AddFriendOrGroupModal = (props: IAddFriendOrGroupModalProps) => {
 	const { openmodal, handleModal } = props;
@@ -30,11 +29,11 @@ const AddFriendOrGroupModal = (props: IAddFriendOrGroupModalProps) => {
 	// 获取模糊查询的好友列表
 	const getFriendListData = async (username: string) => {
 		try {
-			const params = {
-				sender: JSON.parse(userStorage.getItem() || '{}'),
-				username: username
-			};
-			const res = await getFriendList(params);
+			if (username === '') {
+				setFriendList([]);
+				return;
+			}
+			const res = await getFriendList(username);
 			if (res.code === HttpStatus.SUCCESS && res.data) {
 				setFriendList(res.data);
 			} else {
@@ -51,7 +50,6 @@ const AddFriendOrGroupModal = (props: IAddFriendOrGroupModalProps) => {
 		setLoading(true);
 		try {
 			const params = {
-				sender: JSON.parse(userStorage.getItem() || '{}'),
 				id: id,
 				username: username,
 				avatar: avatar
@@ -80,6 +78,10 @@ const AddFriendOrGroupModal = (props: IAddFriendOrGroupModalProps) => {
 	// 获取模糊查询的群列表
 	const getGroupChatListData = async (group_name: string) => {
 		try {
+			if (group_name === '') {
+				setGroupList([]);
+				return;
+			}
 			const res = await getGroupList(group_name);
 			if (res.code === HttpStatus.SUCCESS && res.data) {
 				setGroupList(res.data);

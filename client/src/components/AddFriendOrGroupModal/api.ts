@@ -1,10 +1,10 @@
-import { IFriendParams, IFriendItem, IAddFriendParams, IGroupItem, IAddGroupParams } from './type';
+import { IFriendItem, IAddFriendParams, IGroupItem, IAddGroupParams } from './type';
 
 import Request from '@/utils/request';
 
 // 模糊查询符合条件的用户
-export const getFriendList = async (data: IFriendParams) => {
-	const res = await Request.post<IFriendParams, IFriendItem[]>(`/friend/search_user`, data);
+export const getFriendList = async (username: string) => {
+	const res = await Request.get<IFriendItem[]>(`/friend/search_user?username=${username}`);
 	return res.data;
 };
 // 加好友

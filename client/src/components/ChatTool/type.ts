@@ -5,13 +5,13 @@
 export type MessageType = 'text' | 'image' | 'video' | 'file';
 // 发送消息的类型——在client\src\pages\container\ChatList\index.tsx中也被引用
 export interface ISendMessage {
-	filename?: string;
 	sender_id: number;
 	receiver_id: number;
 	type: MessageType;
 	content: string | number[];
 	avatar: string;
-	fileType?: string;
+	filename?: string;
+	fileTraStatus?: 'start' | 'upload';
 	fileInfo?: string;
 }
 // 左侧消息列表项类型 —— 在client\src\pages\container\ChatList\index.tsx、client\src\pages\container\ChatList\index.ts中也被引用

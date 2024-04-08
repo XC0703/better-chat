@@ -1,20 +1,7 @@
 /**
  * 接口参数类型定义
  */
-// 模糊查询用户参数类型
-export interface IFriendParams {
-	sender: {
-		id: number;
-		avatar: string;
-		username: string;
-		name: string;
-		phone: string;
-		created_at: string;
-		signature: string;
-	};
-	username: string;
-}
-// 模糊查询用户的类型
+// 获取好友的类型
 export interface IFriendItem {
 	name: string;
 	username: string;
@@ -24,20 +11,11 @@ export interface IFriendItem {
 }
 // 加好友参数类型
 export interface IAddFriendParams {
-	sender: {
-		id: number;
-		avatar: string;
-		username: string;
-		name: string;
-		phone: string;
-		created_at: string;
-		signature: string;
-	};
 	id: number;
 	username: string;
 	avatar: string;
 }
-// 群聊类型
+// 获取的群聊类型
 export interface IGroupItem {
 	avatar: string;
 	group_id: number;

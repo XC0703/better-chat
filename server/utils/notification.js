@@ -1,14 +1,13 @@
-/* global Query LoginRooms */
+/* global LoginRooms */
+const { Query } = require('../db/query');
 
 // 通知对方（传入receiver_username或者receiver_id）
 const NotificationUser = async data => {
 	// 接收者
 	let receiver_username = data.receiver_username;
 	if (!receiver_username) {
-		const sql = 'SELECT username FROM user where id=?';
-		const { err, results } = await Query(sql, [data.receiver_id]);
-		// eslint-disable-next-line no-console
-		if (err) console.log('NotificationUser:', err);
+		const sql = `SELECT username FROM user WHERE id = ?`;
+		const results = await Query(sql, [data.receiver_id]);
 		receiver_username = results[0].username;
 	}
 	if (LoginRooms[receiver_username]) {

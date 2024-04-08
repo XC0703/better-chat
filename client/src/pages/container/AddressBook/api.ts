@@ -3,7 +3,6 @@ import {
 	IFriendGroupListItem,
 	IUpdateFriendInfo,
 	ICreateFriendGroup,
-	IGetFriendInfoByUsername,
 	IGroupChatItem,
 	IGroupChatInfo
 } from './type';
@@ -22,11 +21,8 @@ export const getFriendInfoById = async (id: number) => {
 	return res.data;
 };
 // 根据 username 获取好友信息
-export const getFriendInfoByUsername = async (data: IGetFriendInfoByUsername) => {
-	const { friend_username, self_username } = data;
-	const res = await Request.get<IFriendInfo>(
-		`friend/friend_username?friend_username=${friend_username}&self_username=${self_username}`
-	);
+export const getFriendInfoByUsername = async (username: string) => {
+	const res = await Request.get<IFriendInfo>(`friend/friend_username?friend_username=${username}`);
 	return res.data;
 };
 // 获取分组列表

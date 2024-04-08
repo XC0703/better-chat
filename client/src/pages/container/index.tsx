@@ -143,11 +143,7 @@ const Container = () => {
 				case 'createRoom':
 					if (data.sender_username) {
 						try {
-							const params = {
-								friend_username: data.sender_username,
-								self_username: username
-							};
-							const res = await getFriendInfoByUsername(params);
+							const res = await getFriendInfoByUsername(data.sender_username);
 							if (res.code === HttpStatus.SUCCESS) {
 								setCallFriendInfo({
 									receiver_username: res.data.username,

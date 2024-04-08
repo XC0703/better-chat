@@ -1,9 +1,9 @@
 /* global process */
+
 /**
- * 初始化所有的全局变量和全局方法
+ * 定义全局登录用户房间
  */
-const initGlobal = require('./global');
-initGlobal();
+global.LoginRooms = {};
 
 /**
  * 引入 app 并启动服务

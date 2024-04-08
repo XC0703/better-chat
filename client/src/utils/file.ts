@@ -1,5 +1,4 @@
 import { ChatImage } from '@/assets/images';
-import { HttpStatus } from '@/utils/constant';
 
 // 根据文件路径获取文件类型（用于消息记录）
 export const getFileSuffixByPath = (path: string) => {
@@ -138,18 +137,24 @@ export const getMediaShowSize = (
 };
 // 文件下载
 export const downloadFile = (url: string) => {
-	const link = document.createElement('a');
-	link.href = url;
-	link.download = '';
+	try {
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = '';
 
-	document.body.appendChild(link);
-	link.click();
-	document.body.removeChild(link);
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+	} catch {
+		return;
+	}
 };
-// 判断某个文件是否存在
-export const urlExists = (url: string) => {
-	const http = new XMLHttpRequest();
-	http.open('HEAD', url, false);
-	http.send();
-	return http.status !== HttpStatus.NOT_FOUND;
+// 判断某个文件是否存在（浏览器会发起一个预检请求）
+export const urlExists = async (url: string) => {
+	try {
+		const response = await fetch(url, { method: 'HEAD' });
+		return response.ok;
+	} catch {
+		return false;
+	}
 };

@@ -34,7 +34,7 @@ const staticDownload = (req, res, next) => {
 	res.header('Access-Control-Allow-Headers', '*');
 	res.header('Access-Control-Allow-Credentials', true);
 	// 跨域允许的请求方式
-	res.header('Access-Control-Allow-Methods', 'PUT,POST,GET,DELETE,OPTIONS');
+	res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS, HEAD');
 	res.header('content-type', 'application/octet-stream');
 	if (req.method.toLowerCase() === 'options')
 		res.sendStatus(200); // 让 options 尝试请求快速结束
@@ -57,6 +57,7 @@ const friendRouter = require('./routes/friend')();
 const messageRouter = require('./routes/message')();
 const groupRouter = require('./routes/group')();
 const rtcRouter = require('./routes/rtc')();
+app.use('', cors); // 防止浏览器的预检请求导致控制台报的跨域错误）
 app.use('/api/chat/v1/auth', cors, indexRouter);
 app.use('/api/chat/v1/friend', cors, friendRouter);
 app.use('/api/chat/v1/message', cors, messageRouter);

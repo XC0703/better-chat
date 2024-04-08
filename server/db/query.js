@@ -5,7 +5,7 @@ const Query = (sql, info) => {
 	return new Promise((resolve, reject) => {
 		db.query(sql, info, async (err, results) => {
 			if (err) return reject(err);
-			resolve({ err, results });
+			resolve(results);
 		});
 	});
 };

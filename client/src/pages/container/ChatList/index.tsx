@@ -9,10 +9,10 @@ import { IFriendInfo, IGroupChatInfo } from '../AddressBook/type';
 
 import { StatusIconList } from '@/assets/icons';
 import ChatContainer from '@/components/ChatContainer';
-import { IHistoryMessageItem } from '@/components/ChatContainer/type';
 import ChatTool from '@/components/ChatTool';
 import { ISendMessage, IMessageListItem } from '@/components/ChatTool/type';
 import ImageLoad from '@/components/ImageLoad';
+import { IMessageItem } from '@/components/MessageShow/type';
 import SearchContainer from '@/components/SearchContainer';
 import { wsBaseURL } from '@/config';
 import useShowMessage from '@/hooks/useShowMessage';
@@ -31,7 +31,8 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
 	const [chatList, setChatList] = useState<IMessageListItem[]>([]); // 消息列表
 	const [curChatInfo, setCurChatInfo] = useState<IMessageListItem>(); // 当前选中的对话信息
 	const socket = useRef<WebSocket | null>(null); // websocket 实例
-	const [historyMsg, setHistoryMsg] = useState<IHistoryMessageItem[]>([]);
+	const [historyMsg, setHistoryMsg] = useState<IMessageItem[]>([]);
+	const [newMessage, setNewMessage] = useState<IMessageItem[]>([]);
 
 	// 进入聊天房间时建立 websocket 连接
 	const initSocket = (connectParams: IConnectParams) => {
@@ -52,8 +53,8 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
 				setHistoryMsg(JSON.parse(e.data));
 				return;
 			} else {
-				// 如果是单条消息，则将其添加到历史消息数组中
-				setHistoryMsg(prevMsg => [...prevMsg, JSON.parse(e.data)]);
+				// 如果是单条消息，则说明是当前的最新消息
+				setNewMessage(preMsg => [...preMsg, JSON.parse(e.data)]);
 			}
 		};
 		newSocket.onerror = () => {
@@ -228,7 +229,7 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
 						<div className={styles.chat_window}>
 							<div className={styles.chat_receiver}>{curChatInfo.name}</div>
 							<div className={styles.chat_content}>
-								{historyMsg && historyMsg.length !== 0 && <ChatContainer historyMsg={historyMsg} />}
+								<ChatContainer historyMsg={historyMsg} newMsg={newMessage} />
 							</div>
 							<div className={styles.chat_input}>
 								<ChatTool curChatInfo={curChatInfo} sendMessage={sendMessage} />

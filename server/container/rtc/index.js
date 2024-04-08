@@ -1,15 +1,15 @@
 /* global LoginRooms */
-const ChatRooms = {}; // 全局变量存储聊天室房间，每个房间是一个对象，对象的键是roomId，值是 WebSocket 实例
+const ChatRTCRooms = {}; // 全局变量存储聊天室房间，每个房间是一个对象，对象的键是用户名 username，值是 WebSocket 实例
 
 // 发送给其他人
-const broadcastSocket = (username, room, data) => {
-	for (const key in ChatRooms[room]) {
+const broadcastSocket = (username, room, msg) => {
+	for (const key in ChatRTCRooms[room]) {
 		if (key === username) {
 			continue;
 		}
-		if (ChatRooms[room][key]) {
-			const ws = ChatRooms[room][key];
-			ws.send(JSON.stringify(data));
+		if (ChatRTCRooms[room][key]) {
+			const ws = ChatRTCRooms[room][key];
+			ws.send(JSON.stringify(msg));
 		}
 	}
 };
@@ -29,98 +29,110 @@ const singleRTCConnect = async (ws, req) => {
 	const params = new URLSearchParams(url);
 	const room = params.get('room');
 	const username = params.get('username');
-	if (!ChatRooms[room]) {
-		ChatRooms[room] = {};
+	if (!(room && username)) {
+		ws.close();
+		return;
 	}
-	ChatRooms[room][username] = ws;
-	ws.on('message', async Resp_data => {
-		const message = JSON.parse(Resp_data);
-		let msg;
-		let receiverWs;
-		const { receiver_username } = message;
-		switch (message.name) {
-			// createRoom：给被邀请人发送创建房间的指令，判断能不能进行通话，能则通知好友打开音视频通话界面，不能则返回 notConnect 及原因 ———— 由邀请人向被邀请人通知
-			case 'createRoom':
-				if (!LoginRooms[receiver_username]) {
-					ws.send(JSON.stringify({ name: 'notConnect', result: '对方当前不在线!!!' }));
-					return;
-				}
-				if (LoginRooms[receiver_username].status) {
-					ws.send(JSON.stringify({ name: 'notConnect', result: '对方正在通话中!!!' }));
-					return;
-				}
-				if (LoginRooms[username].status) {
-					ws.send(
-						JSON.stringify({
-							name: 'notConnect',
-							result: '你正在通话中, 请勿发送其他通话请求....'
-						})
-					);
-					return;
-				}
-				// 设置当前用户通话状态
-				LoginRooms[username].status = true;
-				// 发送邀请
-				msg = {
-					name: 'createRoom',
-					sender_username: username,
-					mode: message.mode
-				};
-				LoginRooms[receiver_username].ws.send(JSON.stringify(msg));
-				break;
-			// new_peer：邀请人接收到有新人进入房间, 则发送视频流和 offer 指令给新人，offer 信息是邀请人发给被邀请人的 SDP（媒体信息）———— 由被邀请人向邀请人通知
-			case 'new_peer':
-				msg = {
-					name: 'new_peer',
-					sender_username: username
-				};
-				broadcastSocket(username, room, msg);
-				break;
-			// offer：被邀请人收到邀请人的视频流和 offer 指令，发送 answer 给邀请人 ———— 由邀请人向被邀请人通知，answer 信息被邀请人发给邀请人的 SDP（媒体信息）
-			case 'offer':
-				msg = {
-					name: 'offer',
-					sender_username: username,
-					data: message.data
-				};
-				receiverWs = ChatRooms[room][message.receiver];
-				receiverWs.send(JSON.stringify(msg));
-				break;
-			// answer：邀请人收到被邀请人的 answer 指令，设置被邀请人的 SDP ———— 由被邀请人向邀请人通知
-			case 'answer':
-				msg = {
-					name: 'answer',
-					sender_username: username,
-					data: message.data
-				};
-				receiverWs = ChatRooms[room][message.receiver];
-				receiverWs.send(JSON.stringify(msg));
-				break;
-			// ice_candidate：设置对方的 candidate ———— 双方都可能收到，此时双方的 ICE 设置完毕，可以进行音视频通话
-			case 'ice_candidate':
-				// 接收 answer
-				msg = {
-					name: 'ice_candidate',
-					sender_username: username,
-					data: message.data
-				};
-				receiverWs = ChatRooms[room][message.receiver];
-				receiverWs.send(JSON.stringify(msg));
-				break;
-			// 被邀请方拒绝 ———— 两方都会收到
-			case 'reject':
-				msg = {
-					name: 'reject',
-					sender_username: username
-				};
-				broadcastSocket(username, room, msg);
-				LoginRooms[username].status = false;
-				break;
+	try {
+		if (!ChatRTCRooms[room]) {
+			ChatRTCRooms[room] = {};
 		}
-	});
-	ws.on('close', () => {
-		ChatRooms[room][username] = '';
-	});
+		ChatRTCRooms[room][username] = ws;
+		ws.on('message', async data => {
+			const message = JSON.parse(data);
+			let msg;
+			let receiverWs;
+			const { receiver_username } = message;
+			switch (message.name) {
+				// createRoom：给被邀请人发送创建房间的指令，判断能不能进行通话，能则通知好友打开音视频通话界面，不能则返回 notConnect 及原因 ———— 由邀请人向被邀请人通知
+				case 'createRoom':
+					if (!LoginRooms[receiver_username]) {
+						ws.send(JSON.stringify({ name: 'notConnect', result: '对方当前不在线!!!' }));
+						return;
+					}
+					if (LoginRooms[receiver_username].status) {
+						ws.send(JSON.stringify({ name: 'notConnect', result: '对方正在通话中!!!' }));
+						return;
+					}
+					if (LoginRooms[username].status) {
+						ws.send(
+							JSON.stringify({
+								name: 'notConnect',
+								result: '你正在通话中, 请勿发送其他通话请求...'
+							})
+						);
+						return;
+					}
+					// 设置当前用户通话状态
+					LoginRooms[username].status = true;
+					// 发送邀请
+					msg = {
+						name: 'createRoom',
+						sender_username: username,
+						mode: message.mode
+					};
+					LoginRooms[receiver_username].ws.send(JSON.stringify(msg));
+					break;
+				// new_peer：邀请人接收到有新人进入房间, 则发送视频流和 offer 指令给新人，offer 信息是邀请人发给被邀请人的 SDP（媒体信息）———— 由被邀请人向邀请人通知
+				case 'new_peer':
+					msg = {
+						name: 'new_peer',
+						sender_username: username
+					};
+					broadcastSocket(username, room, msg);
+					break;
+				// offer：被邀请人收到邀请人的视频流和 offer 指令，发送 answer 给邀请人 ———— 由邀请人向被邀请人通知，answer 信息被邀请人发给邀请人的 SDP（媒体信息）
+				case 'offer':
+					msg = {
+						name: 'offer',
+						sender_username: username,
+						data: message.data
+					};
+					receiverWs = ChatRTCRooms[room][message.receiver];
+					receiverWs.send(JSON.stringify(msg));
+					break;
+				// answer：邀请人收到被邀请人的 answer 指令，设置被邀请人的 SDP ———— 由被邀请人向邀请人通知
+				case 'answer':
+					msg = {
+						name: 'answer',
+						sender_username: username,
+						data: message.data
+					};
+					receiverWs = ChatRTCRooms[room][message.receiver];
+					receiverWs.send(JSON.stringify(msg));
+					break;
+				// ice_candidate：设置对方的 candidate ———— 双方都可能收到，此时双方的 ICE 设置完毕，可以进行音视频通话
+				case 'ice_candidate':
+					// 接收 answer
+					msg = {
+						name: 'ice_candidate',
+						sender_username: username,
+						data: message.data
+					};
+					receiverWs = ChatRTCRooms[room][message.receiver];
+					receiverWs.send(JSON.stringify(msg));
+					break;
+				// 被邀请方拒绝 ———— 两方都会收到
+				case 'reject':
+					msg = {
+						name: 'reject',
+						sender_username: username
+					};
+					broadcastSocket(username, room, msg);
+					// 设置当前用户通话状态
+					LoginRooms[username].status = false;
+					break;
+			}
+		});
+		ws.on('close', () => {
+			if (ChatRTCRooms[room][username]) {
+				delete ChatRTCRooms[room][username];
+			}
+		});
+	} catch {
+		ws.close();
+		return;
+	}
 };
 
 module.exports = {

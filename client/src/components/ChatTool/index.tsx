@@ -50,7 +50,7 @@ const ChatTool = (props: IChatToolProps) => {
 		}
 	};
 
-	// 发送图片/视频消息
+	// 发送图片/视频消息（TODO：大的图片/视频文件按目前方式上传会出错，因为读取的数组过大，应该使用分片上传）
 	const handleSendImageMessage = (e: ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files!.length > 0) {
 			setLoading(true);
@@ -63,12 +63,12 @@ const ChatTool = (props: IChatToolProps) => {
 					const content = new Uint8Array(fileContent as ArrayBuffer);
 					const filename = file.name;
 					const newmessage: ISendMessage = {
-						filename: filename,
 						sender_id: JSON.parse(userStorage.getItem()).id,
 						receiver_id: curChatInfo?.receiver_id,
 						type: getFileSuffixByName(filename),
 						content: Array.from(content),
-						avatar: JSON.parse(userStorage.getItem()).avatar
+						avatar: JSON.parse(userStorage.getItem()).avatar,
+						filename: filename
 					};
 					sendMessage(newmessage);
 					setLoading(false);
@@ -99,12 +99,12 @@ const ChatTool = (props: IChatToolProps) => {
 						const content = new Uint8Array(fileContent as ArrayBuffer);
 						const filename = file.name;
 						const newmessage: ISendMessage = {
-							filename: filename,
 							sender_id: JSON.parse(userStorage.getItem()).id,
 							receiver_id: curChatInfo?.receiver_id,
 							type: getFileSuffixByName(filename),
 							content: Array.from(content),
-							avatar: JSON.parse(userStorage.getItem()).avatar
+							avatar: JSON.parse(userStorage.getItem()).avatar,
+							filename: filename
 						};
 						sendMessage(newmessage);
 						setLoading(false);
@@ -114,8 +114,8 @@ const ChatTool = (props: IChatToolProps) => {
 						setLoading(false);
 						fileRef.current!.value = '';
 					}
-					reader.readAsArrayBuffer(file);
 				};
+				reader.readAsArrayBuffer(file);
 			} else {
 				try {
 					// 发送文件信息
@@ -123,15 +123,15 @@ const ChatTool = (props: IChatToolProps) => {
 						fileName: file.name,
 						fileSize: file.size
 					};
-					// 发送文件下载指令
+					// 发送文件下载指令（多了fileType字段和fileInfo字段）
 					const newmessage: ISendMessage = {
-						filename: file.name,
 						sender_id: JSON.parse(userStorage.getItem()).id,
 						receiver_id: curChatInfo?.receiver_id,
 						type: 'file',
 						content: '',
 						avatar: JSON.parse(userStorage.getItem()).avatar,
-						fileType: 'start',
+						filename: file.name,
+						fileTraStatus: 'start',
 						fileInfo: JSON.stringify(fileInfo)
 					};
 					sendMessage(newmessage);
@@ -160,13 +160,13 @@ const ChatTool = (props: IChatToolProps) => {
 							transmittedSize -= chunk.value!.byteLength; // 减去当前块的字节长度来更新已传输的大小，支持断点续传（TODO：由于不准确，待完善）
 							if (transmittedSize <= 0) {
 								const newmessage: ISendMessage = {
-									filename: file.name,
 									sender_id: JSON.parse(userStorage.getItem()).id,
 									receiver_id: curChatInfo?.receiver_id,
 									type: 'file',
 									content: Array.from(new Uint8Array(chunk.value as ArrayBufferLike)),
 									avatar: JSON.parse(userStorage.getItem()).avatar,
-									fileType: 'upload'
+									filename: file.name,
+									fileTraStatus: 'upload'
 								};
 								sendMessage(newmessage);
 							}

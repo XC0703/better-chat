@@ -1,6 +1,6 @@
-/* global RespData RespError */
-const { base64ToImage } = require('./file');
 const { CommonErrStatus } = require('../model/error');
+const { RespError, RespData } = require('./../model/resp');
+const { base64ToImage } = require('./file');
 
 /**
  * 文件上传的处理，目前只处理图片上传。（TODO：后期文件上传完善后，可以考虑合并在一起）

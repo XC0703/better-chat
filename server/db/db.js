@@ -39,14 +39,14 @@ const db = mysql.createPool({
 const initUserTable = () => {
 	const sql = `
     CREATE TABLE IF NOT EXISTS user (
-      id INT (11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-      username VARCHAR (255) NOT NULL UNIQUE,
-      password VARCHAR (255) NOT NULL,
-      phone VARCHAR (50) NOT NULL,
-      avatar VARCHAR (255) NULL,
-      name VARCHAR (255) NULL,
-      salt VARCHAR (20) NOT NULL,
-      signature LONGTEXT NULL,
+      id INT (11) NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+      username VARCHAR (255) NOT NULL UNIQUE, 
+      password VARCHAR (255) NOT NULL, 
+      phone VARCHAR (50) NOT NULL, 
+      avatar VARCHAR (255) NULL, 
+      name VARCHAR (255) NULL, 
+      salt VARCHAR (20) NOT NULL, 
+      signature LONGTEXT NULL, 
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     ) ENGINE = INNODB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
   `;
@@ -59,20 +59,20 @@ const initUserTable = () => {
 const initFirendTable = () => {
 	const sql = `
     CREATE TABLE IF NOT EXISTS friend (
-      id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-      user_id INT(11) NOT NULL,
-      username VARCHAR(50) NOT NULL,
-      avatar VARCHAR (255) NULL,
-      online_status ENUM('online', 'offline') DEFAULT 'offline',
-      remark VARCHAR(50),
-      group_id INT(11),
-      room  VARCHAR(255),
-      unread_msg_count INT(11) DEFAULT 0,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-      INDEX idx_group_id (group_id),
+      id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+      user_id INT(11) NOT NULL, 
+      username VARCHAR(50) NOT NULL, 
+      avatar VARCHAR (255) NULL, 
+      online_status ENUM('online', 'offline') DEFAULT 'offline', 
+      remark VARCHAR(50), 
+      group_id INT(11), 
+      room VARCHAR(255), 
+      unread_msg_count INT(11) DEFAULT 0, 
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
+      INDEX idx_group_id (group_id), 
       FOREIGN KEY (group_id) REFERENCES friend_group(id) ON DELETE SET NULL
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
   `;
 	db.query(sql, error => {
 		// eslint-disable-next-line no-console
@@ -83,15 +83,15 @@ const initFirendTable = () => {
 const initGroupTable = () => {
 	const sql = `
     CREATE TABLE IF NOT EXISTS friend_group (
-      id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-      user_id INT(11) NOT NULL,
-      username VARCHAR (255) NOT NULL,
-      name VARCHAR(50) NOT NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-      INDEX idx_user_id (user_id),
+      id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+      user_id INT(11) NOT NULL, 
+      username VARCHAR (255) NOT NULL, 
+      name VARCHAR(50) NOT NULL, 
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
+      INDEX idx_user_id (user_id), 
       FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
   `;
 	db.query(sql, error => {
 		// eslint-disable-next-line no-console
@@ -103,20 +103,20 @@ const initGroupTable = () => {
 // 创建消息 message 表
 const initMessageTable = () => {
 	const sql = `
-    CREATE TABLE IF NOT EXISTS  message (
-      id int(11) NOT NULL AUTO_INCREMENT,
-      sender_id int(11) NOT NULL,
-      receiver_id int(11) NOT NULL,
-      content longtext NOT NULL,
-      room  VARCHAR(255) NOT NULL,
-      type enum('private','group') NOT NULL,
-      media_type enum('text','image','video','file') NOT NULL,
-      file_size int(11) NULL DEFAULT 0,
-      status int(1) NOT NULL DEFAULT 0,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      PRIMARY KEY (id),
+    CREATE TABLE IF NOT EXISTS message (
+      id int(11) NOT NULL AUTO_INCREMENT, 
+      sender_id int(11) NOT NULL, 
+      receiver_id int(11) NOT NULL, 
+      content longtext NOT NULL, 
+      room VARCHAR(255) NOT NULL, 
+      type enum('private', 'group') NOT NULL, 
+      media_type enum('text', 'image', 'video', 'file') NOT NULL, 
+      file_size int(11) NULL DEFAULT 0, 
+      status int(1) NOT NULL DEFAULT 0, 
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+      PRIMARY KEY (id), 
       FOREIGN KEY (sender_id) REFERENCES user(id) ON DELETE CASCADE ON UPDATE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
   `;
 	db.query(sql, error => {
 		// eslint-disable-next-line no-console
@@ -127,14 +127,14 @@ const initMessageTable = () => {
 // 创建消息统计 message_statistics 表
 const initmessageStatisticsTable = () => {
 	const sql = `
-    CREATE TABLE IF NOT EXISTS  message_statistics (
-      id int(11) NOT NULL AUTO_INCREMENT,
-      room  VARCHAR(255) NOT NULL,
-      total int(255) NOT NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CREATE TABLE IF NOT EXISTS message_statistics (
+      id int(11) NOT NULL AUTO_INCREMENT, 
+      room VARCHAR(255) NOT NULL, 
+      total int(255) NOT NULL, 
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
       PRIMARY KEY (id)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
   `;
 	db.query(sql, error => {
 		// eslint-disable-next-line no-console
@@ -145,17 +145,17 @@ const initmessageStatisticsTable = () => {
 const initGroupChatTable = () => {
 	const sql = `
     CREATE TABLE IF NOT EXISTS group_chat (
-      id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-      name VARCHAR(50) NOT NULL,
-      creator_id INT(11) NOT NULL,
-      avatar VARCHAR(255),
-      announcement TEXT,
-      room VARCHAR(255),
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-      INDEX idx_creator_id (creator_id),
+      id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+      name VARCHAR(50) NOT NULL, 
+      creator_id INT(11) NOT NULL, 
+      avatar VARCHAR(255), 
+      announcement TEXT, 
+      room VARCHAR(255), 
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
+      INDEX idx_creator_id (creator_id), 
       FOREIGN KEY (creator_id) REFERENCES user(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
   `;
 	db.query(sql, error => {
 		// eslint-disable-next-line no-console
@@ -167,16 +167,16 @@ const initGroupChatTable = () => {
 const initGroupMembersTable = () => {
 	const sql = `
     CREATE TABLE IF NOT EXISTS group_members (
-      id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-      group_id INT(11) NOT NULL,
-      user_id INT(11) NOT NULL,
-      nickname VARCHAR(50) NOT NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-      INDEX idx_user_id (user_id),
-      INDEX idx_group_id (group_id),
+      id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+      group_id INT(11) NOT NULL, 
+      user_id INT(11) NOT NULL, 
+      nickname VARCHAR(50) NOT NULL, 
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
+      INDEX idx_user_id (user_id), 
+      INDEX idx_group_id (group_id), 
       FOREIGN KEY (group_id) REFERENCES group_chat(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
   `;
 	db.query(sql, error => {
 		// eslint-disable-next-line no-console

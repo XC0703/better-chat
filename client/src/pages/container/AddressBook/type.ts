@@ -38,11 +38,6 @@ export interface ICreateFriendGroup {
 	username: string;
 	name: string;
 }
-// 根据 username 获取好友信息时传递的参数类型
-export interface IGetFriendInfoByUsername {
-	friend_username: string;
-	self_username: string;
-}
 // 群聊（列表项）信息
 export interface IGroupChatItem {
 	id: number;
