@@ -12,6 +12,7 @@ export interface IConnectParams {
 /**
  * 组件中用到的其它类型定义
  */
+// 给聊天列表组件传递的 props 类型定义
 export interface IChatListProps {
 	initSelectedChat: IFriendInfo | IGroupChatInfo | null;
 }

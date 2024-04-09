@@ -25,6 +25,11 @@ const isFriendInfo = (chatInfo: IFriendInfo | IGroupChatInfo): chatInfo is IFrie
 	return (chatInfo as IFriendInfo).friend_id !== undefined;
 };
 
+// 判断当前的聊天是否为群聊
+const isGroupChat = (item: IMessageListItem) => {
+	return !item.receiver_username;
+};
+
 const ChatList = forwardRef((props: IChatListProps, ref) => {
 	const { initSelectedChat } = props;
 	const showMessage = useShowMessage();
@@ -71,7 +76,7 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
 		const params: IConnectParams = {
 			room: item.room,
 			sender_id: JSON.parse(userStorage.getItem()).id,
-			type: item.receiver_username ? 'private' : 'group'
+			type: isGroupChat(item) ? 'group' : 'private'
 		};
 		initSocket(params);
 		refreshChatList();
@@ -184,7 +189,14 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
 										<ImageLoad src={item.avatar} />
 									</div>
 									<div className={styles.chat_info}>
-										<div className={styles.chat_name}>{item.name}</div>
+										<div className={styles.chat_name}>
+											<span>{item.name}</span>
+											{isGroupChat(item) && (
+												<span
+													className={`icon iconfont icon-jinqunliaoliao ${styles.group_icon}`}
+												></span>
+											)}
+										</div>
 										<div className={styles.chat_message}>
 											{item.type === 'text'
 												? item.lastMessage
@@ -223,11 +235,16 @@ const ChatList = forwardRef((props: IChatListProps, ref) => {
 					</div>
 				</div>
 				<div className={styles.rightContainer}>
-					{curChatInfo === undefined ? (
+					{!curChatInfo ? (
 						<WechatOutlined />
 					) : (
 						<div className={styles.chat_window}>
-							<div className={styles.chat_receiver}>{curChatInfo.name}</div>
+							<div className={styles.chat_receiver}>
+								<span>{curChatInfo.name}</span>
+								{isGroupChat(curChatInfo) && (
+									<span className={`icon iconfont icon-jinqunliaoliao ${styles.group_icon}`}></span>
+								)}
+							</div>
 							<div className={styles.chat_content}>
 								<ChatContainer historyMsg={historyMsg} newMsg={newMessage} />
 							</div>

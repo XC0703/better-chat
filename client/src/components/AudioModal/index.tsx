@@ -268,7 +268,12 @@ const AudioModal = (props: ICallModalProps) => {
 			<Modal
 				open={openmodal}
 				footer={null}
-				onCancel={() => handleModal(false)}
+				onCancel={() => {
+					handleRejectCall();
+					setTimeout(() => {
+						handleModal(false);
+					}, 1500);
+				}}
 				wrapClassName="audioModal"
 				width="5rem"
 				title="语音通话"

@@ -398,7 +398,7 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 								</div>
 								<div className={styles.info}>
 									<div className={styles.username}>{curFriendInfo?.username}</div>
-									<div className={styles.signature}>
+									<div className={`icon iconfont icon-gexingqianming ${styles.signature}`}>
 										{curFriendInfo.signature ? curFriendInfo.signature : '暂无个性签名'}
 									</div>
 								</div>
@@ -456,7 +456,7 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 								</div>
 								<div className={styles.info}>
 									<div className={styles.username}>{curGroupChatInfo?.name}</div>
-									<div className={styles.signature}>
+									<div className={`icon iconfont icon-qungonggao ${styles.signature}`}>
 										{curGroupChatInfo.announcement ? curGroupChatInfo.announcement : '暂无公告'}
 									</div>
 								</div>

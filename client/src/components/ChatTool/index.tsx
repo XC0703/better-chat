@@ -2,7 +2,7 @@ import { Button, Spin, Tooltip } from 'antd';
 import { ChangeEvent, useRef, useState } from 'react';
 
 import styles from './index.module.less';
-import { IChatToolProps, ISendMessage } from './type';
+import { IChatToolProps, IMessageListItem, ISendMessage } from './type';
 
 import { EmojiList } from '@/assets/emoji';
 import { ChatIconList } from '@/assets/icons';
@@ -11,6 +11,11 @@ import VideoModal from '@/components/VideoModal';
 import useShowMessage from '@/hooks/useShowMessage';
 import { getFileSuffixByName } from '@/utils/file';
 import { userStorage } from '@/utils/storage';
+
+// 判断当前的聊天是否为群聊
+const isGroupChat = (item: IMessageListItem) => {
+	return !item.receiver_username;
+};
 
 const ChatTool = (props: IChatToolProps) => {
 	const { curChatInfo, sendMessage } = props;
@@ -188,6 +193,7 @@ const ChatTool = (props: IChatToolProps) => {
 	};
 
 	// 点击不同的图标产生的回调
+	// TODO：目前群聊暂不支持语音/视频通话
 	const handleIconClick = (icon: string) => {
 		switch (icon) {
 			case 'icon-tupian_huaban':
@@ -197,9 +203,17 @@ const ChatTool = (props: IChatToolProps) => {
 				fileRef.current!.click();
 				break;
 			case 'icon-dianhua':
+				if (isGroupChat(curChatInfo)) {
+					showMessage('info', '群聊暂不支持语音通话');
+					return;
+				}
 				setAudioModal(true);
 				break;
 			case 'icon-video':
+				if (isGroupChat(curChatInfo)) {
+					showMessage('info', '群聊暂不支持视频通话');
+					return;
+				}
 				setVideoModal(true);
 				break;
 			default:

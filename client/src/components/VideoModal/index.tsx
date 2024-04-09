@@ -304,7 +304,12 @@ const VideoModal = (props: ICallModalProps) => {
 			<Modal
 				open={openmodal}
 				footer={null}
-				onCancel={() => handleModal(false)}
+				onCancel={() => {
+					handleRejectCall();
+					setTimeout(() => {
+						handleModal(false);
+					}, 1500);
+				}}
 				wrapClassName="videoModal"
 				width="5rem"
 				title="视频通话"
