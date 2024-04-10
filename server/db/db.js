@@ -10,6 +10,7 @@ let port = 3306; // 端口
 let user = 'root'; // 登录数据库的账号
 let password = '123456'; // 登录数据库的密码
 let database = 'better-chat'; // 指定要操作哪个数据库
+// 如果存在配置文件，则读取配置文件中的配置
 if (fs.existsSync('config.json')) {
 	const res = JSON.parse(fs.readFileSync('config.json'));
 	host = res.host;

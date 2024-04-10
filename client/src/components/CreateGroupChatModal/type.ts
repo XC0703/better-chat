@@ -1,4 +1,3 @@
-import { IGroupChatInfo } from '@/pages/container/AddressBook/type';
 /**
  * 接口参数类型定义
  */
@@ -44,12 +43,36 @@ export interface InviteFriendsParams {
 /**
  * 组件中用到的其它参数类型定义
  */
+// 群聊成员信息（右边展示）
+interface IGroupChatMemberItem {
+	avatar: string;
+	created_at: string;
+	lastMessageTime: string | null;
+	name: string;
+	nickname: string;
+	user_id: number;
+}
+// 群聊具体信息 (右边展示)
+// 在client\src\pages\container\AddressBook\type.ts、client\src\pages\container\AddressBook\api.ts、client\src\pages\container\AddressBook\index.tsx中也被引用
+// 在client\src\pages\container\ChatList\type.ts、client\src\pages\container\ChatList\index.tsx中也被引用
+// 在client\src\pages\container\index.tsx中也被引用
+export interface IGroupChatInfo {
+	announcement: string;
+	avatar: string;
+	created_at: string;
+	creator_id: number;
+	creator_username: string;
+	id: number;
+	name: string;
+	room: string;
+	members: IGroupChatMemberItem[];
+}
 // 给创建群聊弹窗组件传递的参数类型
 export interface ICreateGroupModal {
 	openmodal: boolean;
 	handleModal: (visible: boolean) => void;
 	type: 'create' | 'invite';
-	groupChatInfo?: IGroupChatInfo;
+	groupChatInfo?: IGroupChatInfo; // 当type为invite时，需要传递群聊信息
 }
 // 创建群聊表单类型
 export interface ICreateGroupForm {

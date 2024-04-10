@@ -1,8 +1,13 @@
 {
-	"name": "mdeditor",
+	"name": "better-chat-client",
 	"private": true,
-	"version": "0.0.0",
+	"version": "1.0.0",
 	"type": "module",
+	"author": {
+    "name": "明远湖之鱼",
+    "email": "488548816@qq.com",
+    "url": "https://github.com/XC0703"
+	},
 	"scripts": {
 		"start": "pnpm run dev",
 		"dev": "vite",

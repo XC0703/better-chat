@@ -5,17 +5,18 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 're
 import { getChatList } from './api';
 import styles from './index.module.less';
 import { IConnectParams, IChatListProps } from './type';
-import { IFriendInfo, IGroupChatInfo } from '../AddressBook/type';
 
 import { StatusIconList } from '@/assets/icons';
 import ChatContainer from '@/components/ChatContainer';
 import ChatTool from '@/components/ChatTool';
 import { ISendMessage, IMessageListItem } from '@/components/ChatTool/type';
+import { IGroupChatInfo } from '@/components/CreateGroupChatModal/type';
 import ImageLoad from '@/components/ImageLoad';
 import { IMessageItem } from '@/components/MessageShow/type';
 import SearchContainer from '@/components/SearchContainer';
 import { wsBaseURL } from '@/config';
 import useShowMessage from '@/hooks/useShowMessage';
+import { IFriendInfo } from '@/pages/container/AddressBook/type';
 import { HttpStatus } from '@/utils/constant';
 import { userStorage } from '@/utils/storage';
 import { formatChatListTime } from '@/utils/time';

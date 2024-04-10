@@ -6,9 +6,10 @@ import { handleChange } from './api';
 import styles from './index.module.less';
 import { IChangePwdForm, IChangePwdModalProps } from './type';
 
+import { IUserInfo } from '@/components/ChangePerInfoModal/type';
 import useShowMessage from '@/hooks/useShowMessage';
 import { HttpStatus } from '@/utils/constant';
-import { handleLogout, IUserInfo } from '@/utils/logout';
+import { handleLogout } from '@/utils/logout';
 import { clearSessionStorage, userStorage } from '@/utils/storage';
 
 const ChangePwdModal = (props: IChangePwdModalProps) => {

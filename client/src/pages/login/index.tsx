@@ -7,11 +7,11 @@ import styles from './index.module.less';
 import { ILoginForm } from './type';
 
 import { BgImage } from '@/assets/images';
+import { IUserInfo } from '@/components/ChangePerInfoModal/type';
 import ChangePwdModal from '@/components/ChangePwdModal';
 import useShowMessage from '@/hooks/useShowMessage';
 import { HttpStatus } from '@/utils/constant';
 import { generateRandomString, encrypt, decrypt } from '@/utils/encryption';
-import { IUserInfo } from '@/utils/logout';
 import { tokenStorage, userStorage } from '@/utils/storage';
 
 // 记住密码 -- 主要就是将用户信息和 token 加密存储到本地

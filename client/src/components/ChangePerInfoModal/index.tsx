@@ -1,6 +1,5 @@
 import { Form, Input, Modal } from 'antd';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import { handleChange } from './api';
 import styles from './index.module.less';
@@ -9,33 +8,14 @@ import { IChangePerInfoModalProps, IChangePerInfoForm } from './type';
 import { ImageUpload } from '@/components/ImageUpload';
 import useShowMessage from '@/hooks/useShowMessage';
 import { HttpStatus } from '@/utils/constant';
-import { handleLogout, IUserInfo } from '@/utils/logout';
-import { clearSessionStorage, userStorage } from '@/utils/storage';
+import { tokenStorage, userStorage } from '@/utils/storage';
 
 const ChangePerInfoModal = (props: IChangePerInfoModalProps) => {
 	const showMessage = useShowMessage();
-	const navigate = useNavigate();
 	const { username, name, avatar, phone, signature } = JSON.parse(userStorage.getItem() || '{}');
 	const [changePerInfoFormInstance] = Form.useForm<IChangePerInfoForm>();
 	const { openmodal, handleModal } = props;
 	const [loading, setLoading] = useState(false);
-
-	// 退出登录
-	// TODO：只有修改密码后才需要退出登录，这里暂时先退出登录
-	const confirmLogout = async () => {
-		try {
-			const res = await handleLogout(JSON.parse(userStorage.getItem() || '{}') as IUserInfo);
-			if (res.code === HttpStatus.SUCCESS) {
-				clearSessionStorage();
-				showMessage('success', '登录已过期，请重新登录');
-				navigate('/login');
-			} else {
-				showMessage('error', '退出失败, 请重试');
-			}
-		} catch {
-			showMessage('error', '退出失败, 请重试');
-		}
-	};
 
 	const handleSubmit = async () => {
 		changePerInfoFormInstance.validateFields().then(async values => {
@@ -51,11 +31,13 @@ const ChangePerInfoModal = (props: IChangePerInfoModalProps) => {
 					signature
 				};
 				const res = await handleChange(params);
-				if (res.code === HttpStatus.SUCCESS) {
+				if (res.code === HttpStatus.SUCCESS && res.data) {
 					showMessage('success', '修改成功');
 					setLoading(true);
 					handleModal(false);
-					confirmLogout();
+					// 更新本地存储
+					tokenStorage.setItem(res.data.token);
+					userStorage.setItem(JSON.stringify(res.data.info));
 				} else {
 					showMessage('error', '修改失败，请重试');
 					setLoading(false);
@@ -71,6 +53,7 @@ const ChangePerInfoModal = (props: IChangePerInfoModalProps) => {
 	useEffect(() => {
 		changePerInfoFormInstance?.setFieldsValue({
 			name,
+			avatar,
 			phone,
 			signature: signature && signature !== '' ? signature : '暂无个性签名'
 		});

@@ -3,11 +3,10 @@ import {
 	IFriendGroupListItem,
 	IUpdateFriendInfo,
 	ICreateFriendGroup,
-	IGroupChatItem,
-	IGroupChatInfo
+	IGroupChatItem
 } from './type';
 
-import { IFriendGroupItem } from '@/components/CreateGroupChatModal/type';
+import { IFriendGroupItem, IGroupChatInfo } from '@/components/CreateGroupChatModal/type';
 import Request from '@/utils/request';
 
 // 获取好友列表

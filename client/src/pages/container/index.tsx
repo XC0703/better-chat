@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 import AddressBook from './AddressBook';
 import { getFriendInfoByUsername } from './AddressBook/api';
-import { IFriendInfo, IGroupChatInfo } from './AddressBook/type';
+import { IFriendInfo } from './AddressBook/type';
 import ChatList from './ChatList';
 import styles from './index.module.less';
 
@@ -12,13 +12,15 @@ import { MenuIconList } from '@/assets/icons';
 import AudioModal from '@/components/AudioModal';
 import { ICallFriendInfo } from '@/components/AudioModal/type';
 import ChangePerInfoModal from '@/components/ChangePerInfoModal';
+import { IUserInfo } from '@/components/ChangePerInfoModal/type';
 import ChangePwdModal from '@/components/ChangePwdModal';
+import { IGroupChatInfo } from '@/components/CreateGroupChatModal/type';
 import ImageLoad from '@/components/ImageLoad';
 import VideoModal from '@/components/VideoModal';
 import { wsBaseURL } from '@/config';
 import useShowMessage from '@/hooks/useShowMessage';
 import { HttpStatus } from '@/utils/constant';
-import { handleLogout, IUserInfo } from '@/utils/logout';
+import { handleLogout } from '@/utils/logout';
 import { clearSessionStorage, userStorage } from '@/utils/storage';
 
 interface IAddressBookRef {

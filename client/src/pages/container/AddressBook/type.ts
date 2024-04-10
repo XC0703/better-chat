@@ -1,7 +1,10 @@
+import { IGroupChatInfo } from '@/components/CreateGroupChatModal/type';
 /**
  * 接口参数类型定义
  */
-// 好友信息类型 —— 在client\src\pages\container\ChatList\api\type.ts、client\src\pages\container\ChatList\index.tsx、client\src\pages\container\index.tsx中也被引用
+// 好友信息类型
+// 在client\src\pages\container\ChatList\api\type.ts、client\src\pages\container\ChatList\index.tsx中也被引用
+// 在client\src\pages\container\index.tsx中也被引用
 export interface IFriendInfo {
 	friend_id: number;
 	friend_user_id: number;
@@ -48,27 +51,6 @@ export interface IGroupChatItem {
 	room: string;
 	created_at: string;
 	updated_at: string;
-}
-// 群聊成员信息（右边展示）
-interface IGroupChatMemberItem {
-	avatar: string;
-	created_at: string;
-	lastMessageTime: string | null;
-	name: string;
-	nickname: string;
-	user_id: number;
-}
-// 群聊具体信息 (右边展示)
-export interface IGroupChatInfo {
-	announcement: string;
-	avatar: string;
-	created_at: string;
-	creator_id: number;
-	creator_username: string;
-	id: number;
-	name: string;
-	room: string;
-	members: IGroupChatMemberItem[];
 }
 
 /**

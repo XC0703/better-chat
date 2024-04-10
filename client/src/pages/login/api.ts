@@ -1,5 +1,6 @@
-import { ILoginParams, ILoginResponseData } from './type';
+import { ILoginParams } from './type';
 
+import { ILoginResponseData } from '@/components/ChangePerInfoModal/type';
 import Request from '@/utils/request';
 
 export const handleLogin = async (data: ILoginParams) => {

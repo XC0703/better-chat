@@ -1,4 +1,5 @@
-import { IFriendInfo, IGroupChatInfo } from '@/pages/container/AddressBook/type';
+import { IGroupChatInfo } from '@/components/CreateGroupChatModal/type';
+import { IFriendInfo } from '@/pages/container/AddressBook/type';
 /**
  * 接口参数类型定义
  */

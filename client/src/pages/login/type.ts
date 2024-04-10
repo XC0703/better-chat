@@ -1,4 +1,3 @@
-import { IUserInfo } from '@/utils/logout';
 /**
  * 接口参数类型定义
  */
@@ -6,11 +5,6 @@ import { IUserInfo } from '@/utils/logout';
 export interface ILoginParams {
 	username: string;
 	password: string;
-}
-// 登录接口返回的 data 类型
-export interface ILoginResponseData {
-	token: string;
-	info: IUserInfo;
 }
 
 /**

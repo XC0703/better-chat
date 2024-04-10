@@ -57,7 +57,7 @@ const friendRouter = require('./routes/friend')();
 const messageRouter = require('./routes/message')();
 const groupRouter = require('./routes/group')();
 const rtcRouter = require('./routes/rtc')();
-app.use('', cors); // 防止浏览器的预检请求导致控制台报的跨域错误）
+app.use('', cors); // 防止浏览器的预检请求导致控制台报的跨域错误
 app.use('/api/chat/v1/auth', cors, indexRouter);
 app.use('/api/chat/v1/friend', cors, friendRouter);
 app.use('/api/chat/v1/message', cors, messageRouter);

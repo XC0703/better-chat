@@ -68,7 +68,7 @@ const login = async (req, res) => {
 			const sql = `UPDATE friend SET online_status = ? WHERE username = ?`;
 			await Query(sql, ['online', username]);
 			// 6. 保存 Token 到 Redis 缓存中
-			better_chat.set(`token:${payload.username}`, token, 'EX', 60 * 60 * 24 * 14); // 有效期为 14 天
+			await better_chat.set(`token:${payload.username}`, token, 'EX', 60 * 60 * 24 * 14); // 有效期为 14 天
 			return RespData(res, data);
 		} else {
 			return RespError(res, AuthErrStatus.USER_OR_PASS_ERR);
@@ -93,7 +93,7 @@ const logout = async (req, res) => {
 		const sql = `UPDATE friend SET online_status = ? WHERE username = ?`;
 		await Query(sql, ['offline', username]);
 		// 删除 redis 中的 token
-		better_chat.del(`token:${username}`);
+		await better_chat.del(`token:${username}`);
 		return RespSuccess(res);
 	} catch {
 		return RespError(res, CommonErrStatus.SERVER_ERR);
@@ -202,9 +202,9 @@ const forgetPassword = async (req, res) => {
 };
 /**
  * 修改用户信息的基本逻辑：
- * 1. 获取到前端传来的更新信息
- * 2. 直接更新 user 表中的数据即可
- * 3. 前端重新登录
+ * 1. 获取到前端传来的更新信息，重新更新 user 表中的数据
+ * 2. 生成 jwt, 更新 redis 中的 token，返回新的用户信息和 token 给前端
+ * 3. 前端重新刷新相关信息
  */
 const updateInfo = async (req, res) => {
 	const { username, avatar, name, phone, signature } = req.body;
@@ -218,10 +218,41 @@ const updateInfo = async (req, res) => {
 			phone,
 			signature
 		};
-		const sql = `UPDATE user SET ? WHERE username = ?`;
-		const results = await Query(sql, [info, username]);
-		if (results.affectedRows === 1) {
-			return RespSuccess(res);
+		const sql_set = `UPDATE user SET ? WHERE username = ?`;
+		const results_set = await Query(sql_set, [info, username]);
+		if (results_set.affectedRows === 1) {
+			// 返回新的用户信息和 token 给前端
+			const sql_get = `SELECT * FROM user WHERE username = ?`;
+			const results_get = await Query(sql_get, [username]);
+			const payload = {
+				id: results_get[0].id,
+				avatar: results_get[0].avatar,
+				username: results_get[0].username,
+				password: results_get[0].password,
+				name: results_get[0].name,
+				phone: results_get[0].phone,
+				salt: results_get[0].salt
+			};
+			const token = jwt.sign(payload, secretKey);
+			// 刷新 redis 中的 token
+			await better_chat.set(`token:${payload.username}`, token, 'EX', 60 * 60 * 24 * 14); // 有效期为 14 天
+			// 通知好友刷新本人信息
+
+			const data = {
+				token: token,
+				info: {
+					id: results_get[0].id,
+					avatar: results_get[0].avatar,
+					username: results_get[0].username,
+					name: results_get[0].name,
+					phone: results_get[0].phone,
+					created_at: new Date(results_get[0].created_at)
+						.toLocaleString('zh-CN', { hour12: false })
+						.replace(/\//g, '-'),
+					signature: results_get[0].signature
+				}
+			};
+			return RespData(res, data);
 		}
 	} catch {
 		return RespError(res, CommonErrStatus.SERVER_ERR);

@@ -16,7 +16,6 @@ import {
 	IFriendInfo,
 	IFriendGroupListItem,
 	IGroupChatItem,
-	IGroupChatInfo,
 	IAddressBookProps,
 	TabType,
 	IFriendInfoForm
@@ -25,7 +24,7 @@ import type { DirectoryTreeProps } from 'antd/es/tree';
 
 import { StatusIconList } from '@/assets/icons';
 import CreateGroupChatModal from '@/components/CreateGroupChatModal';
-import { IFriendGroupItem } from '@/components/CreateGroupChatModal/type';
+import { IFriendGroupItem, IGroupChatInfo } from '@/components/CreateGroupChatModal/type';
 import ImageLoad from '@/components/ImageLoad';
 import SearchContainer from '@/components/SearchContainer';
 import useShowMessage from '@/hooks/useShowMessage';
