@@ -8,7 +8,7 @@ export interface IMessageShowProps {
 	showTime: boolean;
 	message: IMessageItem;
 }
-// 右侧显示消息项的类型 —— 在client\src\pages\container\ChatList\index.tsx中也被引用
+// 右侧显示消息项的类型 —— 在client\src\pages\Chat\index.tsx中也被引用
 export interface IMessageItem {
 	sender_id: number;
 	receiver_id: number;

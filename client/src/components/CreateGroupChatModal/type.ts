@@ -1,7 +1,7 @@
 /**
  * 接口参数类型定义
  */
-// 分组好友列表数据类型 —— 在client\src\pages\container\AddressBook\index.tsx、client\src\pages\container\AddressBook\index.ts中也被引用
+// 分组好友列表数据类型 —— 在client\src\pages\address-book\index.tsx、client\src\pages\address-book\index.ts中也被引用
 export interface IFriendGroupItem {
 	name: string;
 	online_counts: number;
@@ -53,9 +53,9 @@ interface IGroupChatMemberItem {
 	user_id: number;
 }
 // 群聊具体信息 (右边展示)
-// 在client\src\pages\container\AddressBook\type.ts、client\src\pages\container\AddressBook\api.ts、client\src\pages\container\AddressBook\index.tsx中也被引用
-// 在client\src\pages\container\ChatList\type.ts、client\src\pages\container\ChatList\index.tsx中也被引用
-// 在client\src\pages\container\index.tsx中也被引用
+// 在client\src\pages\address-book\type.ts、client\src\pages\address-book\api.ts、client\src\pages\address-book\index.tsx中也被引用
+// 在client\src\pages\chat\type.ts、client\src\pages\chat\index.tsx中也被引用
+// 在client\src\pages\home\index.tsx中也被引用
 export interface IGroupChatInfo {
 	announcement: string;
 	avatar: string;

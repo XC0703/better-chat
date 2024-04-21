@@ -9,7 +9,7 @@ global.LoginRooms = {};
  * 引入 app 并启动服务
  */
 const expressWs = require('express-ws');
-const app = require('./app/app');
+const app = require('./controller/app');
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
 	// eslint-disable-next-line no-console

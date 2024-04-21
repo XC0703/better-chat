@@ -17,7 +17,7 @@ export interface ICallModalProps {
 	status: callStatusType;
 	friendInfo: ICallFriendInfo;
 }
-// 音视频通话的好友信息类型 —— 在client\src\pages\container\index.tsx中也被引用
+// 音视频通话的好友信息类型 —— 在client\src\pages\home\index.tsx中也被引用
 export interface ICallFriendInfo {
 	receiver_username: string;
 	remark: string;

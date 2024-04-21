@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 
 import '@/assets/styles/global.less';
-import RouterConfig from '@/router';
+import RouteRender from '@/router';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
 	<BrowserRouter>
@@ -17,7 +17,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
 			locale={zhCN}
 		>
 			<App>
-				<RouterConfig />
+				<RouteRender />
 			</App>
 		</ConfigProvider>
 	</BrowserRouter>

@@ -55,11 +55,18 @@ const ChatTool = (props: IChatToolProps) => {
 		}
 	};
 
-	// 发送图片/视频消息（TODO：大的图片/视频文件按目前方式上传会出错，因为读取的数组过大，应该使用分片上传）
+	// 发送图片/视频消息（TODO：大的图片/视频文件按目前方式上传会出错，因此暂时限定最大传输大小，因为读取的数组过大，应该使用分片上传）
 	const handleSendImageMessage = (e: ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files!.length > 0) {
 			setLoading(true);
 			const file = e.target.files![0];
+			// 检查图片/视频大小是否超过100MB
+			if (file.size > 100 * 1024 * 1024) {
+				showMessage('error', '图片/视频大小不能超过100MB');
+				setLoading(false);
+				return;
+			}
+			// 读取文件内容
 			const reader = new FileReader();
 			// 文件读取完成之后执行的回调
 			reader.onload = event => {
@@ -97,6 +104,12 @@ const ChatTool = (props: IChatToolProps) => {
 			const file = e.target.files![0];
 			// 其它文件类型，按照图片/视频文件处理
 			if (getFileSuffixByName(file.name) !== 'file') {
+				// 检查图片/视频大小是否超过100MB
+				if (file.size > 100 * 1024 * 1024) {
+					showMessage('error', '图片/视频大小不能超过100MB');
+					setLoading(false);
+					return;
+				}
 				const reader = new FileReader();
 				reader.onload = event => {
 					try {

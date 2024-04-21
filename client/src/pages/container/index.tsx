@@ -2,10 +2,6 @@ import { Tooltip, Button, Popover } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import AddressBook from './AddressBook';
-import { getFriendInfoByUsername } from './AddressBook/api';
-import { IFriendInfo } from './AddressBook/type';
-import ChatList from './ChatList';
 import styles from './index.module.less';
 
 import { MenuIconList } from '@/assets/icons';
@@ -19,6 +15,10 @@ import ImageLoad from '@/components/ImageLoad';
 import VideoModal from '@/components/VideoModal';
 import { wsBaseURL } from '@/config';
 import useShowMessage from '@/hooks/useShowMessage';
+import AddressBook from '@/pages/address-book';
+import { getFriendInfoByUsername } from '@/pages/address-book/api';
+import { IFriendInfo } from '@/pages/address-book/type';
+import Chat from '@/pages/chat';
 import { HttpStatus } from '@/utils/constant';
 import { handleLogout } from '@/utils/logout';
 import { clearSessionStorage, userStorage } from '@/utils/storage';
@@ -27,7 +27,7 @@ interface IAddressBookRef {
 	refreshFriendList: () => void;
 	refreshGroupChatList: () => void;
 }
-interface IChatListRef {
+interface IChatRef {
 	refreshChatList: () => void;
 }
 
@@ -42,11 +42,11 @@ const Container = () => {
 	const [openVideoModal, setVideoModal] = useState(false);
 	const socket = useRef<WebSocket | null>(null); // websocket 实例
 	const addressBookRef = useRef<IAddressBookRef>(null); // 通讯录组件实例
-	const chatListRef = useRef<IChatListRef>(null); // 聊天列表组件实例
+	const chatRef = useRef<IChatRef>(null); // 聊天列表组件实例
 	const [initSelectedChat, setInitSelectedChat] = useState<IFriendInfo | IGroupChatInfo | null>(
 		null
 	); // 初始化选中的聊天对象 (只有从通讯录页面进入聊天页面时才会有值)
-	const [callFriendInfo, setCallFriendInfo] = useState<ICallFriendInfo>(); // 通话对象信息
+	const [callFriendInfo, setCallFriendInfo] = useState<ICallFriendInfo>(); // 音视频通话对象信息
 
 	// 控制修改密码的弹窗显隐
 	const handleForgetModal = (visible: boolean) => {
@@ -139,10 +139,10 @@ const Container = () => {
 					break;
 				case 'chatList':
 					// 重新加载消息列表
-					chatListRef.current?.refreshChatList();
+					chatRef.current?.refreshChatList();
 					break;
-				// 打开响应音视频通话窗口 (根据传过来的发送方 username 拿到对应的好友信息)
 				case 'createRoom':
+					// 打开响应音视频通话窗口 (根据传过来的发送方 username 拿到对应的好友信息)
 					if (data.sender_username) {
 						try {
 							const res = await getFriendInfoByUsername(data.sender_username);
@@ -177,6 +177,7 @@ const Container = () => {
 	// 在通讯录页面选择一个好友或群聊进行发送信息时跳转到聊天页面
 	const handleChooseChat = (item: IFriendInfo | IGroupChatInfo) => {
 		setCurrentIcon('icon-message');
+		navigate('/chat');
 		setInitSelectedChat(item);
 	};
 
@@ -199,6 +200,7 @@ const Container = () => {
 											onClick={() => {
 												if (item.text === '聊天' || item.text === '通讯录') {
 													setCurrentIcon(item.icon);
+													navigate(item.text === '聊天' ? '/chat' : '/address-book');
 												}
 											}}
 											style={{
@@ -236,7 +238,7 @@ const Container = () => {
 				</div>
 				<div className={styles.rightContainer}>
 					{currentIcon === 'icon-message' ? (
-						<ChatList initSelectedChat={initSelectedChat} ref={chatListRef} />
+						<Chat initSelectedChat={initSelectedChat} ref={chatRef} />
 					) : (
 						<AddressBook handleChooseChat={handleChooseChat} ref={addressBookRef} />
 					)}

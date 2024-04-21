@@ -1,38 +1,45 @@
-import { useEffect } from 'react';
-import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { Spin } from 'antd';
+import { Suspense, useMemo } from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
 
-import { withPrivateRoute } from '@/components/PrivateRoute';
-import Chat from '@/pages/chat';
-import Login from '@/pages/login';
-import Register from '@/pages/register';
-import { tokenStorage } from '@/utils/storage';
+import { IRouter, router } from './config';
 
-// 用于给需要登录才能访问的页面添加路由守卫
-const ChatWithPrivateRoute = withPrivateRoute(Chat);
-const RouterConfig = () => {
-	const navigate = useNavigate();
-	// 每次路由变化时，都会执行这个函数
-	const { pathname } = useLocation();
-	useEffect(() => {
-		const authToken = tokenStorage.getItem();
-		if (authToken) {
-			if (pathname === '/') {
-				return;
-			} else {
-				navigate('/');
-			}
-		} else {
-			if (pathname !== '/login' && pathname !== '/register') {
-				navigate('/login');
-			}
-		}
-	}, [pathname]);
-	return (
-		<Routes>
-			<Route path="/" element={<ChatWithPrivateRoute />} />
-			<Route path="/login" element={<Login />} />
-			<Route path="/register" element={<Register />} />
-		</Routes>
-	);
+const CenteredSpin = () => (
+	<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+		<Spin />
+	</div>
+);
+
+const RouteRender = () => {
+	// 递归地渲染路由
+	const routeRender = (router: Array<IRouter>) => {
+		return router.map(item => {
+			return (
+				<Route
+					key={item.name || item.path}
+					path={item.path}
+					element={
+						item.redirect ? (
+							<Navigate to={item.redirect} />
+						) : (
+							<Suspense fallback={<CenteredSpin />}>
+								<item.component />
+							</Suspense>
+						)
+					}
+				>
+					{item.children && routeRender(item.children)}
+				</Route>
+			);
+		});
+	};
+
+	// 使用 useMemo 来记忆化 router 映射的结果，避免每次渲染都重新计算
+	const routes = useMemo(() => {
+		return routeRender(router);
+	}, [router]);
+
+	return <Routes>{routes}</Routes>;
 };
-export default RouterConfig;
+
+export default RouteRender;

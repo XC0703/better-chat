@@ -2,11 +2,12 @@
 	"name": "better-chat-client",
 	"private": true,
 	"version": "1.0.0",
+	"description": "better-chat项目的前端部分",
 	"type": "module",
 	"author": {
-    "name": "明远湖之鱼",
-    "email": "488548816@qq.com",
-    "url": "https://github.com/XC0703"
+		"name": "明远湖之鱼",
+		"email": "488548816@qq.com",
+		"url": "https://github.com/XC0703"
 	},
 	"scripts": {
 		"start": "pnpm run dev",

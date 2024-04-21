@@ -1,5 +1,5 @@
-const { CommonErrStatus } = require('../model/error');
-const { RespError, RespData } = require('./../model/resp');
+const { CommonErrStatus } = require('./error');
+const { RespError, RespData } = require('./resp');
 const { base64ToImage } = require('./file');
 
 /**

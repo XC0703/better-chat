@@ -1,0 +1,18 @@
+{
+	"name": "better-chat",
+	"version": "1.0.0",
+	"description": "better-chat项目",
+	"author": {
+		"name": "明远湖之鱼",
+		"email": "488548816@qq.com",
+		"url": "https://github.com/XC0703"
+	},
+	"scripts": {
+		"prepare": "husky"
+	},
+	"devDependencies": {
+		"@commitlint/cli": "^19.2.2",
+		"@commitlint/config-conventional": "^19.2.2",
+		"husky": "^9.0.11"
+	}
+}

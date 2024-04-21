@@ -238,7 +238,7 @@ const VideoModal = (props: ICallModalProps) => {
 		}
 	};
 
-	// 拒绝 / 挂断通话 ———— 双方都可能收到
+	// 拒绝/挂断通话 ———— 双方都可能收到
 	const handleRejectCall = () => {
 		if (!socket.current) {
 			return;

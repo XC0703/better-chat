@@ -17,11 +17,14 @@
    <a href="https://express.nodejs.cn">
       <img src="https://badgen.net/static/express/4.18.2/yellow"alt="express">
    </a>
-   <img src="https://badgen.net/static/express-ws/5.0.2/orange"alt="express-ws">
-   <img src="https://badgen.net/static/mysql/2.18.1/pink" alt="mysql">
+   <a href="https://www.mysql.com/cn/">   
+      <img src="https://badgen.net/static/mysql/8.0.29/pink" alt="mysql">
+   </a>
 </p>
 <p align="center">
-   <img src="https://badgen.net/static/websocket/OK/green" alt="websocket">
+   <a href="https://developer.mozilla.org/zh-CN/docs/Web/API/WebSocket">
+      <img src="https://badgen.net/static/websocket/OK/green" alt="websocket">
+   </a>
    <a href="https://developer.mozilla.org/zh-CN/docs/Web/API/WebRTC_API">
       <img src="https://badgen.net/static/webrtc/OK/purple" alt="webrtc">
    </a>
@@ -31,11 +34,11 @@
 
 ### 1.1 项目概括
 
-本项目是一个前端基于 `vite`、`react`、`ts`，后端基于 `express`、`express-ws`、`mysql`，并依赖 `websocket 协议`、`webrtc 协议`实现的局域网实时聊天全栈项目，且`持续开源和维护`。
+本项目是一个前端基于 `vite`、`react`、`ts`，后端基于 `express`、`mysql`，并依赖 `websocket 协议`、`webrtc 协议`实现的局域网实时聊天全栈项目，且`持续开源和维护`。
 
 先放在开头：
 
-👉 项目演示地址：https://www.bilibili.com/video/BV1tF411y7V6/?vd_source=d4b042d141a005b13a776cb15d5b95d9
+👉 项目演示地址：https://www.bilibili.com/video/BV1tF411y7V6
 
 🔨 项目说明文档掘金地址：https://juejin.cn/post/7267848386522415145
 
@@ -52,12 +55,12 @@
 
 ### 1.3 项目亮点？
 
-- 使用 EditorConfig+Prettier+ESLint+StyleLint+CommitLint+Husky 统一代码和 Git 提交规范，较为完备的前端工程化配置
-- 项目目录结构合理、清晰，组件和方法抽象程度高，代码耦合度低，且配备较为完备的文档说明
-- 借助 MySQL、Express 完成了 5 张表、18 个接口的设计与开发，锻炼全栈能力
-- 基于 WebSocket 协议、WebRTC 协议实现了局域网通信和音视频通话功能
-- 针对大文件传输场景，作出分片上传、断点续传处理
-- 依赖高阶组件实现路由守卫，基于 Token 和 JWT 实现鉴权
+- 使用 `ESLint`+`Prettier`+`Husky`+`Commitlint` 等工具统一代码和 `Git` 提交规范，较为完备的前端工程化配置。
+- 项目目录结构合理、清晰，组件和方法抽象程度高，代码耦合度低，且配备较为完备的文档说明。
+- 借助 `MySQL`、`Express` 完成了 `7` 张表、`25` 个接口的设计与开发，锻炼全栈能力。
+- 基于 `WebSocket` 协议、`WebRTC` 协议实现了局域网通信和音视频通话功能，支持群聊和群音视频。
+- 针对大文件传输场景，作出分片上传、断点续传处理。
+- 依赖高阶组件实现路由守卫，基于 JWT 实现鉴权。
 
 ### 1.4 目前已经完成的功能
 
@@ -138,7 +141,7 @@
    ```
 
    ```
-   pnpm start
+   pnpm install
    ```
 
    ```
@@ -163,7 +166,7 @@
 
 **注意：**
 
-1. 项目启动前，先确定本地电脑已经配备好相关环境（`node`，`mysql`，`redis`，`pnpm` 等），推荐用 `navicat` 作为数据库管理软件（在里面新建本项目的数据库），用 `redis desktop manager` 作为 redis 管理软件，。
+1. 项目启动前，先确定本地电脑已经配备好相关环境（`node`，`mysql`，`redis`，`pnpm` 等），推荐用 `navicat` 作为数据库管理软件（在里面新建本项目的数据库），用 `redis desktop manager` 作为 redis 管理软件。
 
    > 需要先全局安装 pnpm，安装命令为：
    >
@@ -213,26 +216,27 @@
 
 **前端项目目录介绍：**
 
-![](https://p0.meituan.net/travelcube/7901350ae4293ee38101dc06a4d7914138144.png)
+![](https://img.qovv.cn/2024/04/19/66225875d630c.png)
 
-前端项目入口文件为 client\src，主要看这里面即可：
+前端项目入口文件为`client\src`，主要看这里面即可：
 
-- assets 文件夹主要存放一些静态资源文件，如图片、图标、表情包、全局样式等
-- components 文件夹主要存放项目组件，如各种弹窗组件、聊天框组件等
-- config 文件夹主要存放服务器相关配置，如服务端接口的 baseURL、websocket 的 baseURL、ice 服务器地址等
-- router 文件夹主要存放路由相关配置，即用于实现路由守卫的高阶组件
-- utils 文件夹主要存放一些全局通用的工具方法，如封装的 axios 和 storage、加密解密函数、时间或文件的格式化方法等
+- `assets`文件夹主要存放一些静态资源文件，如图片、图标、表情包、全局样式等
+- `components`文件夹主要存放公共组件，如各种弹窗组件、聊天框组件等
+- `config`文件夹主要存放服务器相关配置，如服务端接口的 `baseURL`、`websocket`的 `baseURL`等
+- `hooks`文件夹主要存放一些自定义 `hook`，如全局提示弹窗 `hook`
+- `pages`文件夹主要存放页面组件，如登录页面、注册页面、首页等
+- `router`文件夹主要存放路由相关配置，即用于实现路由守卫的高阶组件
+- `utils`文件夹主要存放一些全局通用的工具方法，如封装的`axios`和`storage`、加密解密函数、时间或文件的格式化方法等
 
 **后端项目目录介绍：**
 
-![](https://p0.meituan.net/travelcube/5e538a283ac1b126dd44c004ce71473338591.png)
+![](https://img.qovv.cn/2024/04/19/66225875dbdc9.png)
 
-- app 文件夹主要负责处理路由相关，将接口路由与 container 文件夹中导出的操作函数关联起来
-- container 文件夹负责各种操作的逻辑实现，并配备了极为清晰的注释
-- db 文件夹负责处理数据库相关，如各个表的创建、封装执行 sql 语句的方法等
-- model 文件夹负责规定接口返回码
-- utils 文件夹主要存放一些全局通用的工具方法，如创建文件的方法、文件格式化方法等
-- global.js 文件存放了一些全局变量和方法，通过 node 中的 global 变量注入
+- `app`文件夹主要负责处理路由相关，将接口路由与`container`文件夹中导出的操作函数关联起来
+- `container`文件夹负责各种操作的逻辑实现，并配备了极为清晰的注释
+- `db`文件夹负责处理数据库相关，如各个表的创建、封装执行`sql`语句的方法等
+- `utils`文件夹负责规定接口返回码
+- `utils`文件夹主要存放一些全局通用的工具方法，如创建文件的方法、文件格式化方法等
 
 对于大部分人来说，直接看源码和注释即可。因为上面提到，本项目的亮点之一便是做了较为完备的前端工程化设置，且项目目录结构合理、清晰，组件和方法抽象程度高，代码耦合度低，且配备了注释说明。下面附上几张源码图片进行证明：
 
@@ -255,16 +259,16 @@
 
 ## 3、写在最后
 
-本项目到目前为止都靠作者一人独立开发，但上面提到还有许多可扩展的功能点，也有很多缺陷待修复。由于本人目前还是一名准备秋招的大学生，因此接下来一段日子会比较忙，想尽快进一步完善项目却心有余而力不足，因此希望更多的人参与进来，继续完善这个项目，实现更好的开源。
+本项目到目前为止都靠作者一人独立开发，但上面提到还有许多可扩展的功能点，也有很多缺陷待修复。由于本人目前忙于毕设，想尽快进一步完善项目却心有余而力不足，因此希望更多的人参与进来，继续完善这个项目，实现更好的开源。
 
 ✨ 本人掘金博客地址：http://www.xucong.zone
 
-🎨 github 主页地址：https://github.com/XC0703
+🎨 本人`Github`主页地址：https://github.com/XC0703
 
-🏰 gitee 主页地址：https://gitee.com/fish-in-jiangan-river
+🏰 本人`Gitee`主页地址：https://gitee.com/XC0703
 
-👉 项目 github 地址：https://github.com/XC0703/better-chat
+👉 项目`Github`地址：https://github.com/XC0703/better-chat
 
-🔨 项目 gitee 地址：https://gitee.com/fish-in-jiangan-river/better-chat
+🔨 项目`Gitee`地址：https://gitee.com/XC0703/better-chat
 
 上面是一些关于此项目和本人技术社区主页的地址，欢迎各位看官给小弟点个赞，与诸君共勉。

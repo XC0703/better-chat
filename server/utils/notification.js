@@ -1,5 +1,5 @@
 /* global LoginRooms */
-const { Query } = require('../db/query');
+const { Query } = require('./query');
 
 // 通知对方（传入receiver_username或者receiver_id）
 const NotificationUser = async data => {

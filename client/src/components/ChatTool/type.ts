@@ -3,7 +3,7 @@
  */
 // 消息类型目前分为 text(文本),image(图片),video(视频),file(文件) —— 在client\src\components\ChatContainer\type.ts中也被引用
 export type MessageType = 'text' | 'image' | 'video' | 'file';
-// 发送消息的类型 —— 在client\src\pages\container\ChatList\index.tsx中也被引用
+// 发送消息的类型 —— 在client\src\pages\chat\index.tsx中也被引用
 export interface ISendMessage {
 	sender_id: number;
 	receiver_id: number;
@@ -14,7 +14,7 @@ export interface ISendMessage {
 	fileTraStatus?: 'start' | 'upload';
 	fileInfo?: string;
 }
-// 左侧消息列表项类型 —— 在client\src\pages\container\ChatList\index.tsx、client\src\pages\container\ChatList\index.ts中也被引用
+// 左侧消息列表项类型 —— 在client\src\pages\chat\index.tsx、client\src\pages\chat\index.ts中也被引用
 export interface IMessageListItem {
 	receiver_id: number; // 好友 id / 群聊 id
 	name: string; // 接受者备注 / 群聊名称
