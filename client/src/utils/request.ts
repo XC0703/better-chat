@@ -29,7 +29,7 @@ export class Request {
 			(config: InternalAxiosRequestConfig) => {
 				const token = this.getToken(); // 使用一个独立的方法来获取 token
 				if (token) {
-					config.headers!.Authorization = token;
+					config.headers.Authorization = token;
 				}
 				return config;
 			},

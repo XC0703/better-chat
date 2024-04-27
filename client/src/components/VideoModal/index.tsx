@@ -1,194 +1,195 @@
-import { Modal } from 'antd';
+import { Drawer, Modal, Empty } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
 import styles from './index.module.less';
 
-import { CallIcons, CallBgImage } from '@/assets/images';
+import { CallIcons } from '@/assets/images';
+import { getRoomMembers } from '@/components/AudioModal/api';
 import {
 	CallStatus,
 	callStatusType,
 	ICallModalProps,
-	IConnectParams
+	IConnectParams,
+	ICallList,
+	IRoomMembersItem
 } from '@/components/AudioModal/type';
 import ImageLoad from '@/components/ImageLoad';
 import { wsBaseURL } from '@/config';
 import useShowMessage from '@/hooks/useShowMessage';
+import { HttpStatus } from '@/utils/constant';
 import { userStorage } from '@/utils/storage';
 import { formatCallTime } from '@/utils/time';
 
 const VideoModal = (props: ICallModalProps) => {
 	const showMessage = useShowMessage();
-	const { openmodal, handleModal, status, friendInfo } = props;
+	const { openmodal, handleModal, status, type, callInfo } = props;
+	const user = JSON.parse(userStorage.getItem());
 	const [callStatus, setCallStatus] = useState<callStatusType>(status);
 	const [duration, setDuration] = useState<number>(0);
+	const [callList, setCallList] = useState<ICallList>({}); // 与 callListRef 作用类似，不过可以负责相关DOM的渲染
+	const [roomMembers, setRoomMembers] = useState<IRoomMembersItem[]>([]); // 当前房间内正在通话的所有人
+	const [curShowVideoCount, setCurShowVideoCount] = useState<number>(0); // 当前显示视频的人数，最大为6
+	const [isShowRoomMembersDrawer, setIsRoomMembersDrawer] = useState<boolean>(false); // 是否显示当前通话人列表抽屉
+	const [isHovered, setIsHovered] = useState(false); // 是否鼠标移入视频区域
+	const callListRef = useRef<ICallList>({}); // 主要负责存储通话对象信息，每个通话对象都有一个 RTCPeerConnection 实例，该实例是真正负责音视频通信的角色
 	const localStream = useRef<MediaStream | null>(null); // 本地音视频流，用于存储自己的音视频流，方便结束时关闭
-	const PC = useRef<RTCPeerConnection | null>(null); // RTCPeerConnection 实例
 	const socket = useRef<WebSocket | null>(null); // websocket 实例
-	const friendVideoRef = useRef<HTMLVideoElement>(null); // 好友的 video 标签实例
-	const selfVideoRef = useRef<HTMLVideoElement>(null); // 自己的 video 标签实例
-
-	// 初始化 PC（创建一个 RTCPeerConnection 连接实例，该实例是真正负责通信的角色）
-	const initPC = () => {
-		const pc = new RTCPeerConnection();
-		// 给 PC 绑定 onicecandidate 事件，该事件将会在 PC.current!.setLocalDescription(session_desc) 之后自动触发，给对方发送自己的 candidate 数据（接收 candidate，交换 ICE 网络信息）
-		pc.onicecandidate = evt => {
-			if (evt.candidate) {
-				socket.current?.send(
-					JSON.stringify({
-						name: `ice_candidate`,
-						data: {
-							id: evt.candidate.sdpMid,
-							label: evt.candidate.sdpMLineIndex,
-							sdpMLineIndex: evt.candidate.sdpMLineIndex,
-							candidate: evt.candidate.candidate
-						},
-						receiver: friendInfo?.remark
-					})
-				);
-			}
-		};
-		// 给 PC 绑定 ontrack 事件，该事件用于接收远程视频流并播放，将会在双方交换并设置完 ICE 之后自动触发
-		pc.ontrack = evt => {
-			if (evt.streams && evt.streams[0] && friendVideoRef.current !== null) {
-				friendVideoRef.current.srcObject = evt.streams[0];
-			}
-		};
-		PC.current = pc;
-	};
 
 	// 打开音视频通话组件时建立 websocket 连接
 	const initSocket = (connectParams: IConnectParams) => {
-		// 如果连接参数为空，则不建立连接
-		if (connectParams === undefined) return;
 		// 如果 socket 已经存在，则重新建立连接
 		if (socket.current !== null) {
-			socket.current?.close();
+			socket.current.close();
 			socket.current = null;
 		}
 		const ws = new WebSocket(
-			`${wsBaseURL}/rtc/single?room=${connectParams?.room}&username=${connectParams?.username}`
+			`${wsBaseURL}/rtc/connect?room=${connectParams.room}&username=${connectParams.username}&type=${connectParams.type}`
 		);
 		ws.onopen = async () => {
-			// 如果是邀请人
+			// 如果是通话发起人，则初始化音视频流并发送创建房间指令
 			if (callStatus === CallStatus.INITIATE) {
 				try {
-					// 1、获取自己的音视频流
-					const stream = await navigator.mediaDevices.getUserMedia({
-						video: true,
-						audio: true
-					});
-					localStream.current = stream;
-					// 2、添加音频流到 PC 中
-					stream.getTracks().forEach(track => {
-						PC.current!.addTrack(track, stream);
-					});
-					// 3、给被邀请人发送创建房间的指令
-					socket.current!.send(
+					// 1、获取并设置自己的音视频流
+					await initStream();
+					// 2、给被邀请人发送创建房间的指令（mode 作用是区分是私聊还是群聊，callReceiverList 作用是说明哪些人需要被邀请加入通话）
+					socket.current?.send(
 						JSON.stringify({
-							name: 'createRoom',
-							mode: 'video_invitation',
-							receiver_username: friendInfo?.receiver_username
+							name: 'create_room',
+							mode: connectParams.type === 'private' ? 'private_video' : 'group_video',
+							callReceiverList: callInfo.callReceiverList
 						})
 					);
 				} catch {
 					showMessage('error', '获取音频流失败，请检查设备是否正常或者权限是否已开启');
-					socket.current!.send(JSON.stringify({ name: 'reject' }));
-					socket.current!.close();
+					socket.current?.send(JSON.stringify({ name: 'reject' }));
+					socket.current?.close();
 					socket.current = null;
-					if (localStream.current) {
-						localStream.current!.getAudioTracks()[0].stop();
-						localStream.current!.getVideoTracks()[0].stop();
-					}
+					localStream.current?.getAudioTracks()[0].stop();
+					localStream.current!.getVideoTracks()[0].stop();
 					setTimeout(() => {
 						handleModal(false);
 					}, 1500);
 				}
 			}
 		};
-		ws.onmessage = async msg => {
-			const data = JSON.parse(msg.data);
-			switch (data.name) {
+		ws.onmessage = async e => {
+			const message = JSON.parse(e.data); // 客户端接收到的 message 包含 name、reason、data、sender，其中只有 name 指令名称是必须收到的，reason 是 connect_fail 时收到的，sender 是 new_peer、offer、answer、ice_candidate、reject 时收到的，data 是 offer、answer、ice_candidate 时收到的
+			switch (message.name) {
 				/**
-				 * notConnect：无法建立音视频通话的情况 ———— 双方都可能收到
+				 * connect_fail：无法建立音视频通话的情况 ———— 通话发起人可能收到
 				 */
-				case 'notConnect':
-					socket.current!.close();
+				case 'connect_fail':
+					socket.current?.close();
 					socket.current = null;
 					if (localStream.current) {
-						localStream.current!.getAudioTracks()[0].stop();
+						localStream.current?.getAudioTracks()[0].stop();
 						localStream.current!.getVideoTracks()[0].stop();
 					}
 					setTimeout(() => {
 						handleModal(false);
-						showMessage('error', data.result);
+						showMessage('error', message.reason);
 					}, 1500);
 					break;
 				/**
-				 * new_peer：邀请人接收到有新人进入房间, 则发送视频流和 offer 指令给新人，offer 信息是邀请人发给被邀请人的 SDP（媒体信息）———— 邀请人可能收到
+				 * new_peer：接收到有新人进入房间, 则初始化和该新人的 PC 通道，并发送自己 offer 信息给该新人（ offer 信息包含自己的 SDP 信息）
 				 */
 				case 'new_peer':
 					setCallStatus(CallStatus.CALLING);
-					PC.current!.createOffer().then(session_desc => {
-						PC.current!.setLocalDescription(session_desc); // 邀请人设置本地 SDP，将会触发 PC.onicecandidate 事件，将自己的 candidate 发送给被邀请人
-						socket.current!.send(
+					if (type !== 'private') {
+						await getRoomMembersData();
+					}
+					// 添加自己的音频流到与该新人的 PC 通道中
+					localStream.current!.getTracks().forEach(track => {
+						callListRef.current[message.sender].PC!.addTrack(
+							track,
+							localStream.current as MediaStream
+						);
+					});
+					// 自己设置本地 SDP，将会触发 PC.onicecandidate 事件，将自己的 candidate 发送给对方
+					callListRef.current[message.sender].PC!.createOffer().then(session_desc => {
+						callListRef.current[message.sender].PC!.setLocalDescription(session_desc);
+						socket.current?.send(
 							JSON.stringify({
 								name: 'offer',
 								data: {
 									sdp: session_desc
 								},
-								receiver: friendInfo?.receiver_username
+								receiver: message.sender
 							})
 						);
 					});
 					break;
 				/**
-				 * offer：被邀请人收到邀请人的视频流和 offer 指令，发送 answer 给邀请人 -- 被邀请人可能收到，answer 信息被邀请人发给邀请人的 SDP（媒体信息）
+				 * offer：进入房间的新人收到并设置对方发送过来的 SDP 后，也发送自己的 SDP 给对方
 				 */
 				case 'offer':
 					setCallStatus(CallStatus.CALLING);
-					PC.current!.setRemoteDescription(new RTCSessionDescription(data.data.sdp)); // 被邀请人设置邀请人的 SDP
-					PC.current!.createAnswer().then(session_desc => {
-						PC.current!.setLocalDescription(session_desc); // 被邀请人设置本地 SDP，将会触发 PC.onicecandidate 事件，将自己的 candidate 发送给邀请人
-						socket.current!.send(
+					// 添加自己的音频流到与该新人的 PC 通道中
+					localStream.current!.getTracks().forEach(track => {
+						callListRef.current[message.sender].PC!.addTrack(
+							track,
+							localStream.current as MediaStream
+						);
+					});
+					// 设置远程 SDP
+					callListRef.current[message.sender].PC!.setRemoteDescription(
+						new RTCSessionDescription(message.data.sdp)
+					);
+					callListRef.current[message.sender].PC!.createAnswer().then(session_desc => {
+						callListRef.current[message.sender].PC!.setLocalDescription(session_desc); // 被邀请人设置本地 SDP，将会触发 PC.onicecandidate 事件，将自己的 candidate 发送给邀请人
+						socket.current?.send(
 							JSON.stringify({
 								name: 'answer',
 								data: {
 									sdp: session_desc
 								},
-								receiver: friendInfo?.receiver_username
+								receiver: message.sender
 							})
 						);
 					});
 					break;
 				/**
-				 * answer：邀请人收到被邀请人的 answer 指令，设置被邀请人的 SDP ———— 邀请人可能收到
+				 * answer：接收到房间新人发送过来的 SDP 后，设置对方的 SDP，此时双方的 SDP 设置完毕, 将会触发 PC.onicecandidate 事件，互相交换 candidate
 				 */
 				case 'answer':
-					PC.current!.setRemoteDescription(new RTCSessionDescription(data.data.sdp)); // 邀请人设置被邀请人的 SDP
+					// 设置远程 SDP
+					callListRef.current[message.sender].PC!.setRemoteDescription(
+						new RTCSessionDescription(message.data.sdp)
+					);
 					break;
 				/**
-				 * ice_candidate：设置对方的 candidate ———— 双方都可能收到，此时双方的 ICE 设置完毕，可以进行音视频通话
+				 * ice_candidate：设置对方的 candidate
 				 */
 				case 'ice_candidate': {
-					const candidate = new RTCIceCandidate(data.data);
-					PC.current!.addIceCandidate(candidate);
+					const candidate = new RTCIceCandidate(message.data);
+					callListRef.current[message.sender].PC!.addIceCandidate(candidate);
 					break;
 				}
 				/**
-				 * reject：拒绝或挂断通话 ———— 双方都可能收到
+				 * reject：对方拒绝或挂断通话
 				 */
 				case 'reject':
-					socket.current!.send(JSON.stringify({ name: 'reject' }));
-					socket.current!.close();
-					socket.current = null;
-					if (localStream.current) {
-						localStream.current!.getAudioTracks()[0].stop();
-						localStream.current!.getVideoTracks()[0].stop();
+					if (type === 'private') {
+						socket.current?.close();
+						socket.current = null;
+						if (localStream.current) {
+							localStream.current?.getAudioTracks()[0].stop();
+							localStream.current!.getVideoTracks()[0].stop();
+						}
+						setTimeout(() => {
+							handleModal(false);
+							showMessage('info', `对方已挂断`);
+						}, 1500);
+					} else {
+						await getRoomMembersData();
+						setTimeout(() => {
+							showMessage('info', `${message.sender} 已退出群视频通话`);
+						}, 1500);
+						const video = document.querySelector(`.video_${message.sender}`) as HTMLVideoElement;
+						if (video) {
+							video.style.display = 'none';
+						}
 					}
-					setTimeout(() => {
-						handleModal(false);
-						showMessage('info', '对方已挂断');
-					}, 1500);
 					break;
 				default:
 					break;
@@ -200,36 +201,85 @@ const VideoModal = (props: ICallModalProps) => {
 		socket.current = ws;
 	};
 
+	// 初始化本人音视频流
+	const initStream = async () => {
+		try {
+			const stream = await navigator.mediaDevices.getUserMedia({
+				video: true,
+				audio: true
+			});
+			localStream.current = stream;
+			// 私聊时，被邀请人显示自己的视频流需要单独渲染
+			if (type === 'private') {
+				const video = document.querySelector(`.video_${user.username}`) as HTMLVideoElement;
+				if (video) {
+					video.srcObject = localStream.current;
+				}
+			}
+		} catch {
+			showMessage('error', '获取音频流失败，请检查设备是否正常或者权限是否已开启');
+			handleModal(false);
+		}
+	};
+
+	// 初始化 PC 通道（为房间内每个能接收到自己音视频流的人创建一个专属的 RTCPeerConnection 连接实例，该实例是真正负责音视频通信的角色）
+	const initPC = (username: string) => {
+		const pc = new RTCPeerConnection();
+		// 给 PC 绑定 onicecandidate 事件，该事件将会 PC 通道双方彼此的 SDP（会话描述协议）设置完成之后自动触发，给对方发送自己的 candidate 数据（接收 candidate，交换 ICE 网络信息）
+		pc.onicecandidate = evt => {
+			if (evt.candidate) {
+				socket.current?.send(
+					JSON.stringify({
+						name: `ice_candidate`,
+						data: {
+							id: evt.candidate.sdpMid,
+							label: evt.candidate.sdpMLineIndex,
+							sdpMLineIndex: evt.candidate.sdpMLineIndex,
+							candidate: evt.candidate.candidate
+						},
+						receiver: username
+					})
+				);
+			}
+		};
+		// 给 PC 绑定 ontrack 事件，该事件用于接收远程视频流并播放，将会在双方交换并设置完 ICE 之后自动触发
+		pc.ontrack = evt => {
+			if (evt.streams && evt.streams[0]) {
+				const video = document.querySelector(`.video_${username}`) as HTMLVideoElement;
+				if (video) {
+					video.srcObject = evt.streams[0];
+				}
+			}
+		};
+		callListRef.current[username] = {
+			PC: pc,
+			alias: callInfo.callReceiverList.find(item => item.username === username)?.alias || '',
+			avatar: callInfo.callReceiverList.find(item => item.username === username)?.avatar || ''
+		};
+	};
+
 	// 接受通话 ———— 针对被邀请人使用
 	const handleAcceptCall = async () => {
 		setCallStatus(CallStatus.CALLING);
-		setDuration(0);
 		try {
-			// 1、获取自己的音视频流并设置到 video 标签中 ———— 针对被邀请人使用
-			const stream = await navigator.mediaDevices.getUserMedia({
-				audio: true,
-				video: true
-			});
-			selfVideoRef.current!.srcObject = stream;
-			localStream.current = stream;
-			// 2、添加音频流到 PC 中
-			stream.getTracks().forEach(track => {
-				PC.current!.addTrack(track, stream);
-			});
-			// 3、发送 new_peer 指令，告诉邀请人，我要进入房间
-			socket.current!.send(
+			// 1、获取自己的音视频流
+			await initStream();
+			// 2、发送 new_peer 指令，告诉房间内其他人自己要进入房间
+			socket.current?.send(
 				JSON.stringify({
-					name: 'new_peer',
-					receiver_username: friendInfo?.receiver_username
+					name: 'new_peer'
 				})
 			);
+			if (type !== 'private') {
+				await getRoomMembersData();
+			}
 		} catch {
 			showMessage('error', '获取音频流失败，请检查设备是否正常或者权限是否已开启');
-			socket.current!.send(JSON.stringify({ name: 'reject' }));
+			socket.current?.send(JSON.stringify({ name: 'reject' }));
 			socket.current?.close();
 			socket.current = null;
 			if (localStream.current) {
-				localStream.current!.getAudioTracks()[0].stop();
+				localStream.current?.getAudioTracks()[0].stop();
 				localStream.current!.getVideoTracks()[0].stop();
 			}
 			setTimeout(() => {
@@ -238,64 +288,115 @@ const VideoModal = (props: ICallModalProps) => {
 		}
 	};
 
-	// 拒绝/挂断通话 ———— 双方都可能收到
-	const handleRejectCall = () => {
+	// 拒绝 / 挂断通话
+	const handleRejectCall = async () => {
 		if (!socket.current) {
 			return;
 		}
-		socket.current!.send(JSON.stringify({ name: 'reject' }));
-		socket.current!.close();
+		socket.current?.send(JSON.stringify({ name: 'reject' }));
+		socket.current?.close();
 		socket.current = null;
 		setTimeout(() => {
 			handleModal(false);
 			if (localStream.current) {
-				localStream.current!.getAudioTracks()[0].stop();
+				localStream.current?.getAudioTracks()[0].stop();
 				localStream.current!.getVideoTracks()[0].stop();
 			}
-			showMessage('info', '已挂断通话');
+			showMessage('info', `${type === 'private' ? '已挂断通话' : '已退出群视频通话'}`);
 		}, 1500);
 	};
 
-	// 通话时间更新
-	const handleDuration = () => {
-		if (!friendVideoRef.current) {
-			return;
+	// 获取当前房间内正在通话的所有人
+	const getRoomMembersData = async () => {
+		try {
+			const res = await getRoomMembers(callInfo.room);
+			if (res.code === HttpStatus.SUCCESS && res.data) {
+				const newRoomMembers = res.data.map(item => {
+					return {
+						username: item,
+						muted: roomMembers.find(member => member.username === item)?.muted || false,
+						showVideo: roomMembers.find(member => member.username === item)?.showVideo || true
+					};
+				});
+				setRoomMembers(newRoomMembers);
+			} else {
+				showMessage('error', '获取房间成员失败');
+			}
+		} catch {
+			showMessage('error', '获取房间成员失败');
 		}
-		const { currentTime } = friendVideoRef.current;
-		setDuration(currentTime);
 	};
 
-	// 打开组件时初始化 websocket 连接与初始化 PC 源
-	useEffect(() => {
-		const { username } = JSON.parse(userStorage.getItem() || '{}');
-		initSocket({
-			room: friendInfo.room,
-			username: username
+	// 禁音 / 解除禁音
+	const handleMute = (item: IRoomMembersItem) => {
+		const video = document.querySelector(`.video_${item.username}`) as HTMLVideoElement;
+		if (video) {
+			video.muted = !video.muted;
+		}
+		const newRoomMembers = roomMembers.map(member => {
+			if (member.username === item.username) {
+				member.muted = !member.muted;
+			}
+			return member;
 		});
-		initPC();
+		setRoomMembers(newRoomMembers);
+	};
+
+	// 展示 / 隐藏视频
+	const handleShowVideo = (item: IRoomMembersItem) => {
+		if (!item.showVideo && curShowVideoCount >= 6) {
+			showMessage('info', '最多显示6个视频，请关闭其他视频后再试');
+			return;
+		}
+		const newRoomMembers = roomMembers.map(member => {
+			if (member.username === item.username) {
+				member.showVideo = !member.showVideo;
+			}
+			return member;
+		});
+		setRoomMembers(newRoomMembers);
+	};
+
+	// 更新当前显示视频人数
+	useEffect(() => {
+		const newCurShowVideoCount = roomMembers.filter(item => item.showVideo).length;
+		setCurShowVideoCount(newCurShowVideoCount);
+	}, [roomMembers]);
+
+	// 打开组件时初始化 websocket 连接和 PC 通道
+	useEffect(() => {
+		const params: IConnectParams = {
+			room: callInfo.room,
+			username: user.username,
+			type: type
+		};
+		initSocket(params);
+		// 初始化所有的 PC 通道
+		callInfo.callReceiverList.forEach(item => {
+			initPC(item.username);
+		});
 	}, []);
 
-	// 当通话状态改变时, 获取自己的音视频流并设置到 video 标签中 ———— 针对邀请人使用
+	// callList 的初始化，用于渲染 video 标签
+	useEffect(() => {
+		setCallList(callListRef.current);
+	}, [callListRef.current]);
+
+	// 当有人和自己通话时，监听通话时间。私聊时，邀请人显示自己的视频流需要单独渲染
 	useEffect(() => {
 		if (callStatus === CallStatus.CALLING) {
-			const getUserMediaAsync = async () => {
-				try {
-					selfVideoRef.current!.srcObject = localStream.current;
-				} catch {
-					showMessage('error', '获取音频流失败，请检查设备是否正常或者权限是否已开启');
-					socket.current!.send(JSON.stringify({ name: 'reject' }));
-					socket.current!.close();
-					socket.current = null;
-					if (localStream.current) {
-						localStream.current!.getAudioTracks()[0].stop();
-						localStream.current!.getVideoTracks()[0].stop();
-					}
-					setTimeout(() => {
-						handleModal(false);
-					}, 1500);
+			if (type === 'private') {
+				const video = document.querySelector(`.video_${user.username}`) as HTMLVideoElement;
+				if (video) {
+					video.srcObject = localStream.current;
 				}
+			}
+			const timer = setInterval(() => {
+				setDuration(duration => duration + 1);
+			}, 1000);
+			return () => {
+				clearInterval(timer);
 			};
-			getUserMediaAsync();
 		}
 	}, [callStatus]);
 
@@ -304,69 +405,150 @@ const VideoModal = (props: ICallModalProps) => {
 			<Modal
 				open={openmodal}
 				footer={null}
-				onCancel={() => {
-					handleRejectCall();
-					setTimeout(() => {
-						handleModal(false);
-					}, 1500);
-				}}
 				wrapClassName="videoModal"
 				width="5rem"
-				title="视频通话"
+				title={`${type === 'private' ? '' : '群'}视频通话 `}
 				maskClosable={false}
+				closable={type === 'private' ? false : true}
+				closeIcon={type === 'private' ? null : <span className="iconfont icon-jinqunliaoliao" />}
+				onCancel={async () => {
+					setIsRoomMembersDrawer(!isShowRoomMembersDrawer);
+					if (callStatus !== CallStatus.CALLING) {
+						await getRoomMembersData();
+					}
+				}}
 			>
-				{callStatus === CallStatus.INITIATE && (
-					<div
-						className={styles.videoModalContent}
-						style={{ backgroundImage: `url(${CallBgImage})` }}
-					>
-						<div className={styles.content}>
+				<div className={styles.videoModalContent}>
+					<div className={styles.content}>
+						{callStatus !== CallStatus.CALLING && (
 							<div className={styles.avatar}>
-								<ImageLoad src={friendInfo?.avatar} />
+								<ImageLoad
+									src={type === 'private' ? callInfo.callReceiverList[0].avatar : CallIcons.VIDEO}
+								/>
 							</div>
-							<span className={styles.callWords}>{` 对 ${friendInfo?.remark} 发起视频通话 `}</span>
-							<div className={styles.callIcons}>
-								<img src={CallIcons.REJECT} alt="" onClick={handleRejectCall} draggable="false" />
-							</div>
-						</div>
-					</div>
-				)}
-				{callStatus === CallStatus.RECEIVE && (
-					<div
-						className={styles.videoModalContent}
-						style={{ backgroundImage: `url(${CallBgImage})` }}
-					>
-						<div className={styles.content}>
-							<div className={styles.avatar}>
-								<ImageLoad src={friendInfo?.avatar} />
-							</div>
-							<span className={styles.callWords}>{`${friendInfo?.remark} 发起视频通话 `}</span>
-							<div className={styles.callIcons}>
-								<img src={CallIcons.ACCEPT} alt="" onClick={handleAcceptCall} draggable="false" />
-								<img src={CallIcons.REJECT} alt="" onClick={handleRejectCall} draggable="false" />
-							</div>
-						</div>
-					</div>
-				)}
-				{callStatus === CallStatus.CALLING && (
-					<div className={styles.videoModalContent}>
-						<div className={`${styles.content} ${styles.callingStatus}`}>
-							<div className={styles.friendVideo}>
-								<video src="" ref={friendVideoRef} autoPlay onTimeUpdate={handleDuration}></video>
-							</div>
-							<div className={styles.selfVideo}>
-								<video src="" ref={selfVideoRef} autoPlay></video>
-							</div>
-							<div className={styles.bottom}>
-								<span className={styles.callWords}>{formatCallTime(duration)}</span>
+						)}
+						{callStatus === CallStatus.INITIATE && (
+							<>
+								<span className={styles.callWords}>
+									{type === 'private'
+										? ` 对 ${callInfo.callReceiverList[0].alias} 发起视频通话 `
+										: '发起群视频通话'}
+								</span>
 								<div className={styles.callIcons}>
 									<img src={CallIcons.REJECT} alt="" onClick={handleRejectCall} draggable="false" />
 								</div>
+							</>
+						)}
+						{callStatus === CallStatus.RECEIVE && (
+							<>
+								<span className={styles.callWords}>
+									{type === 'private'
+										? `${callInfo.callReceiverList[0].alias} 发起视频通话 `
+										: '有人邀请您加入群视频通话'}
+								</span>
+								<div className={styles.callIcons}>
+									<img src={CallIcons.ACCEPT} alt="" onClick={handleAcceptCall} draggable="false" />
+									<img src={CallIcons.REJECT} alt="" onClick={handleRejectCall} draggable="false" />
+								</div>
+							</>
+						)}
+						{callStatus === CallStatus.CALLING && (
+							<div
+								className={styles.callingStatus}
+								onMouseEnter={() => {
+									setIsHovered(true);
+								}}
+								onMouseLeave={() => {
+									setIsHovered(false);
+								}}
+							>
+								{callList &&
+									Object.keys(callList).map(username => {
+										if (username === user.username) return null;
+										return (
+											<div
+												key={username}
+												className={`video_${username}_parent ${type === 'private' ? styles.friendVideoParent : styles.videoParent}`}
+												style={
+													type !== 'private'
+														? roomMembers.find(member => member.username === username)?.showVideo
+															? { display: 'block' }
+															: { display: 'none' }
+														: {}
+												}
+											>
+												<video
+													src=""
+													className={`video_${username} ${type === 'private' ? styles.friendVideo : styles.groupMemberVideo}`}
+													autoPlay
+												></video>
+												{type !== 'private' && <span>{callList[username].alias}</span>}
+											</div>
+										);
+									})}
+								{type === 'private' && (
+									<video
+										src=""
+										className={`video_${user.username} ${styles.selfVideo}`}
+										autoPlay
+										muted={true}
+									></video>
+								)}
+								<div
+									className={styles.bottom}
+									style={isHovered ? { bottom: 0 } : { bottom: '-1rem' }}
+								>
+									<span className={styles.callWords}>{formatCallTime(duration)}</span>
+									<div className={styles.callIcons}>
+										<img
+											src={CallIcons.REJECT}
+											alt=""
+											onClick={handleRejectCall}
+											draggable="false"
+										/>
+									</div>
+								</div>
 							</div>
-						</div>
+						)}
+						{type !== 'private' && (
+							<Drawer
+								title="当前正在通话的群成员"
+								placement="right"
+								closable={false}
+								onClose={() => {
+									setIsRoomMembersDrawer(false);
+								}}
+								open={isShowRoomMembersDrawer}
+								getContainer={false}
+								width="50%"
+								forceRender={true}
+								className="memberDrawer"
+							>
+								{roomMembers.length ? (
+									roomMembers.map(item => {
+										return (
+											<li key={item.username}>
+												<span>{item.username}</span>
+												<span
+													className={`iconfont ${item.muted ? 'icon-jingyin' : 'icon-yuyintonghua'}`}
+													onClick={() => handleMute(item)}
+												></span>
+												<span
+													className={`iconfont ${item.showVideo ? 'icon-video' : 'icon-jinzhishipin'}`}
+													onClick={() => handleShowVideo(item)}
+												></span>
+											</li>
+										);
+									})
+								) : (
+									<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无群友加入通话" />
+								)}
+							</Drawer>
+						)}
 					</div>
-				)}
+				</div>
 			</Modal>
+			;
 		</>
 	);
 };

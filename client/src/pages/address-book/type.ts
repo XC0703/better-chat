@@ -4,7 +4,7 @@ import { IGroupChatInfo } from '@/components/CreateGroupChatModal/type';
  */
 // 好友信息类型
 // 在client\src\pages\chat\type.ts、client\src\pages\chat\index.tsx中也被引用
-// 在client\src\pages\home\index.tsx中也被引用
+// 在client\src\pages\container\index.tsx中也被引用
 export interface IFriendInfo {
 	friend_id: number;
 	friend_user_id: number;

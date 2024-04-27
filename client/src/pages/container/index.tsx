@@ -3,12 +3,12 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import styles from './index.module.less';
+import { IChatRef, IAddressBookRef } from './type';
 
 import { MenuIconList } from '@/assets/icons';
 import AudioModal from '@/components/AudioModal';
-import { ICallFriendInfo } from '@/components/AudioModal/type';
+import { ICallReceiverInfo } from '@/components/AudioModal/type';
 import ChangePerInfoModal from '@/components/ChangePerInfoModal';
-import { IUserInfo } from '@/components/ChangePerInfoModal/type';
 import ChangePwdModal from '@/components/ChangePwdModal';
 import { IGroupChatInfo } from '@/components/CreateGroupChatModal/type';
 import ImageLoad from '@/components/ImageLoad';
@@ -16,25 +16,16 @@ import VideoModal from '@/components/VideoModal';
 import { wsBaseURL } from '@/config';
 import useShowMessage from '@/hooks/useShowMessage';
 import AddressBook from '@/pages/address-book';
-import { getFriendInfoByUsername } from '@/pages/address-book/api';
 import { IFriendInfo } from '@/pages/address-book/type';
 import Chat from '@/pages/chat';
 import { HttpStatus } from '@/utils/constant';
 import { handleLogout } from '@/utils/logout';
 import { clearSessionStorage, userStorage } from '@/utils/storage';
 
-interface IAddressBookRef {
-	refreshFriendList: () => void;
-	refreshGroupChatList: () => void;
-}
-interface IChatRef {
-	refreshChatList: () => void;
-}
-
 const Container = () => {
 	const showMessage = useShowMessage();
 	const navigate = useNavigate();
-	const { username, name, avatar, phone, signature } = JSON.parse(userStorage.getItem() || '{}');
+	const user = JSON.parse(userStorage.getItem());
 	const [currentIcon, setCurrentIcon] = useState<string>('icon-message');
 	const [openForgetModal, setForgetModal] = useState(false);
 	const [openInfoModal, setInfoModal] = useState(false);
@@ -46,7 +37,9 @@ const Container = () => {
 	const [initSelectedChat, setInitSelectedChat] = useState<IFriendInfo | IGroupChatInfo | null>(
 		null
 	); // 初始化选中的聊天对象 (只有从通讯录页面进入聊天页面时才会有值)
-	const [callFriendInfo, setCallFriendInfo] = useState<ICallFriendInfo>(); // 音视频通话对象信息
+	const [room, setRoom] = useState<string>(''); // 当前音视频通话房间号
+	const [curMode, setCurMode] = useState<string>(''); // 当前音视频通话模式
+	const [callReceiverList, setCallReceiverList] = useState<ICallReceiverInfo[]>([]); // 音视频通话对象列表
 
 	// 控制修改密码的弹窗显隐
 	const handleForgetModal = (visible: boolean) => {
@@ -71,7 +64,7 @@ const Container = () => {
 	// 退出登录
 	const confirmLogout = async () => {
 		try {
-			const res = await handleLogout(JSON.parse(userStorage.getItem() || '{}') as IUserInfo);
+			const res = await handleLogout(user);
 			if (res.code === HttpStatus.SUCCESS) {
 				clearSessionStorage();
 				showMessage('success', '退出成功');
@@ -94,12 +87,14 @@ const Container = () => {
 		<div className={styles.infoContent}>
 			<div className={styles.infoContainer}>
 				<div className={styles.avatar}>
-					<ImageLoad src={avatar} />
+					<ImageLoad src={user.avatar} />
 				</div>
 				<div className={styles.info}>
-					<div className={styles.name}>{name}</div>
-					<div className={styles.phone}> 手机号：{phone}</div>
-					<div className={styles.signature}>{signature === '' ? '暂无个性签名' : signature}</div>
+					<div className={styles.name}>{user.name}</div>
+					<div className={styles.phone}> 手机号：{user.phone}</div>
+					<div className={styles.signature}>
+						{user.signature === '' ? '暂无个性签名' : user.signature}
+					</div>
 				</div>
 			</div>
 			<div className={styles.btnContainer}>
@@ -125,10 +120,10 @@ const Container = () => {
 
 	// 进入到主页面时建立一个 websocket 连接
 	const initSocket = () => {
-		const newSocket = new WebSocket(`${wsBaseURL}/auth/user_channel?username=${username}`);
-		newSocket.onmessage = async message => {
-			const data = JSON.parse(message.data);
-			switch (data.name) {
+		const ws = new WebSocket(`${wsBaseURL}/auth/user_channel?username=${user.username}`);
+		ws.onmessage = e => {
+			const message = JSON.parse(e.data);
+			switch (message.name) {
 				case 'friendList':
 					// 重新加载好友列表
 					addressBookRef.current?.refreshFriendList();
@@ -141,34 +136,26 @@ const Container = () => {
 					// 重新加载消息列表
 					chatRef.current?.refreshChatList();
 					break;
-				case 'createRoom':
-					// 打开响应音视频通话窗口 (根据传过来的发送方 username 拿到对应的好友信息)
-					if (data.sender_username) {
-						try {
-							const res = await getFriendInfoByUsername(data.sender_username);
-							if (res.code === HttpStatus.SUCCESS) {
-								setCallFriendInfo({
-									receiver_username: res.data.username,
-									remark: res.data.remark,
-									avatar: res.data.avatar,
-									room: res.data.room
-								});
-								if (data.mode === 'audio_invitation') {
-									setAudioModal(true);
-								} else if (data.mode === 'video_invitation') {
-									setVideoModal(true);
-								}
-							} else {
-								showMessage('error', '获取好友信息失败');
-							}
-						} catch {
-							showMessage('error', '音视频通话响应失败');
+				case 'create_room':
+					// 打开响应音视频通话窗口
+					try {
+						const { callReceiverList, room, mode } = message;
+						setCallReceiverList(callReceiverList);
+						setRoom(room);
+						setCurMode(mode);
+						// 区分是音频还是视频
+						if (mode.includes('audio')) {
+							setAudioModal(true);
+						} else {
+							setVideoModal(true);
 						}
+					} catch {
+						showMessage('error', '音视频通话响应失败');
 					}
 					break;
 			}
 		};
-		socket.current = newSocket;
+		socket.current = ws;
 	};
 	useEffect(() => {
 		initSocket();
@@ -187,7 +174,7 @@ const Container = () => {
 				<div className={styles.leftContainer}>
 					<Popover content={infoContent} placement="rightTop">
 						<div className={styles.avatar}>
-							<ImageLoad src={avatar} />
+							<ImageLoad src={user.avatar} />
 						</div>
 					</Popover>
 					<div className={styles.iconList}>
@@ -258,23 +245,31 @@ const Container = () => {
 			}
 			{
 				// 音频通话弹窗
-				openAudioModal && callFriendInfo && (
+				openAudioModal && callReceiverList.length && (
 					<AudioModal
 						openmodal={openAudioModal}
 						handleModal={handleAudioModal}
 						status="receive"
-						friendInfo={callFriendInfo}
+						type={curMode.includes('private') ? 'private' : 'group'}
+						callInfo={{
+							room,
+							callReceiverList
+						}}
 					/>
 				)
 			}
 			{
 				// 视频通话弹窗
-				openVideoModal && callFriendInfo && (
+				openVideoModal && callReceiverList.length && (
 					<VideoModal
 						openmodal={openVideoModal}
 						handleModal={handleVideoModal}
 						status="receive"
-						friendInfo={callFriendInfo}
+						type={curMode.includes('private') ? 'private' : 'group'}
+						callInfo={{
+							room,
+							callReceiverList
+						}}
 					/>
 				)
 			}

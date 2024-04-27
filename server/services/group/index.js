@@ -6,6 +6,46 @@ const { NotificationUser } = require('../../utils/notification');
 const { Query } = require('../../utils/query');
 
 /**
+ * 查询群聊成员信息的基本逻辑：
+ * 1. 根据 group_id 查询 group_numbers 表获取群成员的 用户IDuser_id、群昵称nickname和加群时间created_at,
+ * 2. 并查询 user 表获取成员 用户名username、用户昵称name和头像avatar
+ * 3. 使用 left join 根据 sender_id 和 room 查询 message 表获取用户的最后一次发消息时间
+ */
+const getGroupMembers = async (group_id, room) => {
+	try {
+		const sql = `
+			SELECT
+				s.*,
+				m.lastMessageTime
+			FROM
+				(SELECT
+					user_id,
+					user.avatar,
+					user.username,
+					user.name,
+					nickname,
+					group_members.created_at
+				FROM group_members, user
+				WHERE group_id = ? AND user_id = user.id
+				) AS s
+				LEFT JOIN
+				(SELECT
+					sender_id,
+					Max(created_at) AS lastMessageTime
+				FROM message AS msg
+				WHERE msg.room = ?
+				GROUP BY sender_id
+				) AS m
+				ON m.sender_id = s.user_id
+		`;
+		const results = await Query(sql, [group_id, room]);
+		return results;
+	} catch {
+		throw new Error('查询失败');
+	}
+};
+
+/**
  * 创建群聊的基本逻辑：
  * 1. 服务端拿到创建群聊所需要的信息后在群聊表 (group_chat) 新建一个群聊
  * 2. 在群聊成员表 (group_numbers) 中循环插入所有群聊成员记录并通知刷新群聊列表
@@ -157,7 +197,7 @@ const getGroupChatInfo = async (req, res) => {
 		return RespError(res, CommonErrStatus.PARAM_ERR);
 	}
 	try {
-		const sql_group = `
+		const sql = `
 			SELECT 
 				gc.id,
 				gc.name,
@@ -172,7 +212,7 @@ const getGroupChatInfo = async (req, res) => {
 				ON gc.creator_id = u.id
 			WHERE gc.id = ?
 		`;
-		const results_group = await Query(sql_group, [group_id]);
+		const results_group = await Query(sql, [group_id]);
 		const info = {
 			id: results_group[0].id,
 			name: results_group[0].name,
@@ -184,31 +224,7 @@ const getGroupChatInfo = async (req, res) => {
 			created_at: results_group[0].created_at,
 			members: []
 		};
-		const sql_members = `
-			SELECT 
-				s.*,
-        m.lastMessageTime
-			FROM 
-				(SELECT 
-					user_id,
-					user.avatar,
-					user.name,
-					nickname,
-					group_members.created_at
-				FROM group_members, user
-				WHERE group_id = ? AND user_id = user.id
-				) AS s
-				LEFT JOIN 
-				(SELECT 
-					sender_id,
-					Max(created_at) AS lastMessageTime
-				FROM message AS msg
-				WHERE msg.room = ?
-				GROUP BY sender_id
-				) AS m
-				ON m.sender_id = s.user_id
-		`;
-		const results_members = await Query(sql_members, [group_id, info.room]);
+		const results_members = await getGroupMembers(group_id, info.room);
 		for (const member of results_members) {
 			info.members.push({ ...member });
 		}
@@ -309,6 +325,21 @@ const joinGroupChat = async (req, res) => {
 		return RespError(res, CommonErrStatus.SERVER_ERR);
 	}
 };
+/**
+ * 获取群聊成员信息
+ */
+const getGroupMemberList = async (req, res) => {
+	const { group_id, room } = req.query;
+	if (!(group_id && room)) {
+		return RespError(res, CommonErrStatus.PARAM_ERR);
+	}
+	try {
+		const results = await getGroupMembers(group_id, room);
+		return RespData(res, results);
+	} catch {
+		return RespError(res, CommonErrStatus.SERVER_ERR);
+	}
+};
 
 module.exports = {
 	createGroupChat,
@@ -316,5 +347,6 @@ module.exports = {
 	searchGroupChat,
 	getGroupChatInfo,
 	inviteFriendToGroupChat,
-	joinGroupChat
+	joinGroupChat,
+	getGroupMemberList
 };

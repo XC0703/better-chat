@@ -166,7 +166,7 @@ const CreateGroupModal = (props: ICreateGroupModal) => {
 		if (selectedFriends.length !== 0) {
 			try {
 				const inviteFriendParams = {
-					groupId: groupChatInfo?.id as number,
+					groupId: groupChatInfo!.id,
 					invitationList: selectedFriends
 				};
 				const res = await inviteFriend(inviteFriendParams);
@@ -276,7 +276,7 @@ const CreateGroupModal = (props: ICreateGroupModal) => {
 								>
 									<ImageUpload
 										onUploadSuccess={filePath => {
-											createGroupFormInstance?.setFieldsValue({ groupAvatar: filePath });
+											createGroupFormInstance.setFieldsValue({ groupAvatar: filePath });
 										}}
 									/>
 								</Form.Item>

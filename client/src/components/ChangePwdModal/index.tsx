@@ -6,7 +6,6 @@ import { handleChange } from './api';
 import styles from './index.module.less';
 import { IChangePwdForm, IChangePwdModalProps } from './type';
 
-import { IUserInfo } from '@/components/ChangePerInfoModal/type';
 import useShowMessage from '@/hooks/useShowMessage';
 import { HttpStatus } from '@/utils/constant';
 import { handleLogout } from '@/utils/logout';
@@ -14,6 +13,7 @@ import { clearSessionStorage, userStorage } from '@/utils/storage';
 
 const ChangePwdModal = (props: IChangePwdModalProps) => {
 	const { openmodal, handleModal } = props;
+	const user = JSON.parse(userStorage.getItem());
 
 	const showMessage = useShowMessage();
 	const navigate = useNavigate();
@@ -23,7 +23,7 @@ const ChangePwdModal = (props: IChangePwdModalProps) => {
 	// 退出登录
 	const confirmLogout = async () => {
 		try {
-			const res = await handleLogout(JSON.parse(userStorage.getItem() || '{}') as IUserInfo);
+			const res = await handleLogout(user);
 			if (res.code === HttpStatus.SUCCESS) {
 				clearSessionStorage();
 				showMessage('success', '登录已过期，请重新登录');

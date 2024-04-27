@@ -20,6 +20,7 @@ import { formatChatContentTime } from '@/utils/time';
 
 const MessageShow = (props: IMessageShowProps) => {
 	const { showTime, message } = props;
+	const user = JSON.parse(userStorage.getItem());
 	const { sender_id, content, avatar, type, file_size, created_at } = message;
 
 	// 图片/视频和文件被清理时的兜底显示
@@ -128,7 +129,7 @@ const MessageShow = (props: IMessageShowProps) => {
 					<span>{formatChatContentTime(created_at)}</span>
 				</div>
 			)}
-			{sender_id === JSON.parse(userStorage.getItem()).id ? (
+			{sender_id === user.id ? (
 				<div className={`${styles.self} ${styles.chat_item_content}`}>
 					<ChatContent messageType={type} messageContent={content} fileSize={file_size} />
 					<div className={styles.avatar}>

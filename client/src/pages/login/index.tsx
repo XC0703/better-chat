@@ -97,7 +97,7 @@ const Login = () => {
 	useEffect(() => {
 		getUserInfo().then(res => {
 			if (res) {
-				loginFormInstance?.setFieldsValue({
+				loginFormInstance.setFieldsValue({
 					username: res.info.username,
 					password: generateRandomString()
 				});

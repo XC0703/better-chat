@@ -12,7 +12,7 @@ import { tokenStorage, userStorage } from '@/utils/storage';
 
 const ChangePerInfoModal = (props: IChangePerInfoModalProps) => {
 	const showMessage = useShowMessage();
-	const { username, name, avatar, phone, signature } = JSON.parse(userStorage.getItem() || '{}');
+	const user = JSON.parse(userStorage.getItem());
 	const [changePerInfoFormInstance] = Form.useForm<IChangePerInfoForm>();
 	const { openmodal, handleModal } = props;
 	const [loading, setLoading] = useState(false);
@@ -24,7 +24,7 @@ const ChangePerInfoModal = (props: IChangePerInfoModalProps) => {
 			setLoading(true);
 			try {
 				const params = {
-					username,
+					username: user.username,
 					name,
 					avatar,
 					phone,
@@ -51,11 +51,11 @@ const ChangePerInfoModal = (props: IChangePerInfoModalProps) => {
 
 	// 表单数据回显
 	useEffect(() => {
-		changePerInfoFormInstance?.setFieldsValue({
-			name,
-			avatar,
-			phone,
-			signature: signature && signature !== '' ? signature : '暂无个性签名'
+		changePerInfoFormInstance.setFieldsValue({
+			name: user.name,
+			avatar: user.avatar,
+			phone: user.phone,
+			signature: user.signature && user.signature !== '' ? user.signature : '暂无个性签名'
 		});
 	}, []);
 
@@ -76,15 +76,15 @@ const ChangePerInfoModal = (props: IChangePerInfoModalProps) => {
 					<div className={styles.infoContainer}>
 						<ImageUpload
 							onUploadSuccess={filePath => {
-								changePerInfoFormInstance?.setFieldsValue({ avatar: filePath });
+								changePerInfoFormInstance.setFieldsValue({ avatar: filePath });
 							}}
-							initialImageUrl={avatar}
+							initialImageUrl={user.avatar}
 						/>
 						<div className={styles.info}>
-							<div className={styles.name}>{name}</div>
-							<div className={styles.phone}> 手机号：{phone}</div>
+							<div className={styles.name}>{user.name}</div>
+							<div className={styles.phone}> 手机号：{user.phone}</div>
 							<div className={styles.signature}>
-								{signature === '' ? '暂无个性签名' : signature}
+								{user.signature === '' ? '暂无个性签名' : user.signature}
 							</div>
 						</div>
 					</div>

@@ -12,7 +12,7 @@ const getFriendByGroup = async group_id => {
 		const sql = `SELECT * FROM friend WHERE group_id = ?`;
 		const results = await Query(sql, [group_id]);
 		return results;
-	} catch (error) {
+	} catch {
 		throw new Error('查询失败');
 	}
 };
@@ -28,7 +28,7 @@ const getFriendByUser = async user_id => {
 			friends.push(...results);
 		}
 		return friends;
-	} catch (error) {
+	} catch {
 		throw new Error('查询失败');
 	}
 };
@@ -42,7 +42,7 @@ const addFriendRecord = async friend_info => {
 		} else {
 			throw new Error('添加失败');
 		}
-	} catch (error) {
+	} catch {
 		throw new Error('添加失败');
 	}
 };
@@ -218,41 +218,6 @@ const getFriendById = async (req, res) => {
 	}
 };
 /**
- * 根据 username 获取好友信息的基本逻辑：
- * 在friend表中查询给定用户名的好友信息，并且这些好友必须属于给定用户名的好友分组。
- */
-const getFriendByUsername = async (req, res) => {
-	const { friend_username } = req.query;
-	const self_username = req.user.username;
-	if (!(friend_username && self_username)) {
-		return RespError(res, CommonErrStatus.PARAM_ERR);
-	}
-	try {
-		const sql = `
-		SELECT 
-			*
-		FROM
-			friend
-		WHERE
-			username = ?
-		AND group_id IN (
-			SELECT
-				id
-			FROM
-				friend_group
-			WHERE
-				username = ?
-		)
-	`;
-		const results = await Query(sql, [friend_username, self_username]);
-		if (results.length !== 0) {
-			return RespData(res, results[0]);
-		}
-	} catch {
-		return RespError(res, CommonErrStatus.SERVER_ERR);
-	}
-};
-/**
  * 获取当前用户的分组列表
  */
 const getFriendGroupList = async (req, res) => {
@@ -312,6 +277,5 @@ module.exports = {
 	searchUser,
 	addFriend,
 	getFriendById,
-	getFriendByUsername,
 	updateFriend
 };

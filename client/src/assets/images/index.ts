@@ -1,5 +1,4 @@
 export const BgImage = 'https://static.pexels.com/photos/373934/pexels-photo-373934.jpeg';
-export const CallBgImage = 'https://pic2.zhimg.com/v2-1ceb6543473583e8835c4510ff36aa25_r.jpg';
 export enum ChatImage {
 	WORD = 'https://p0.meituan.net/travelcube/70a78a21ad504e9f47ecc7fce96b7b094029.png',
 	EXCEL = 'https://p0.meituan.net/travelcube/14500ad698da0ac54627c890367286133826.png',
@@ -15,7 +14,9 @@ export enum ChatImage {
 }
 export enum CallIcons {
 	ACCEPT = 'https://p1.meituan.net/travelcube/afbf83c4b1c06ceb2e20d46df81ad69f12824.png',
-	REJECT = 'https://p1.meituan.net/travelcube/91080d4a2adc2834094892d98b129b2510890.png'
+	REJECT = 'https://p1.meituan.net/travelcube/91080d4a2adc2834094892d98b129b2510890.png',
+	AUDIO = 'https://img.qovv.cn/2024/04/24/6629057547cd4.png',
+	VIDEO = 'https://img.qovv.cn/2024/04/24/662908024fc84.png'
 }
 
 export enum LoadErrorImage {

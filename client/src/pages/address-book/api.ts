@@ -19,11 +19,6 @@ export const getFriendInfoById = async (id: number) => {
 	const res = await Request.get<IFriendInfo>(`friend/friend_id/?id=${id}`);
 	return res.data;
 };
-// 根据 username 获取好友信息
-export const getFriendInfoByUsername = async (username: string) => {
-	const res = await Request.get<IFriendInfo>(`friend/friend_username?friend_username=${username}`);
-	return res.data;
-};
 // 获取分组列表
 export const getFriendGroup = async () => {
 	const res = await Request.get<IFriendGroupListItem[]>(`friend/group_list`);

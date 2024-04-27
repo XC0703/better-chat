@@ -35,6 +35,7 @@ const { DirectoryTree } = Tree;
 
 const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 	const { handleChooseChat } = props;
+	const user = JSON.parse(userStorage.getItem());
 	const showMessage = useShowMessage();
 
 	const [curTab, setCurTab] = useState<string>(TabType.FRIEND); // 当前 tab 是好友还是群聊
@@ -97,7 +98,7 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 			const res = await getFriendInfoById(id);
 			if (res.code === HttpStatus.SUCCESS && res.data) {
 				setCurFriendInfo(res.data);
-				friendInfoFormInstance?.setFieldsValue({
+				friendInfoFormInstance.setFieldsValue({
 					username: res.data.username,
 					name: res.data.name,
 					remark: res.data.remark,
@@ -148,8 +149,8 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 		friendInfoFormInstance.validateFields().then(async values => {
 			try {
 				const params = {
-					friend_id: curFriendInfo?.friend_id as number,
-					remark: values.remark ? values.remark : (curFriendInfo?.username as string), // 备注为空时默认为好友的用户名
+					friend_id: curFriendInfo!.friend_id,
+					remark: values.remark ? values.remark : curFriendInfo!.username, // 备注为空时默认为好友的用户名
 					group_id: values.group
 				};
 				const res = await updateFriendInfo(params);
@@ -174,8 +175,8 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 
 		try {
 			const params = {
-				user_id: JSON.parse(userStorage.getItem()).id,
-				username: JSON.parse(userStorage.getItem()).username,
+				user_id: user.id,
+				username: user.username,
 				name: newGroupName
 			};
 			const res = await createFriendGroup(params);
@@ -257,10 +258,10 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 						{curGroupChatInfo?.members.map(item => {
 							return (
 								<div className={styles.tableItem} key={item.user_id}>
-									<li>{item.name}</li>
+									<li>{item.username}</li>
 									<li>{item.nickname}</li>
 									<li>{item.created_at.split('.')[0].replace('T', ' ')}</li>
-									<li>{item.lastMessageTime?.split('.')[0].replace('T', ' ')}</li>
+									<li>{item.lastMessageTime?.split('.')[0].replace('T', '') || '暂无'}</li>
 								</div>
 							);
 						})}
@@ -393,10 +394,10 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 						<div className={styles.infoModal}>
 							<div className={styles.infoContainerHead}>
 								<div className={styles.avatar}>
-									<ImageLoad src={curFriendInfo?.avatar} />
+									<ImageLoad src={curFriendInfo.avatar} />
 								</div>
 								<div className={styles.info}>
-									<div className={styles.username}>{curFriendInfo?.username}</div>
+									<div className={styles.username}>{curFriendInfo.username}</div>
 									<div className={`icon iconfont icon-gexingqianming ${styles.signature}`}>
 										{curFriendInfo.signature ? curFriendInfo.signature : '暂无个性签名'}
 									</div>
@@ -451,10 +452,10 @@ const AddressBook = forwardRef((props: IAddressBookProps, ref) => {
 						<div className={styles.infoModal}>
 							<div className={styles.infoContainerHead}>
 								<div className={styles.avatar}>
-									<ImageLoad src={curGroupChatInfo?.avatar} />
+									<ImageLoad src={curGroupChatInfo.avatar} />
 								</div>
 								<div className={styles.info}>
-									<div className={styles.username}>{curGroupChatInfo?.name}</div>
+									<div className={styles.username}>{curGroupChatInfo.name}</div>
 									<div className={`icon iconfont icon-qungonggao ${styles.signature}`}>
 										{curGroupChatInfo.announcement ? curGroupChatInfo.announcement : '暂无公告'}
 									</div>

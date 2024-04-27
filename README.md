@@ -236,7 +236,7 @@
 
 **后端项目目录介绍：**
 
-![](https://img.qovv.cn/2024/04/21/6624d4eaeb015.png)
+![](https://img.qovv.cn/2024/04/21/6624da94e10a0.png)
 
 - `controller`文件夹主要负责处理 API 相关，将接口路由与`services`文件夹中导出的操作函数关联起来
 - `models`文件夹负责处理各个表的创建

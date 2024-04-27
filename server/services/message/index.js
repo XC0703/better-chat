@@ -159,8 +159,8 @@ const getChatList = async (req, res) => {
 			// 获取群聊最后一条消息
 			const sql = `SELECT content as lastMessage, media_type as type FROM message WHERE room = ? ORDER BY created_at DESC LIMIT 1`;
 			const results_last_group = await Query(sql, [item.room, id]);
-			results_group[index].lastMessage = results_last_group[0]?.lastMessage;
-			results_group[index].type = results_last_group[0]?.type;
+			results_group[index].lastMessage = results_last_group[0].lastMessage;
+			results_group[index].type = results_last_group[0].type;
 		}
 		if (results_group) {
 			data.push(...results_group);

@@ -1,8 +1,7 @@
 import React from 'react';
+import { Navigate } from 'react-router-dom';
 
-import Login from '@/pages/login';
 import { tokenStorage } from '@/utils/storage';
-
 interface IPrivateRouteProps {
 	element: React.ReactNode;
 }
@@ -15,7 +14,7 @@ const PrivateRoute = (props: IPrivateRouteProps) => {
 	}
 	return (
 		<>
-			<Login />
+			<Navigate to="/login" />;
 		</>
 	);
 };

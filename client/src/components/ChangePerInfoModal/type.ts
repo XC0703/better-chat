@@ -9,7 +9,7 @@ export interface IChangePerInfoParams {
 	avatar: string;
 	signature: string;
 }
-// 用户信息接口 —— 登录成功之后用户信息会存储在localStorage中，很多地方都会用到用户信息，所以这里独立定义一个接口类型导出
+// 用户信息接口 —— 在client\src\pages\login\index.tsx、client\src\utils\logout.ts中也被引用到
 export interface IUserInfo {
 	id: number;
 	avatar: string;

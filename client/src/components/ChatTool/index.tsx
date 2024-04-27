@@ -1,29 +1,29 @@
 import { Button, Spin, Tooltip } from 'antd';
 import { ChangeEvent, useRef, useState } from 'react';
 
+import { getGroupMembers } from './api';
 import styles from './index.module.less';
 import { IChatToolProps, IMessageListItem, ISendMessage } from './type';
 
 import { EmojiList } from '@/assets/emoji';
 import { ChatIconList } from '@/assets/icons';
 import AudioModal from '@/components/AudioModal';
+import { ICallReceiverInfo } from '@/components/AudioModal/type';
 import VideoModal from '@/components/VideoModal';
 import useShowMessage from '@/hooks/useShowMessage';
+import { HttpStatus } from '@/utils/constant';
 import { getFileSuffixByName } from '@/utils/file';
 import { userStorage } from '@/utils/storage';
 
-// 判断当前的聊天是否为群聊
-const isGroupChat = (item: IMessageListItem) => {
-	return !item.receiver_username;
-};
-
 const ChatTool = (props: IChatToolProps) => {
 	const { curChatInfo, sendMessage } = props;
+	const user = JSON.parse(userStorage.getItem());
 	const showMessage = useShowMessage();
 	const [inputValue, setInputValue] = useState<string>('');
 	const [loading, setLoading] = useState(false);
 	const [openAudioModal, setAudioModal] = useState(false);
 	const [openVideoModal, setVideoModal] = useState(false);
+	const [callReceiverList, setCallReceiverList] = useState<ICallReceiverInfo[]>([]); // 音视频通话对象列表
 	const imageRef = useRef<HTMLInputElement>(null);
 	const fileRef = useRef<HTMLInputElement>(null);
 
@@ -42,11 +42,11 @@ const ChatTool = (props: IChatToolProps) => {
 		if (inputValue === '') return;
 		try {
 			const newmessage: ISendMessage = {
-				sender_id: JSON.parse(userStorage.getItem()).id,
-				receiver_id: curChatInfo?.receiver_id,
+				sender_id: user.id,
+				receiver_id: curChatInfo.receiver_id,
 				type: 'text',
 				content: inputValue,
-				avatar: JSON.parse(userStorage.getItem()).avatar
+				avatar: user.avatar
 			};
 			sendMessage(newmessage);
 			setInputValue(''); // 在发送消息成功后清空输入框内容
@@ -55,14 +55,14 @@ const ChatTool = (props: IChatToolProps) => {
 		}
 	};
 
-	// 发送图片/视频消息（TODO：大的图片/视频文件按目前方式上传会出错，因此暂时限定最大传输大小，因为读取的数组过大，应该使用分片上传）
+	// 发送图片 / 视频消息（TODO：大的图片 / 视频文件按目前方式上传会出错，因此暂时限定最大传输大小，因为读取的数组过大，应该使用分片上传）
 	const handleSendImageMessage = (e: ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files!.length > 0) {
 			setLoading(true);
 			const file = e.target.files![0];
-			// 检查图片/视频大小是否超过100MB
+			// 检查图片 / 视频大小是否超过 100MB
 			if (file.size > 100 * 1024 * 1024) {
-				showMessage('error', '图片/视频大小不能超过100MB');
+				showMessage('error', '图片 / 视频大小不能超过 100MB');
 				setLoading(false);
 				return;
 			}
@@ -75,11 +75,11 @@ const ChatTool = (props: IChatToolProps) => {
 					const content = new Uint8Array(fileContent as ArrayBuffer);
 					const filename = file.name;
 					const newmessage: ISendMessage = {
-						sender_id: JSON.parse(userStorage.getItem()).id,
-						receiver_id: curChatInfo?.receiver_id,
+						sender_id: user.id,
+						receiver_id: curChatInfo.receiver_id,
 						type: getFileSuffixByName(filename),
 						content: Array.from(content),
-						avatar: JSON.parse(userStorage.getItem()).avatar,
+						avatar: user.avatar,
 						filename: filename
 					};
 					sendMessage(newmessage);
@@ -102,11 +102,11 @@ const ChatTool = (props: IChatToolProps) => {
 		if (e.target.files!.length > 0) {
 			setLoading(true);
 			const file = e.target.files![0];
-			// 其它文件类型，按照图片/视频文件处理
+			// 其它文件类型，按照图片 / 视频文件处理
 			if (getFileSuffixByName(file.name) !== 'file') {
-				// 检查图片/视频大小是否超过100MB
+				// 检查图片 / 视频大小是否超过 100MB
 				if (file.size > 100 * 1024 * 1024) {
-					showMessage('error', '图片/视频大小不能超过100MB');
+					showMessage('error', '图片 / 视频大小不能超过 100MB');
 					setLoading(false);
 					return;
 				}
@@ -117,11 +117,11 @@ const ChatTool = (props: IChatToolProps) => {
 						const content = new Uint8Array(fileContent as ArrayBuffer);
 						const filename = file.name;
 						const newmessage: ISendMessage = {
-							sender_id: JSON.parse(userStorage.getItem()).id,
-							receiver_id: curChatInfo?.receiver_id,
+							sender_id: user.id,
+							receiver_id: curChatInfo.receiver_id,
 							type: getFileSuffixByName(filename),
 							content: Array.from(content),
-							avatar: JSON.parse(userStorage.getItem()).avatar,
+							avatar: user.avatar,
 							filename: filename
 						};
 						sendMessage(newmessage);
@@ -141,13 +141,13 @@ const ChatTool = (props: IChatToolProps) => {
 						fileName: file.name,
 						fileSize: file.size
 					};
-					// 发送文件下载指令（多了fileType字段和fileInfo字段）
+					// 发送文件下载指令（多了 fileType 字段和 fileInfo 字段）
 					const newmessage: ISendMessage = {
-						sender_id: JSON.parse(userStorage.getItem()).id,
-						receiver_id: curChatInfo?.receiver_id,
+						sender_id: user.id,
+						receiver_id: curChatInfo.receiver_id,
 						type: 'file',
 						content: '',
-						avatar: JSON.parse(userStorage.getItem()).avatar,
+						avatar: user.avatar,
 						filename: file.name,
 						fileTraStatus: 'start',
 						fileInfo: JSON.stringify(fileInfo)
@@ -178,11 +178,11 @@ const ChatTool = (props: IChatToolProps) => {
 							transmittedSize -= chunk.value!.byteLength; // 减去当前块的字节长度来更新已传输的大小，支持断点续传（TODO：由于不准确，待完善）
 							if (transmittedSize <= 0) {
 								const newmessage: ISendMessage = {
-									sender_id: JSON.parse(userStorage.getItem()).id,
-									receiver_id: curChatInfo?.receiver_id,
+									sender_id: user.id,
+									receiver_id: curChatInfo.receiver_id,
 									type: 'file',
 									content: Array.from(new Uint8Array(chunk.value as ArrayBufferLike)),
-									avatar: JSON.parse(userStorage.getItem()).avatar,
+									avatar: user.avatar,
 									filename: file.name,
 									fileTraStatus: 'upload'
 								};
@@ -206,27 +206,20 @@ const ChatTool = (props: IChatToolProps) => {
 	};
 
 	// 点击不同的图标产生的回调
-	// TODO：目前群聊暂不支持语音/视频通话
-	const handleIconClick = (icon: string) => {
+	const handleIconClick = async (icon: string) => {
 		switch (icon) {
 			case 'icon-tupian_huaban':
-				imageRef.current!.click();
+				imageRef.current?.click();
 				break;
 			case 'icon-wenjian1':
-				fileRef.current!.click();
+				fileRef.current?.click();
 				break;
 			case 'icon-dianhua':
-				if (isGroupChat(curChatInfo)) {
-					showMessage('info', '群聊暂不支持语音通话');
-					return;
-				}
+				await getCallReceiverList();
 				setAudioModal(true);
 				break;
 			case 'icon-video':
-				if (isGroupChat(curChatInfo)) {
-					showMessage('info', '群聊暂不支持视频通话');
-					return;
-				}
+				await getCallReceiverList();
 				setVideoModal(true);
 				break;
 			default:
@@ -253,6 +246,47 @@ const ChatTool = (props: IChatToolProps) => {
 			})}
 		</div>
 	);
+
+	// 判断当前的聊天是否为群聊
+	const isGroupChat = (item: IMessageListItem) => {
+		return !item.receiver_username;
+	};
+
+	// 获取当前聊天对象的信息（群友信息或者好友信息），用于音视频通话
+	const getCallReceiverList = async () => {
+		if (isGroupChat(curChatInfo)) {
+			try {
+				const params = {
+					groupId: curChatInfo.receiver_id,
+					room: curChatInfo.room
+				};
+				const res = await getGroupMembers(params);
+				if (res.code === HttpStatus.SUCCESS && res.data) {
+					setCallReceiverList(
+						res.data.map(item => {
+							return {
+								username: item.username,
+								alias: item.nickname,
+								avatar: item.avatar
+							};
+						})
+					);
+				} else {
+					showMessage('error', '获取群聊成员信息失败，请重试');
+				}
+			} catch {
+				showMessage('error', '获取群聊成员信息失败，请重试');
+			}
+		} else {
+			setCallReceiverList([
+				{
+					username: curChatInfo.receiver_username as string,
+					alias: curChatInfo.name,
+					avatar: curChatInfo.avatar
+				}
+			]);
+		}
+	};
 
 	return (
 		<div className={styles.chat_tool}>
@@ -325,33 +359,31 @@ const ChatTool = (props: IChatToolProps) => {
 				</Button>
 			</div>
 			{
-				// 音频通话弹窗（私聊）
-				openAudioModal && curChatInfo?.receiver_username && (
+				// 音频通话弹窗
+				openAudioModal && callReceiverList.length && (
 					<AudioModal
 						openmodal={openAudioModal}
 						handleModal={handleAudioModal}
 						status="initiate"
-						friendInfo={{
-							receiver_username: curChatInfo.receiver_username,
-							remark: curChatInfo?.name,
-							avatar: curChatInfo?.avatar,
-							room: curChatInfo?.room
+						type={isGroupChat(curChatInfo) ? 'group' : 'private'}
+						callInfo={{
+							room: curChatInfo.room,
+							callReceiverList: callReceiverList
 						}}
 					/>
 				)
 			}
 			{
-				// 视频通话弹窗（私聊）
-				openVideoModal && curChatInfo?.receiver_username && (
+				// 视频通话弹窗
+				openVideoModal && callReceiverList.length && (
 					<VideoModal
 						openmodal={openVideoModal}
 						handleModal={handleVideoModal}
 						status="initiate"
-						friendInfo={{
-							receiver_username: curChatInfo?.receiver_username,
-							remark: curChatInfo?.name,
-							avatar: curChatInfo?.avatar,
-							room: curChatInfo?.room
+						type={isGroupChat(curChatInfo) ? 'group' : 'private'}
+						callInfo={{
+							room: curChatInfo.room,
+							callReceiverList: callReceiverList
 						}}
 					/>
 				)

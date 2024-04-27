@@ -5,6 +5,7 @@
 export interface IConnectParams {
 	room: string;
 	username: string;
+	type: 'private' | 'group';
 }
 
 /**
@@ -15,14 +16,17 @@ export interface ICallModalProps {
 	openmodal: boolean;
 	handleModal: (visible: boolean) => void;
 	status: callStatusType;
-	friendInfo: ICallFriendInfo;
+	type: 'private' | 'group';
+	callInfo: {
+		room: string;
+		callReceiverList: ICallReceiverInfo[]; // 私聊时为对方信息，群聊时为其它群成员信息
+	};
 }
-// 音视频通话的好友信息类型 —— 在client\src\pages\home\index.tsx中也被引用
-export interface ICallFriendInfo {
-	receiver_username: string;
-	remark: string;
+// 音视频通话对象信息 —— 在client\src\components\ChatTool\index.tsx中也被引用
+export interface ICallReceiverInfo {
+	username: string;
+	alias: string; // 好友备注或群昵称
 	avatar: string;
-	room: string;
 }
 // 音视频通话状态
 export enum CallStatus {
@@ -31,3 +35,17 @@ export enum CallStatus {
 	CALLING = 'calling'
 }
 export type callStatusType = 'initiate' | 'receive' | 'calling';
+// 音视频通话对象涉及的信息类型
+export interface ICallList {
+	[username: string]: {
+		PC: RTCPeerConnection | null;
+		alias: string; // 好友备注或群昵称
+		avatar: string;
+	};
+}
+// 在当前房间内正在通话的所有人的信息
+export interface IRoomMembersItem {
+	username: string;
+	muted: boolean;
+	showVideo?: boolean;
+}

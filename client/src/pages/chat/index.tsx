@@ -33,6 +33,7 @@ const isGroupChat = (item: IMessageListItem) => {
 
 const Chat = forwardRef((props: IChatListProps, ref) => {
 	const { initSelectedChat } = props;
+	const user = JSON.parse(userStorage.getItem());
 	const showMessage = useShowMessage();
 	const [chatList, setChatList] = useState<IMessageListItem[]>([]); // 消息列表
 	const [curChatInfo, setCurChatInfo] = useState<IMessageListItem>(); // 当前选中的对话信息
@@ -42,32 +43,31 @@ const Chat = forwardRef((props: IChatListProps, ref) => {
 
 	// 进入聊天房间时建立 websocket 连接
 	const initSocket = (connectParams: IConnectParams) => {
-		// 如果连接参数为空，则不建立连接
-		if (connectParams === undefined) return;
 		// 如果 socket 已经存在，则重新建立连接
 		if (socket.current !== null) {
-			socket.current?.close();
+			socket.current.close();
 			socket.current = null;
 		}
-		const newSocket = new WebSocket(
-			`${wsBaseURL}/message/connect_chat?room=${connectParams?.room}&id=${connectParams?.sender_id}&type=${connectParams?.type}`
+		const ws = new WebSocket(
+			`${wsBaseURL}/message/connect_chat?room=${connectParams.room}&id=${connectParams.sender_id}&type=${connectParams.type}`
 		);
 		// 获取消息记录
-		newSocket.onmessage = e => {
+		ws.onmessage = e => {
+			const message = JSON.parse(e.data);
 			// 判断返回的信息是历史消息数组还是单条消息
-			if (Array.isArray(JSON.parse(e.data))) {
-				setHistoryMsg(JSON.parse(e.data));
+			if (Array.isArray(message)) {
+				setHistoryMsg(message);
 				return;
 			} else {
 				// 如果是单条消息，则说明是当前的最新消息
-				setNewMessage(preMsg => [...preMsg, JSON.parse(e.data)]);
+				setNewMessage(preMsg => [...preMsg, message]);
 			}
 		};
-		newSocket.onerror = () => {
+		ws.onerror = () => {
 			showMessage('error', 'websocket 连接失败');
 		};
 		// 建立连接
-		socket.current = newSocket;
+		socket.current = ws;
 	};
 
 	// 选择聊天室
@@ -76,7 +76,7 @@ const Chat = forwardRef((props: IChatListProps, ref) => {
 		setCurChatInfo(item);
 		const params: IConnectParams = {
 			room: item.room,
-			sender_id: JSON.parse(userStorage.getItem()).id,
+			sender_id: user.id,
 			type: isGroupChat(item) ? 'group' : 'private'
 		};
 		initSocket(params);
@@ -147,8 +147,8 @@ const Chat = forwardRef((props: IChatListProps, ref) => {
 				}
 
 				const params: IConnectParams = {
-					room: initSelectedChat?.room as string,
-					sender_id: JSON.parse(userStorage.getItem()).id,
+					room: initSelectedChat.room,
+					sender_id: user.id,
 					type: isFriendInfo(initSelectedChat) ? 'private' : 'group'
 				};
 				initSocket(params);

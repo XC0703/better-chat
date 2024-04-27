@@ -10,5 +10,6 @@ module.exports = () => {
 	router.post('/create_group', authenticate.authenticateToken, group.createGroupChat);
 	router.post('/invite_friend', authenticate.authenticateToken, group.inviteFriendToGroupChat);
 	router.post('/add_group', authenticate.authenticateToken, group.joinGroupChat);
+	router.get('/group_member', authenticate.authenticateToken, group.getGroupMemberList);
 	return router;
 };
