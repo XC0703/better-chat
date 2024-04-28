@@ -13,7 +13,6 @@ import { clearSessionStorage, userStorage } from '@/utils/storage';
 
 const ChangePwdModal = (props: IChangePwdModalProps) => {
 	const { openmodal, handleModal } = props;
-	const user = JSON.parse(userStorage.getItem());
 
 	const showMessage = useShowMessage();
 	const navigate = useNavigate();
@@ -23,7 +22,7 @@ const ChangePwdModal = (props: IChangePwdModalProps) => {
 	// 退出登录
 	const confirmLogout = async () => {
 		try {
-			const res = await handleLogout(user);
+			const res = await handleLogout(JSON.parse(userStorage.getItem()));
 			if (res.code === HttpStatus.SUCCESS) {
 				clearSessionStorage();
 				showMessage('success', '登录已过期，请重新登录');
@@ -70,7 +69,7 @@ const ChangePwdModal = (props: IChangePwdModalProps) => {
 	return (
 		<>
 			<Modal
-				title="更改密码"
+				title="修改密码"
 				open={openmodal}
 				confirmLoading={loading}
 				onCancel={() => {

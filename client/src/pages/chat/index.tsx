@@ -73,6 +73,7 @@ const Chat = forwardRef((props: IChatListProps, ref) => {
 	// 选择聊天室
 	const chooseRoom = (item: IMessageListItem) => {
 		setHistoryMsg([]);
+		setNewMessage([]);
 		setCurChatInfo(item);
 		const params: IConnectParams = {
 			room: item.room,
