@@ -40,7 +40,7 @@
 
 🔨 项目说明文档掘金地址：https://juejin.cn/post/7362756601726746663
 
-（希望各位看官给新人 up 主一键三连 + 给本菜鸡的项目**点个 star**⭐，不胜感激。）
+（希望各位看官给新人 up 主**一键三连** + 给本菜鸡的项目**点个 star**⭐，不胜感激。）
 
 ## 1.2 为什么要开发这个项目？
 
@@ -164,7 +164,7 @@
    git clone git@github.com:XC0703/better-chat.git
    ```
 
-2. 用 VScode 等编辑器打开本项目
+2. 用`VScode`等编辑器打开本项目（无论是用`VSCode`还是`WebStorm`进行开发，请提前安装好并配置启用两个插件：`ESLint`和`Prettier`，用于代码检查与代码格式化。）
 
 3. 下载根目录下的依赖：
 
@@ -214,17 +214,11 @@
 
    > 数据库安装相关：
    >
-   > > 1、MySQL8.0.26 安装配置教程 (windows 64 位)：https://blog.csdn.net/weixin_52270997/article/details/120066948
-   > > 2、Navicat Premium v12.1.9 破解版 \_x86_x64：https://blog.csdn.net/juanjuan_01/article/details/84102349
-   > > 3、Navicat Premium 基本使用：https://blog.csdn.net/Yangchenju/article/details/80633055
+   > > 1、MySQL8.0.26 安装配置教程 (windows 64 位)：https://blog.csdn.net/weixin_52270997/article/details/120066948<br/>2、Navicat Premium v12.1.9 破解版 \_x86_x64：https://blog.csdn.net/juanjuan_01/article/details/84102349<br/>3、Navicat Premium 基本使用：https://blog.csdn.net/Yangchenju/article/details/80633055
 
    > Redis 安装相关：
    >
-   > > 1、Redis 下载和安装（Windows 系统）参考链接：
-   > > http://c.biancheng.net/redis/windows-installer.html
-   > > （注意：在执行 redis-server.exe --service-start 前要把客户端启动关掉，否则端口会被占用）
-   > > 2、windows 免费安装 redis desktop manager（上 github 找到免费版最新的是 2018 年的，可以直接下载 exe 执行程序）：
-   > > https://github.com/uglide/RedisDesktopManager/releases/tag/0.9.3
+   > > 1、Redis 下载和安装（Windows 系统）参考链接：http://c.biancheng.net/redis/windows-installer.html （注意：在执行`redis-server.exe --service-start`前要把客户端启动关掉，否则端口会被占用）<br/>2、windows 免费安装 redis desktop manager（上 github 找到免费版最新的是 2018 年的，可以直接下载 exe 执行程序）：https://github.com/uglide/RedisDesktopManager/releases/tag/0.9.3
 
 2. 本项目的数据库配置如下：（见`server\config.json`文件，根据自己的实际情况作出更改）
 
