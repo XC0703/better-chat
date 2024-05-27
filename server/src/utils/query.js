@@ -1,4 +1,4 @@
-const db = require('../models/db');
+const db = require('../model/db');
 
 // 封装统一的 sql 语句执行函数
 const Query = (sql, info) => {

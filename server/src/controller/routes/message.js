@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const message = require('../../services/message/index');
+const message = require('../../service/message/index');
 const authenticate = require('../../utils/authenticate');
 
 module.exports = () => {

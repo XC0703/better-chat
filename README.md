@@ -58,7 +58,7 @@
 
   - 该系统主要可以分为三个模块共`40`个功能点，系统结构如下图所示:<br/>![系统结构图.png](./md_images/系统结构图.png)
 
-  - 工作量展示如下（已排除引用的第三方代码）:<br/>
+  - 工作量展示如下（已排除引用的第三方代码，只统计前后端项目下的 `src` 目录代码）:<br/>
     | | 前端 |后端 |其它 | 总 |
     | :----: | :----: | :----: | :----: | :----: |
     | 代码行数 | 7269 | 2207 | 336 | 9812 |
@@ -220,7 +220,7 @@
    >
    > > 1、Redis 下载和安装（Windows 系统）参考链接：http://c.biancheng.net/redis/windows-installer.html （注意：在执行`redis-server.exe --service-start`前要把客户端启动关掉，否则端口会被占用）<br/>2、windows 免费安装 redis desktop manager（上 github 找到免费版最新的是 2018 年的，可以直接下载 exe 执行程序）：https://github.com/uglide/RedisDesktopManager/releases/tag/0.9.3
 
-2. 本项目的数据库配置如下：（见`server\config.json`文件，根据自己的实际情况作出更改）
+2. 本项目的数据库配置如下：（见`server\src\model\config.json`文件，根据自己的实际情况作出更改）
 
    ```json
    {
@@ -274,22 +274,25 @@
 
 **前端项目目录介绍**：<br/>![client.png](./md_images/client.png)
 
-前端项目入口文件为 `client\src`，主要看这里面即可：
+前端项目主要看 `client\src` 这里面即可：
 
-- `assets` 文件夹主要存放一些静态资源文件，如图片、图标、表情包、全局样式等
-- `components` 文件夹主要存放公共组件，如各种弹窗组件、聊天框组件等
-- `config` 文件夹主要存放服务器相关配置，如服务端接口的 `baseURL`、`websocket` 的 `baseURL` 等
-- `hooks` 文件夹主要存放一些自定义 `hook`，如全局提示弹窗 `hook`
-- `pages` 文件夹主要存放页面组件，如登录页面、注册页面、首页等
-- `router` 文件夹主要存放路由相关配置，即用于实现路由守卫的高阶组件
-- `utils` 文件夹主要存放一些全局通用的工具方法，如封装的 `axios` 和 `storage`、加密解密函数、时间或文件的格式化方法等
+- `assets` 文件夹主要存放一些静态资源文件，如图片、图标、表情包、全局样式等。
+- `components` 文件夹主要存放公共组件，如各种弹窗组件、聊天框组件等。
+- `config` 文件夹主要存放服务器相关配置，如服务端接口的 `baseURL`、`websocket` 的 `baseURL` 等。
+- `hooks` 文件夹主要存放一些自定义 `hook`，如全局提示弹窗 `hook`。
+- `pages` 文件夹主要存放页面组件，如登录页面、注册页面、首页等。
+- `router` 文件夹主要存放路由相关配置，即用于实现路由守卫的高阶组件。
+- `utils` 文件夹主要存放一些全局通用的工具方法，如封装的 `axios` 和 `storage`、加密解密函数、时间或文件的格式化方法等。
 
 **后端项目目录介绍**：<br/>![server.png](./md_images/server.png)
 
-- `controller` 文件夹主要负责处理 API 相关，将接口路由与 `services` 文件夹中导出的操作函数关联起来
-- `models` 文件夹负责处理各个表的创建
-- `services` 文件夹负责各种操作的逻辑实现，并配备了极为清晰的注释
-- `utils` 文件夹主要存放一些全局通用的工具方法，如创建文件的方法、文件格式化方法等
+后端项目主要看 `server\src` 这里面即可：
+
+- `controller` 文件夹主要负责处理 API 相关，将接口路由与 `service` 文件夹中导出的操作函数关联起来。
+- `model` 文件夹负责数据库的配置和表的创建。
+- `service` 文件夹负责各种操作的逻辑实现，并配备了极为清晰的注释。
+- `utils` 文件夹主要存放一些全局通用的工具方法，如创建文件的方法、文件格式化方法等。
+- `index.js` 是后端项目的入口文件，用于构建 `express` 服务。
 
 对于大部分人来说，直接看源码和注释即可。因为上面提到，本项目的亮点之一便是做了较为完备的前端工程化设置，且项目目录结构合理、清晰，组件和方法抽象程度高，代码耦合度低，且配备了注释说明。下面附上几张源码图片进行证明：
 
@@ -297,7 +300,7 @@
 音视频通话-前端建立 WebSocket 连接：<br/>![音视频通话-前端2.png](./md_images/音视频通话-前端2.png)
 音视频通话-前端建立 WebRTC 连接：<br/>![音视频通话-前端3.png](./md_images/音视频通话-前端3.png)
 
-**server\services\rtc\index.js：（音视频通话的服务端处理）**
+**server\src\service\rtc\index.js：（音视频通话的服务端处理）**
 ![音视频通话-后端.png](./md_images/音视频通话-后端.png)
 
 **client\src\utils\file.ts：（前端处理文件的函数集合）**

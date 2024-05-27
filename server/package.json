@@ -10,7 +10,7 @@
 		"url": "https://github.com/XC0703"
 	},
 	"scripts": {
-		"start": "nodemon index.js",
+		"start": "nodemon src/index.js",
 		"eslint": "eslint --fix --max-warnings=0",
 		"prettier": "prettier --write **/*.js"
 	},

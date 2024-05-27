@@ -1,6 +1,7 @@
 /* global process */
 const mysql = require('mysql');
 const fs = require('fs');
+const path = require('path');
 
 /**
  * 1、读取 MySQL 数据库配置文件
@@ -11,8 +12,9 @@ let user = 'root'; // 登录数据库的账号
 let password = '123456'; // 登录数据库的密码
 let database = 'better-chat'; // 指定要操作哪个数据库
 // 如果存在配置文件，则读取配置文件中的配置
-if (fs.existsSync('config.json')) {
-	const res = JSON.parse(fs.readFileSync('config.json'));
+const configPath = path.join(process.cwd(), './config.json');
+if (fs.existsSync(configPath)) {
+	const res = JSON.parse(fs.readFileSync(configPath));
 	host = res.host;
 	port = res.port;
 	user = res.user;

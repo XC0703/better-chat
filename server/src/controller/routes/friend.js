@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const friend = require('../../services/friend/index');
+const friend = require('../../service/friend/index');
 const authenticate = require('../../utils/authenticate');
 
 module.exports = () => {

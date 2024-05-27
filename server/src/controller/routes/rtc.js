@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const rtc = require('../../services/rtc/index');
+const rtc = require('../../service/rtc/index');
 const authenticate = require('../../utils/authenticate');
 
 module.exports = () => {

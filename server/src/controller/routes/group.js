@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const group = require('../../services/group/index');
+const group = require('../../service/group/index');
 const authenticate = require('../../utils/authenticate');
 
 module.exports = () => {
