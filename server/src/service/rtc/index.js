@@ -1,5 +1,5 @@
 /* global LoginRooms */
-const { CommonErrStatus } = require('../../utils/error');
+const { CommonStatus } = require('../../utils/status');
 const { RespData, RespError } = require('../../utils/resp');
 const { Query } = require('../../utils/query');
 
@@ -260,7 +260,7 @@ const getRoomMembers = async (req, res) => {
 	const room = params.get('room');
 	const { username } = req.user;
 	if (!room) {
-		return RespError(res, CommonErrStatus.PARAM_ERR);
+		return RespError(res, CommonStatus.PARAM_ERR);
 	}
 	try {
 		const data = [];
@@ -272,7 +272,7 @@ const getRoomMembers = async (req, res) => {
 		}
 		return RespData(res, data);
 	} catch {
-		return RespError(res, CommonErrStatus.SERVER_ERR);
+		return RespError(res, CommonStatus.SERVER_ERR);
 	}
 };
 

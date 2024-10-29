@@ -19,6 +19,7 @@ import AddressBook from '@/pages/address-book';
 import { IFriendInfo } from '@/pages/address-book/type';
 import Chat from '@/pages/chat';
 import { HttpStatus } from '@/utils/constant';
+import { uploadFile } from '@/utils/file-upload';
 import { handleLogout } from '@/utils/logout';
 import { clearSessionStorage, userStorage } from '@/utils/storage';
 
@@ -167,6 +168,18 @@ const Container = () => {
 		navigate('/chat');
 		setInitSelectedChat(item);
 	};
+	// const onProgress = (progress: number) => {
+	// 	console.log(`文件上传进度：${progress}%`);
+	// };
+	const getFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		if (e.target.files!.length > 0) {
+			const file = e.target.files![0];
+			// uploadFile(file, 5, onProgress);
+			const res = await uploadFile(file, 5);
+			// eslint-disable-next-line no-console
+			console.log(res);
+		}
+	};
 
 	return (
 		<div className={styles.parentContainer}>
@@ -231,6 +244,13 @@ const Container = () => {
 					)}
 				</div>
 			</div>
+			<input
+				type="file"
+				accept="*"
+				onChange={e => {
+					getFile(e);
+				}}
+			/>
 			{
 				// 修改密码弹窗
 				openForgetModal && (

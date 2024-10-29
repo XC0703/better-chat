@@ -1,7 +1,7 @@
 /* global LoginRooms */
 const { v4: uuidv4 } = require('uuid');
 
-const { CommonErrStatus } = require('../../utils/error');
+const { CommonStatus } = require('../../utils/status');
 const { RespData, RespSuccess, RespError } = require('../../utils/resp');
 const { NotificationUser } = require('../../utils/notification');
 const { Query } = require('../../utils/query');
@@ -58,7 +58,7 @@ const searchUser = async (req, res) => {
 	const sender = req.user;
 	const { username } = req.query;
 	if (!(sender && username)) {
-		return RespError(res, CommonErrStatus.PARAM_ERR);
+		return RespError(res, CommonStatus.PARAM_ERR);
 	}
 	try {
 		const sql_get_user = `SELECT id, name, username, avatar FROM user WHERE username LIKE ?`;
@@ -92,7 +92,7 @@ const searchUser = async (req, res) => {
 		}
 		return RespData(res, searchList);
 	} catch {
-		return RespError(res, CommonErrStatus.SERVER_ERR);
+		return RespError(res, CommonStatus.SERVER_ERR);
 	}
 };
 /**
@@ -105,7 +105,7 @@ const addFriend = async (req, res) => {
 	const sender = req.user;
 	const { id, username, avatar } = req.body;
 	if (!(sender && id && username && avatar)) {
-		return RespError(res, CommonErrStatus.PARAM_ERR);
+		return RespError(res, CommonStatus.PARAM_ERR);
 	}
 	try {
 		const uuid = uuidv4();
@@ -139,7 +139,7 @@ const addFriend = async (req, res) => {
 		NotificationUser({ receiver_username: sender.username, name: 'friendList' });
 		return RespSuccess(res);
 	} catch {
-		return RespError(res, CommonErrStatus.SERVER_ERR);
+		return RespError(res, CommonStatus.SERVER_ERR);
 	}
 };
 /**
@@ -171,7 +171,7 @@ const getFriendList = async (req, res) => {
 		}
 		return RespData(res, friendList);
 	} catch {
-		return RespError(res, CommonErrStatus.SERVER_ERR);
+		return RespError(res, CommonStatus.SERVER_ERR);
 	}
 };
 /**
@@ -182,7 +182,7 @@ const getFriendList = async (req, res) => {
 const getFriendById = async (req, res) => {
 	const { id } = req.query;
 	if (!id) {
-		return RespError(res, CommonErrStatus.PARAM_ERR);
+		return RespError(res, CommonStatus.PARAM_ERR);
 	}
 	try {
 		const sql = `
@@ -214,7 +214,7 @@ const getFriendById = async (req, res) => {
 			return RespData(res, results[0]);
 		}
 	} catch {
-		return RespError(res, CommonErrStatus.SERVER_ERR);
+		return RespError(res, CommonStatus.SERVER_ERR);
 	}
 };
 /**
@@ -223,14 +223,14 @@ const getFriendById = async (req, res) => {
 const getFriendGroupList = async (req, res) => {
 	const user_id = req.user.id;
 	if (!user_id) {
-		return RespError(res, CommonErrStatus.PARAM_ERR);
+		return RespError(res, CommonStatus.PARAM_ERR);
 	}
 	try {
 		const sql = `SELECT * FROM friend_group WHERE user_id = ?`;
 		const results = await Query(sql, [user_id]);
 		return RespData(res, results);
 	} catch {
-		return RespError(res, CommonErrStatus.SERVER_ERR);
+		return RespError(res, CommonStatus.SERVER_ERR);
 	}
 };
 /**
@@ -239,7 +239,7 @@ const getFriendGroupList = async (req, res) => {
 const createFriendGroup = async (req, res) => {
 	const friend_group = req.body;
 	if (!friend_group) {
-		return RespError(res, CommonErrStatus.PARAM_ERR);
+		return RespError(res, CommonStatus.PARAM_ERR);
 	}
 	try {
 		const sql = `INSERT INTO friend_group SET ?`;
@@ -248,7 +248,7 @@ const createFriendGroup = async (req, res) => {
 			return RespSuccess(res);
 		}
 	} catch {
-		return RespError(res, CommonErrStatus.SERVER_ERR);
+		return RespError(res, CommonStatus.SERVER_ERR);
 	}
 };
 /**
@@ -257,7 +257,7 @@ const createFriendGroup = async (req, res) => {
 const updateFriend = async (req, res) => {
 	const { friend_id, remark, group_id } = req.body;
 	if (!(friend_id && remark && group_id)) {
-		return RespError(res, CommonErrStatus.PARAM_ERR);
+		return RespError(res, CommonStatus.PARAM_ERR);
 	}
 	try {
 		const sql = `UPDATE friend SET remark = ?, group_id = ? WHERE id = ?`;
@@ -266,7 +266,7 @@ const updateFriend = async (req, res) => {
 			return RespSuccess(res);
 		}
 	} catch {
-		return RespError(res, CommonErrStatus.SERVER_ERR);
+		return RespError(res, CommonStatus.SERVER_ERR);
 	}
 };
 

@@ -1,6 +1,6 @@
 const { v4: uuidv4 } = require('uuid');
 
-const { CommonErrStatus, GroupErrStatus } = require('../../utils/error');
+const { CommonStatus, GroupStatus } = require('../../utils/status');
 const { RespData, RespSuccess, RespError } = require('../../utils/resp');
 const { NotificationUser } = require('../../utils/notification');
 const { Query } = require('../../utils/query');
@@ -53,7 +53,7 @@ const getGroupMembers = async (group_id, room) => {
 const createGroupChat = async (req, res) => {
 	const groupInfo = req.body;
 	if (!groupInfo.name) {
-		return RespError(res, CommonErrStatus.PARAM_ERR);
+		return RespError(res, CommonStatus.PARAM_ERR);
 	}
 	try {
 		const uuid = uuidv4();
@@ -108,7 +108,7 @@ const createGroupChat = async (req, res) => {
 			return RespSuccess(res);
 		}
 	} catch {
-		return RespError(res, CommonErrStatus.SERVER_ERR);
+		return RespError(res, CommonStatus.SERVER_ERR);
 	}
 };
 /**
@@ -119,7 +119,7 @@ const createGroupChat = async (req, res) => {
 const getGroupChatList = async (req, res) => {
 	const id = req.user.id;
 	if (!id) {
-		return RespError(res, CommonErrStatus.PARAM_ERR);
+		return RespError(res, CommonStatus.PARAM_ERR);
 	}
 	try {
 		const sql = `
@@ -141,7 +141,7 @@ const getGroupChatList = async (req, res) => {
 		const results = await Query(sql, [id]);
 		return RespData(res, results);
 	} catch {
-		return RespError(res, CommonErrStatus.SERVER_ERR);
+		return RespError(res, CommonStatus.SERVER_ERR);
 	}
 };
 /**
@@ -152,7 +152,7 @@ const getGroupChatList = async (req, res) => {
 const searchGroupChat = async (req, res) => {
 	const { name } = req.query;
 	if (!name) {
-		return RespError(res, CommonErrStatus.PARAM_ERR);
+		return RespError(res, CommonStatus.PARAM_ERR);
 	}
 	try {
 		const sql_group = `SELECT * FROM group_chat WHERE name LIKE ?`;
@@ -181,7 +181,7 @@ const searchGroupChat = async (req, res) => {
 		}
 		return RespData(res, searchList);
 	} catch {
-		return RespError(res, CommonErrStatus.SERVER_ERR);
+		return RespError(res, CommonStatus.SERVER_ERR);
 	}
 };
 /**
@@ -194,7 +194,7 @@ const searchGroupChat = async (req, res) => {
 const getGroupChatInfo = async (req, res) => {
 	const group_id = req.query.group_id;
 	if (!group_id) {
-		return RespError(res, CommonErrStatus.PARAM_ERR);
+		return RespError(res, CommonStatus.PARAM_ERR);
 	}
 	try {
 		const sql = `
@@ -230,7 +230,7 @@ const getGroupChatInfo = async (req, res) => {
 		}
 		return RespData(res, info);
 	} catch {
-		return RespError(res, CommonErrStatus.SERVER_ERR);
+		return RespError(res, CommonStatus.SERVER_ERR);
 	}
 };
 /**
@@ -242,7 +242,7 @@ const getGroupChatInfo = async (req, res) => {
 const inviteFriendToGroupChat = async (req, res) => {
 	const { groupId, invitationList } = req.body;
 	if (!(groupId && invitationList)) {
-		return RespError(res, CommonErrStatus.PARAM_ERR);
+		return RespError(res, CommonStatus.PARAM_ERR);
 	}
 	try {
 		const userIdArr = invitationList.map(item => item.user_id);
@@ -265,7 +265,7 @@ const inviteFriendToGroupChat = async (req, res) => {
 			}
 		}
 		if (invitationInfoList.length === 0) {
-			return RespError(res, GroupErrStatus.ALL_EXIT_ERR);
+			return RespError(res, GroupStatus.ALL_EXIT_ERR);
 		}
 		// 插入新的成员
 		const sql_set = `INSERT INTO group_members SET ?`;
@@ -279,7 +279,7 @@ const inviteFriendToGroupChat = async (req, res) => {
 		}
 		return RespSuccess(res);
 	} catch {
-		return RespError(res, CommonErrStatus.SERVER_ERR);
+		return RespError(res, CommonStatus.SERVER_ERR);
 	}
 };
 /**
@@ -291,14 +291,14 @@ const joinGroupChat = async (req, res) => {
 	const sender = req.user;
 	const group_id = req.body.group_id;
 	if (!group_id) {
-		return RespError(res, CommonErrStatus.PARAM_ERR);
+		return RespError(res, CommonStatus.PARAM_ERR);
 	}
 	try {
 		// 检查是否已经加入了该群聊
 		const sql_check = `SELECT id FROM group_members WHERE group_id = ? AND user_id = ?`;
 		const results_check = await Query(sql_check, [group_id, sender.id]);
 		if (results_check.length !== 0) {
-			return RespError(res, GroupErrStatus.EXIT_GROUP_ERR);
+			return RespError(res, GroupStatus.EXIT_GROUP_ERR);
 		}
 		// 插入新的数据
 		const info = {
@@ -322,7 +322,7 @@ const joinGroupChat = async (req, res) => {
 		});
 		return RespData(res, options);
 	} catch {
-		return RespError(res, CommonErrStatus.SERVER_ERR);
+		return RespError(res, CommonStatus.SERVER_ERR);
 	}
 };
 /**
@@ -331,13 +331,13 @@ const joinGroupChat = async (req, res) => {
 const getGroupMemberList = async (req, res) => {
 	const { group_id, room } = req.query;
 	if (!(group_id && room)) {
-		return RespError(res, CommonErrStatus.PARAM_ERR);
+		return RespError(res, CommonStatus.PARAM_ERR);
 	}
 	try {
 		const results = await getGroupMembers(group_id, room);
 		return RespData(res, results);
 	} catch {
-		return RespError(res, CommonErrStatus.SERVER_ERR);
+		return RespError(res, CommonStatus.SERVER_ERR);
 	}
 };
 

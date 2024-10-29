@@ -1,4 +1,4 @@
-const { CommonErrStatus } = require('./error');
+const { CommonErrStatus } = require('./status');
 const { RespError, RespData } = require('./resp');
 const { base64ToImage } = require('./file');
 

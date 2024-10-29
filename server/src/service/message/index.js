@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const { CommonErrStatus } = require('../../utils/error');
+const { CommonStatus } = require('../../utils/status');
 const { RespData, RespError } = require('../../utils/resp');
 const { generateRandomString, notExitCreate } = require('../../utils/file');
 const { formatBytes } = require('../../utils/format');
@@ -182,7 +182,7 @@ const getChatList = async (req, res) => {
 
 		return RespData(res, data);
 	} catch {
-		return RespError(res, CommonErrStatus.SERVER_ERR);
+		return RespError(res, CommonStatus.SERVER_ERR);
 	}
 };
 /**

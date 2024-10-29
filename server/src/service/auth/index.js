@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const Redis = require('ioredis');
 
-const { AuthErrStatus, CommonErrStatus } = require('../../utils/error');
+const { AuthStatus, CommonErrStatus } = require('../../utils/status');
 const { RespData, RespSuccess, RespError } = require('../../utils/resp');
 const { secretKey } = require('../../utils/authenticate');
 const { NotificationUser } = require('../../utils/notification');
@@ -41,7 +41,7 @@ const login = async (req, res) => {
 			// 3. 将 M 进行 MD5 哈希，得到哈希值
 			const hash = crypto.createHash('md5').update(M).digest('hex');
 			if (hash !== payload.password) {
-				return RespError(res, AuthErrStatus.USER_OR_PASS_ERR);
+				return RespError(res, AuthStatus.USER_OR_PASS_ERR);
 			}
 			// 4. 生成 jwt，之后 payload 会携带在请求头的 req.user 中（前提是通过了中间件）
 			const token = jwt.sign(payload, secretKey);
@@ -62,7 +62,7 @@ const login = async (req, res) => {
 			// 4. 检查 Redis 缓存中的 Token
 			const redisToken = await better_chat.get(`token:${payload.username}`);
 			if (redisToken) {
-				return RespError(res, AuthErrStatus.USER_ALREADY_LOGGEDIN);
+				return RespError(res, AuthStatus.USER_ALREADY_LOGGEDIN);
 			}
 			// 5. 登录成功去改变好友表中的状态
 			const sql = `UPDATE friend SET online_status = ? WHERE username = ?`;
@@ -71,7 +71,7 @@ const login = async (req, res) => {
 			await better_chat.set(`token:${payload.username}`, token, 'EX', 60 * 60 * 24 * 14); // 有效期为 14 天
 			return RespData(res, data);
 		} else {
-			return RespError(res, AuthErrStatus.USER_OR_PASS_ERR);
+			return RespError(res, AuthStatus.USER_OR_PASS_ERR);
 		}
 	} catch {
 		return RespError(res, CommonErrStatus.SERVER_ERR);
@@ -117,7 +117,7 @@ const register = async (req, res) => {
 		const sql_check = `SELECT username, password, phone FROM user WHERE username = ? OR phone = ?`;
 		const results_check = await Query(sql_check, [username, phone]);
 		if (results_check.length !== 0) {
-			return RespError(res, AuthErrStatus.USER_EXIT_ERR);
+			return RespError(res, AuthStatus.USER_EXIT_ERR);
 		}
 		// 加盐（3 个字节的字节码转化成 16 进制字符串，生成一个 6 位的 salt）
 		const salt = crypto.randomBytes(3).toString('hex');
@@ -185,7 +185,7 @@ const forgetPassword = async (req, res) => {
 		// 判断用户手机号和用户名是否存在
 		const results_check = await Query(sql_check, [username, phone]);
 		if (results_check.length === 0) {
-			return RespError(res, AuthErrStatus.USER_NOTEXIT_ERR);
+			return RespError(res, AuthStatus.USER_NOTEXIT_ERR);
 		}
 		// 重新进行 MD5 哈希加盐
 		const salt = results_check[0].salt;
@@ -216,7 +216,7 @@ const updateInfo = async (req, res) => {
 		const sql_check = `SELECT * FROM user WHERE phone = ?`;
 		const results_check = await Query(sql_check, [phone]);
 		if (results_check.length !== 0) {
-			return RespError(res, AuthErrStatus.PHONE_EXIT_ERR);
+			return RespError(res, AuthStatus.PHONE_EXIT_ERR);
 		}
 		// 更新 user 表中的数据
 		const info = {

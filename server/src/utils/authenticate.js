@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const secretKey = 'xWbiNA3FqnK77MnVCj5CAcfA-VlXj7xoQLd1QaAme6l_t0Yp1TdHbSw';
 
-const { CommonErrStatus } = require('./error');
+const { CommonErrStatus } = require('./status');
 const { RespError } = require('./resp');
 
 // JWT 校验中间件

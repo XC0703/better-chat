@@ -194,7 +194,7 @@ db.query('select 1', error => {
 	// mysql 模块工作期间报错了，就进入这个 if 判断语句，打印这个错误信息
 	if (error) {
 		// eslint-disable-next-line no-console
-		console.log('MySQL 连接失败', error.message);
+		console.error('MySQL 连接失败', error.message);
 		process.exit(1);
 	}
 	initUserTable();
