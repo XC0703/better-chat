@@ -7,8 +7,8 @@ const respHttp = (res, respCode, data) => {
 		message: 'success'
 	};
 	resp.code = respCode;
-	resp.data = data;
-	resp.message = StatusMap[respCode];
+	resp.data = data || '';
+	resp.message = StatusMap[respCode] || 'success';
 	res.json(resp);
 };
 // 请求成功

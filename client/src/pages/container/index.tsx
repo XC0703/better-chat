@@ -174,7 +174,7 @@ const Container = () => {
 	const getFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files!.length > 0) {
 			const file = e.target.files![0];
-			// uploadFile(file, 5, onProgress);
+			// uploadFile(file, 5, 3, 1000, onProgress);
 			const res = await uploadFile(file, 5);
 			// eslint-disable-next-line no-console
 			console.log(res);
