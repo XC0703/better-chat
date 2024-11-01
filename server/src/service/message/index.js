@@ -1,10 +1,6 @@
-/* global Buffer process */
-const fs = require('fs');
-const path = require('path');
-
+/* global */
 const { CommonStatus } = require('../../utils/status');
 const { RespData, RespError } = require('../../utils/resp');
-const { generateRandomString, notExitCreate } = require('../../utils/file');
 const { formatBytes } = require('../../utils/format');
 const { NotificationUser } = require('../../utils/notification');
 const { Query } = require('../../utils/query');
@@ -283,78 +279,20 @@ const connectChat = async (ws, req) => {
 		// 进入房间时，将所有未读消息变成已读且通知更新
 		const sql_set = `UPDATE message SET status = 1 WHERE receiver_id = ? AND room = ? AND type = ? AND status = 0`;
 		await Query(sql_set, [id, room, type]);
-		// 监听消息
-		let fileInfo = null; // 文件信息，用于 file 类型的消息
-		let receivedSize = 0; // 已接收文件大小，用于 file 类型的消息
-		let writeStream = null; // 写入流，用于 file 类型的消息
 		ws.on('message', async data => {
 			const message = JSON.parse(data); // message 是接收到的消息，处理后会发送出去
-			const mkdir = `/uploads/message/${room.replace(/-/g, '_')}/${message.type}`; // 创建文件夹
-			let fileContent, fileSuffix, filename; // 文件内容, 文件后缀, 文件名
 			// msg 是存储到数据库的消息
 			const msg = {
 				sender_id: message.sender_id,
 				receiver_id: message.receiver_id,
-				content: '', // 文本消息内容，如果是图片、视频、文件消息则为文件路径
+				content: message.content, // 文本消息内容，如果是图片、视频、文件消息则为文件路径
 				room: room,
 				type: type, // 私聊还是群聊，枚举类型，可选值为’private’和’group’
 				media_type: message.type, // 媒体类型，枚举类型，可选值为’text’、‘image’、‘video’和’file’
-				file_size: 0, // 文本消息则统一为 0
+				file_size: message.fileSize ? message.fileSize : 0, // 文本消息则统一为 0
 				status: 0 // 0 未读 1 已读
 			};
-			// 根据消息类型进行处理
-			switch (message.type) {
-				case 'text':
-					msg.content = message.content;
-					break;
-				case 'image':
-				case 'video':
-					//  图片/视频文件名加工处理
-					fileContent = Buffer.from(message.content);
-					fileSuffix = message.filename
-						.substring(message.filename.lastIndexOf('.') + 1)
-						.toLowerCase();
-					filename = generateRandomString(32) + '.' + fileSuffix;
-					notExitCreate(path.join(process.cwd(), mkdir));
-					fs.writeFileSync(path.join(process.cwd(), `${mkdir}/${filename}`), fileContent);
-					msg.content = `${mkdir}/${filename}`;
-					message.content = `${mkdir}/${filename}`;
-					break;
-				case 'file':
-					// file 文件名保留原来的
-					filename = message.filename;
-					if (message.fileTraStatus === 'start') {
-						receivedSize = 0;
-						fileInfo = JSON.parse(message.fileInfo);
-						// 判断文件是否已经有过传输，如果有则断点续传（TODO：由于不准确，待完善）
-						// if (fs.existsSync(path.join(filePath,filename))) {
-						// 	// 这个是已经传输的文件大小，应该传回给客户端，让客户端从这个大小开始传输
-						// 	const transmittedSize = fs.statSync(path.join(filePath, filename)).size;
-						// }
-						notExitCreate(path.join(process.cwd(), mkdir));
-						writeStream = fs.createWriteStream(path.join(process.cwd(), `${mkdir}/${filename}`));
-						return;
-					} else if (message.fileTraStatus === 'upload') {
-						fileContent = Buffer.from(message.content);
-						// 接收文件块并写入文件
-						writeStream.write(fileContent);
-						receivedSize += fileContent.length;
-						// 如果接收完整个文件，则关闭文件流并发送上传成功消息
-						if (receivedSize === fileInfo.fileSize) {
-							writeStream.end(async () => {
-								// file 类型的消息写入和发送
-								msg.file_size = receivedSize;
-								msg.content = `${mkdir}/${filename}`;
-								message.content = `${mkdir}/${filename}`;
-								await writeAndSend(type, room, msg, message);
-								return;
-							});
-						}
-						return;
-					}
-					break;
-			}
-			// 非 file 类型的消息写入和发送
+			// 消息写入和发送
 			await writeAndSend(type, room, msg, message);
 		});
 		ws.on('close', () => {

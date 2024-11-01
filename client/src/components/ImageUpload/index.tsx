@@ -16,32 +16,26 @@ export const ImageUpload = (props: IImageUploadProps) => {
 	const [loading, setLoading] = useState(false);
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const handleUpload = (options: any) => {
-		const file = options.file;
-		const reader = new FileReader();
+	const handleUpload = async (options: any) => {
 		setLoading(true);
-		if (file.size <= 10 * 1024 * 1024) {
-			// 判断文件大小是否超过 10m
-			reader.readAsDataURL(file);
-			reader.onload = async () => {
-				try {
-					const res = await uploadFile(file, 5);
-					if (res.success && res.filePath) {
-						setImageUrl(res.filePath);
-						setLoading(false);
-						// 执行传递过来的回调
-						onUploadSuccess(res.filePath);
-					} else {
-						showMessage('error', '图片上传失败，请重试');
-						setLoading(false);
-					}
-				} catch {
-					showMessage('error', '图片上传失败，请重试');
-					setLoading(false);
-				}
-			};
-		} else {
+		const file = options.file;
+		if (file.size > 10 * 1024 * 1024) {
 			showMessage('error', '图片文件不能超过 10M');
+			setLoading(false);
+			return;
+		}
+		try {
+			const res = await uploadFile(file, 5);
+			if (res.success && res.filePath) {
+				setImageUrl(res.filePath);
+				// 执行传递过来的回调
+				onUploadSuccess(res.filePath);
+			} else {
+				showMessage('error', '图片上传失败，请重试');
+			}
+		} catch {
+			showMessage('error', '图片上传失败，请重试');
+		} finally {
 			setLoading(false);
 		}
 	};

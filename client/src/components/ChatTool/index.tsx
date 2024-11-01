@@ -13,6 +13,7 @@ import VideoModal from '@/components/VideoModal';
 import useShowMessage from '@/hooks/useShowMessage';
 import { HttpStatus } from '@/utils/constant';
 import { getFileSuffixByName } from '@/utils/file';
+import { uploadFile } from '@/utils/file-upload';
 import { userStorage } from '@/utils/storage';
 
 const ChatTool = (props: IChatToolProps) => {
@@ -55,142 +56,42 @@ const ChatTool = (props: IChatToolProps) => {
 		}
 	};
 
-	// 发送图片 / 视频消息（TODO：大的图片 / 视频文件按目前方式上传会出错，因此暂时限定最大传输大小，因为读取的数组过大，应该使用分片上传）
-	const handleSendImageMessage = (e: ChangeEvent<HTMLInputElement>) => {
+	// 发送图片/视频/文件消息：先进行文件上传的逻辑获取文件的 URL，然后再发送消息
+	const handleSendFileMessage = async (e: ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files!.length > 0) {
 			setLoading(true);
+			// 只能上传小于 2G 的文件
 			const file = e.target.files![0];
-			// 检查图片 / 视频大小是否超过 100MB
-			if (file.size > 100 * 1024 * 1024) {
-				showMessage('error', '图片 / 视频大小不能超过 100MB');
+			if (file.size > 2 * 1024 * 1024 * 1024) {
+				showMessage('error', '文件大小不能超过 2G');
 				setLoading(false);
 				return;
 			}
-			// 读取文件内容
-			const reader = new FileReader();
-			// 文件读取完成之后执行的回调
-			reader.onload = event => {
-				try {
-					const fileContent = event.target!.result;
-					const content = new Uint8Array(fileContent as ArrayBuffer);
-					const filename = file.name;
-					const newmessage: ISendMessage = {
-						sender_id: user.id,
-						receiver_id: curChatInfo.receiver_id,
-						type: getFileSuffixByName(filename),
-						content: Array.from(content),
-						avatar: user.avatar,
-						filename: filename
-					};
-					sendMessage(newmessage);
-					setLoading(false);
-					// 清空文件输入字段的值，否则再次选择相同文件时无法触发 onchange
-					imageRef.current!.value = '';
-				} catch {
-					showMessage('error', '消息发送失败，请重试');
-					setLoading(false);
-					// 清空文件输入字段的值，否则再次选择相同文件时无法触发 onchange
-					imageRef.current!.value = '';
-				}
-			};
-			reader.readAsArrayBuffer(file); // 将指定文件 file 以 ArrayBuffer 的形式进行读取的操作
-		}
-	};
-
-	// 发送文件消息
-	const handleSendFileMessage = (e: ChangeEvent<HTMLInputElement>) => {
-		if (e.target.files!.length > 0) {
-			setLoading(true);
-			const file = e.target.files![0];
-			// 其它文件类型，按照图片 / 视频文件处理
-			if (getFileSuffixByName(file.name) !== 'file') {
-				// 检查图片 / 视频大小是否超过 100MB
-				if (file.size > 100 * 1024 * 1024) {
-					showMessage('error', '图片 / 视频大小不能超过 100MB');
-					setLoading(false);
-					return;
-				}
-				const reader = new FileReader();
-				reader.onload = event => {
+			try {
+				const res = await uploadFile(file, 5);
+				if (res.success && res.filePath) {
 					try {
-						const fileContent = event.target!.result;
-						const content = new Uint8Array(fileContent as ArrayBuffer);
-						const filename = file.name;
 						const newmessage: ISendMessage = {
 							sender_id: user.id,
 							receiver_id: curChatInfo.receiver_id,
-							type: getFileSuffixByName(filename),
-							content: Array.from(content),
+							type: getFileSuffixByName(file.name),
+							content: res.filePath,
 							avatar: user.avatar,
-							filename: filename
+							fileSize: file.size
 						};
 						sendMessage(newmessage);
-						setLoading(false);
-						fileRef.current!.value = '';
-					} catch {
+					} catch (error) {
 						showMessage('error', '消息发送失败，请重试');
-						setLoading(false);
-						fileRef.current!.value = '';
 					}
-				};
-				reader.readAsArrayBuffer(file);
-			} else {
-				try {
-					// 发送文件信息
-					const fileInfo = {
-						fileName: file.name,
-						fileSize: file.size
-					};
-					// 发送文件下载指令（多了 fileType 字段和 fileInfo 字段）
-					const newmessage: ISendMessage = {
-						sender_id: user.id,
-						receiver_id: curChatInfo.receiver_id,
-						type: 'file',
-						content: '',
-						avatar: user.avatar,
-						filename: file.name,
-						fileTraStatus: 'start',
-						fileInfo: JSON.stringify(fileInfo)
-					};
-					sendMessage(newmessage);
-				} catch {
-					showMessage('error', '消息发送失败，请重试');
-					setLoading(false);
-					fileRef.current!.value = '';
+				} else {
+					showMessage('error', '文件上传失败，请重试');
 				}
-				// 防止文件未初始化完成就发送
-				setTimeout(async () => {
-					const reader = file.stream().getReader();
-					let shouldExit = false;
-					let chunk;
-
-					let transmittedSize = 0; // 获取服务端已传输的文件大小
-
-					while (!shouldExit) {
-						chunk = await reader.read();
-						if (chunk.done) {
-							setLoading(false);
-							shouldExit = true;
-							fileRef.current!.value = '';
-						}
-
-						if (!chunk.done) {
-							transmittedSize -= chunk.value!.byteLength; // 减去当前块的字节长度来更新已传输的大小，支持断点续传（TODO：由于不准确，待完善）
-							if (transmittedSize <= 0) {
-								const newmessage: ISendMessage = {
-									sender_id: user.id,
-									receiver_id: curChatInfo.receiver_id,
-									type: 'file',
-									content: Array.from(new Uint8Array(chunk.value as ArrayBufferLike)),
-									avatar: user.avatar,
-									filename: file.name,
-									fileTraStatus: 'upload'
-								};
-								sendMessage(newmessage);
-							}
-						}
-					}
-				}, 50);
+			} catch (error) {
+				showMessage('error', '文件上传失败，请重试');
+			} finally {
+				setLoading(false);
+				imageRef.current!.value = '';
+				fileRef.current!.value = '';
 			}
 		}
 	};
@@ -330,7 +231,7 @@ const ChatTool = (props: IChatToolProps) => {
 					style={{ display: 'none' }}
 					ref={imageRef}
 					onChange={e => {
-						handleSendImageMessage(e);
+						handleSendFileMessage(e);
 					}}
 				/>
 				<input

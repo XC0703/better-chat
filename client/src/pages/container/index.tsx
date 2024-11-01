@@ -19,7 +19,6 @@ import AddressBook from '@/pages/address-book';
 import { IFriendInfo } from '@/pages/address-book/type';
 import Chat from '@/pages/chat';
 import { HttpStatus } from '@/utils/constant';
-import { uploadFile } from '@/utils/file-upload';
 import { handleLogout } from '@/utils/logout';
 import { clearSessionStorage, userStorage } from '@/utils/storage';
 
@@ -168,23 +167,6 @@ const Container = () => {
 		navigate('/chat');
 		setInitSelectedChat(item);
 	};
-	// const onProgress = (progress: number) => {
-	// 	console.log(`文件上传进度：${progress}%`);
-	// };
-	const getFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-		if (e.target.files!.length > 0) {
-			const file = e.target.files![0];
-			// 只能上传小于 2G 的文件
-			if (file.size > 2 * 1024 * 1024 * 1024) {
-				showMessage('error', '文件大小不能超过 2G');
-				return;
-			}
-			// uploadFile(file, 5, 3, 1000, onProgress);
-			const res = await uploadFile(file, 5);
-			// eslint-disable-next-line no-console
-			console.log(res);
-		}
-	};
 
 	return (
 		<div className={styles.parentContainer}>
@@ -249,13 +231,6 @@ const Container = () => {
 					)}
 				</div>
 			</div>
-			<input
-				type="file"
-				accept="*"
-				onChange={e => {
-					getFile(e);
-				}}
-			/>
 			{
 				// 修改密码弹窗
 				openForgetModal && (

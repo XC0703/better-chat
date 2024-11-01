@@ -29,9 +29,7 @@ export interface ISendMessage {
 	type: MessageType;
 	content: string | number[];
 	avatar: string;
-	filename?: string;
-	fileTraStatus?: 'start' | 'upload';
-	fileInfo?: string;
+	fileSize?: number;
 }
 // 左侧消息列表项类型 —— 在 client\src\pages\chat\index.tsx、client\src\pages\chat\api.ts 中也被引用
 export interface IMessageListItem {
