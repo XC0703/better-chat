@@ -174,6 +174,11 @@ const Container = () => {
 	const getFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files!.length > 0) {
 			const file = e.target.files![0];
+			// 只能上传小于 2G 的文件
+			if (file.size > 2 * 1024 * 1024 * 1024) {
+				showMessage('error', '文件大小不能超过 2G');
+				return;
+			}
 			// uploadFile(file, 5, 3, 1000, onProgress);
 			const res = await uploadFile(file, 5);
 			// eslint-disable-next-line no-console

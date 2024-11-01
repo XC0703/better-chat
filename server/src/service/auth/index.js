@@ -212,10 +212,10 @@ const updateInfo = async (req, res) => {
 		return RespError(res, CommonErrStatus.PARAM_ERR);
 	}
 	try {
-		// 判断手机号是否已经注册
+		// 判断手机号是否已经注册(排除自己)
 		const sql_check = `SELECT * FROM user WHERE phone = ?`;
 		const results_check = await Query(sql_check, [phone]);
-		if (results_check.length !== 0) {
+		if (results_check.length !== 0 && results_check[0].username !== username) {
 			return RespError(res, AuthStatus.PHONE_EXIT_ERR);
 		}
 		// 更新 user 表中的数据

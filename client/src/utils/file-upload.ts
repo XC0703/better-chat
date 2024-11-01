@@ -1,7 +1,7 @@
 import { HttpStatus } from '@/utils/constant';
 import { mergeFile, uploadChunk, vertifyFile } from '@/utils/file-api';
 
-// 文件上传成功返回参数
+// 文件上传方法返回参数
 interface IUploadFileRes {
 	success: boolean;
 	filePath?: string;

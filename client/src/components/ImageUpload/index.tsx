@@ -2,13 +2,12 @@ import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import { Upload } from 'antd';
 import { useEffect, useState } from 'react';
 
-import { uploadImage } from './api';
 import styles from './index.module.less';
 import { IImageUploadProps } from './type';
 
 import ImageLoad from '@/components/ImageLoad';
 import useShowMessage from '@/hooks/useShowMessage';
-import { HttpStatus } from '@/utils/constant';
+import { uploadFile } from '@/utils/file-upload';
 
 export const ImageUpload = (props: IImageUploadProps) => {
 	const { onUploadSuccess, initialImageUrl } = props;
@@ -21,20 +20,17 @@ export const ImageUpload = (props: IImageUploadProps) => {
 		const file = options.file;
 		const reader = new FileReader();
 		setLoading(true);
-		if (file.size <= 2 * 1024 * 1024) {
-			// 判断文件大小是否超过 2m
+		if (file.size <= 10 * 1024 * 1024) {
+			// 判断文件大小是否超过 10m
 			reader.readAsDataURL(file);
-			reader.onload = async event => {
-				// 当读取操作成功完成时调用
-				const base64 = event.target!.result; // 获取文件的 Base64 编码
+			reader.onload = async () => {
 				try {
-					const res = await uploadImage({ base64: base64 as string });
-					if (res.code === HttpStatus.SUCCESS && res.data) {
-						const { filePath } = res.data;
-						setImageUrl(filePath);
+					const res = await uploadFile(file, 5);
+					if (res.success && res.filePath) {
+						setImageUrl(res.filePath);
 						setLoading(false);
 						// 执行传递过来的回调
-						onUploadSuccess(filePath);
+						onUploadSuccess(res.filePath);
 					} else {
 						showMessage('error', '图片上传失败，请重试');
 						setLoading(false);
@@ -45,7 +41,7 @@ export const ImageUpload = (props: IImageUploadProps) => {
 				}
 			};
 		} else {
-			showMessage('error', '图片文件不能超过 2M');
+			showMessage('error', '图片文件不能超过 10M');
 			setLoading(false);
 		}
 	};
