@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const Redis = require('ioredis');
 
-const { AuthStatus, CommonErrStatus } = require('../../utils/status');
+const { AuthStatus, CommonStatus } = require('../../utils/status');
 const { RespData, RespSuccess, RespError } = require('../../utils/resp');
 const { secretKey } = require('../../utils/authenticate');
 const { NotificationUser } = require('../../utils/notification');
@@ -20,7 +20,7 @@ const better_chat = new Redis();
 const login = async (req, res) => {
 	const { username, password } = req.body;
 	if (!(username && password)) {
-		return RespError(res, CommonErrStatus.PARAM_ERR);
+		return RespError(res, CommonStatus.PARAM_ERR);
 	}
 	try {
 		const sql = `SELECT * FROM user WHERE username = ?`;
@@ -74,7 +74,7 @@ const login = async (req, res) => {
 			return RespError(res, AuthStatus.USER_OR_PASS_ERR);
 		}
 	} catch {
-		return RespError(res, CommonErrStatus.SERVER_ERR);
+		return RespError(res, CommonStatus.SERVER_ERR);
 	}
 };
 /**
@@ -86,7 +86,7 @@ const login = async (req, res) => {
 const logout = async (req, res) => {
 	const { username } = req.body;
 	if (!username) {
-		return RespError(res, CommonErrStatus.PARAM_ERR);
+		return RespError(res, CommonStatus.PARAM_ERR);
 	}
 	// 退出登录成功去改变好友表中的状态
 	try {
@@ -96,7 +96,7 @@ const logout = async (req, res) => {
 		await better_chat.del(`token:${username}`);
 		return RespSuccess(res);
 	} catch {
-		return RespError(res, CommonErrStatus.SERVER_ERR);
+		return RespError(res, CommonStatus.SERVER_ERR);
 	}
 };
 /**
@@ -110,7 +110,7 @@ const logout = async (req, res) => {
 const register = async (req, res) => {
 	const { username, password, phone, avatar } = req.body;
 	if (!(username && password && phone)) {
-		return RespError(res, CommonErrStatus.PARAM_ERR);
+		return RespError(res, CommonStatus.PARAM_ERR);
 	}
 	try {
 		// 判断用户名或手机号是否已经注册
@@ -166,7 +166,7 @@ const register = async (req, res) => {
 			return RespData(res, data);
 		}
 	} catch {
-		return RespError(res, CommonErrStatus.SERVER_ERR);
+		return RespError(res, CommonStatus.SERVER_ERR);
 	}
 };
 /**
@@ -178,7 +178,7 @@ const register = async (req, res) => {
 const forgetPassword = async (req, res) => {
 	const { username, phone, password } = req.body;
 	if (!(username && phone && password)) {
-		return RespError(res, CommonErrStatus.PARAM_ERR);
+		return RespError(res, CommonStatus.PARAM_ERR);
 	}
 	try {
 		const sql_check = `SELECT username, phone, salt FROM user WHERE username = ? AND phone = ?`;
@@ -197,7 +197,7 @@ const forgetPassword = async (req, res) => {
 			return RespSuccess(res);
 		}
 	} catch {
-		return RespError(res, CommonErrStatus.SERVER_ERR);
+		return RespError(res, CommonStatus.SERVER_ERR);
 	}
 };
 /**
@@ -209,7 +209,7 @@ const forgetPassword = async (req, res) => {
 const updateInfo = async (req, res) => {
 	const { username, avatar, name, phone, signature } = req.body;
 	if (!username) {
-		return RespError(res, CommonErrStatus.PARAM_ERR);
+		return RespError(res, CommonStatus.PARAM_ERR);
 	}
 	try {
 		// 判断手机号是否已经注册(排除自己)
@@ -262,7 +262,7 @@ const updateInfo = async (req, res) => {
 			return RespData(res, data);
 		}
 	} catch {
-		return RespError(res, CommonErrStatus.SERVER_ERR);
+		return RespError(res, CommonStatus.SERVER_ERR);
 	}
 };
 /**
