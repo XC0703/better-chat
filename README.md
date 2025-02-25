@@ -38,7 +38,7 @@
 
 👉 项目演示视频地址：https://www.bilibili.com/video/BV1mi421C7Ym
 
-🔨 项目说明文档掘金地址：https://juejin.cn/post/7370963861645017097
+🔨 项目说明文档掘金地址：https://juejin.cn/post/7475254421695021107
 
 （希望各位看官给新人 up 主**一键三连** + 给本菜鸡的项目**点个 star**⭐，不胜感激。）
 
